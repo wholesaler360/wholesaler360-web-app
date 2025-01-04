@@ -12,7 +12,7 @@ app.get('/',(req,res)=>{
 
 // Return Page not found for all other routes
 app.get('/*',(req,res)=>{
-    res.status(404).send("Page Not Found")
+    res.status(404).send("Sharad was here")
 })
 
 app.listen(PORT, localhost, () => {
