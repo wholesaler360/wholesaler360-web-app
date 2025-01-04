@@ -8,4 +8,14 @@ class ApiResponse {
     }   
 }
 
-export {ApiResponse}
+const successCreated = (data,message) => {
+    return new ApiResponse(201,data,message)
+}
+const successUpdated = (data,message) => {
+    return new ApiResponse(201,data,message)
+}
+const successDeleted = (data,message) => {
+    return new ApiResponse(204,data,message)
+}
+
+export {successCreated,successUpdated,successDeleted}
