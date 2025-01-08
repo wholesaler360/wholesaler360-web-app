@@ -24,6 +24,11 @@ function AppContainer() {
             }
           />
         ))}
+        <Route
+          key={authRoutes.length + 1}
+          path="*"
+          element={<PublicRoutes><div>Error 404 Page Not Found!</div></PublicRoutes>}
+        />
       </Routes>
     </>
   );

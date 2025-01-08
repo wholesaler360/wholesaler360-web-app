@@ -1,6 +1,7 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { createContext, useEffect, useState } from "react";
 import AppContainer from "./AppContainer";
+import { ACCESS_TOKEN_KEY } from "./constants/globalConstants";
 
 export const AuthContext = createContext(null);
 
@@ -9,8 +10,8 @@ function App() {
 
   useEffect(() => {
     if (
-      localStorage.getItem("authToken") != undefined &&
-      localStorage.getItem("authToken") != null
+      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != undefined &&
+      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != null
     ) {
       setLoggedIn(true);
     }

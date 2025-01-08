@@ -1,19 +1,19 @@
 import React, { useContext, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/App.jsx";
+import { ACCESS_TOKEN_KEY } from "@/constants/globalConstants";
 
 function PublicRoutes({ children }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { setLoggedIn } = useContext(AuthContext);
   useEffect(() => {
     if (
-      localStorage.getItem("accessToken") &&
-      localStorage.getItem("accessToken") != null &&
-      localStorage.getItem("accessToken") != undefined
+      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) &&
+      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != null &&
+      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != undefined
     ) {
       setLoggedIn(true);
-      navigate("/dashboard");
+      navigate("/");
     }
   }, []);
 
