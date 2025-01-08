@@ -1,4 +1,4 @@
-import Login from "@/pages/authentication/Login.jsx";
+import LoginComponent from "@/pages/authentication/Login/login-index";
 import Dashboard from "@/pages/Features/Dashboard.jsx";
 
 const authRoutes = [
@@ -11,7 +11,7 @@ const authRoutes = [
 const unAuthRoutes = [
   {
     path: "/login",
-    element: <Login />,
+    element: <LoginComponent />,
   },
 ];
 
