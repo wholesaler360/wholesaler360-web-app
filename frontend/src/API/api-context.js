@@ -1,22 +1,8 @@
 import axios from "axios";
-import { toast } from "@/hooks/use-toast";
+import { getAccessToken } from "@/lib/authUtils";
+import { showNotification } from "@/core/toaster/toast";
 
-/**
- * Function to perform a GET request.
- *
- * @param {string} endpoint - API endpoint URL.
- * @param {object} options - Configuration options for the request.
- * @param {Function} options.onSuccess - Callback executed on success.
- * @param {Function} options.onError - Callback executed on error.
- * @param {object} options.toastMessages - Toast messages for success and error.
- * @param {string} options.toastMessages.success - Success toast message.
- * @param {string} options.toastMessages.error - Error toast message.
- * @param {object} options.queryParams - Query parameters to append to the URL.
- * @param {Array<string>} options.queryKeysToInvalidate - Keys for cache invalidation.
- *
- * @returns {Promise<any>} - The response data from the GET request.
- */
-const useGet = async (
+const axiosGet = async (
   endpoint = null,
   options = {
     onSuccess: null,
@@ -38,34 +24,34 @@ const useGet = async (
     // Append query parameters to the endpoint
     const queryString = new URLSearchParams(options.queryParams).toString();
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-
     // Perform GET request
-    const response = await axios.get(url);
+    const response = await axios.get("http://127.0.0.1:4000" + url);
 
     // Handle success
     if (options.toastMessages?.success) {
-      toast.success(options.toastMessages.success);
+      //
     }
     if (options.onSuccess) {
-      options.onSuccess(response.data);
+      //
     }
 
-    return response.data;
+    return response;
   } catch (error) {
     // Handle errors
     if (options.toastMessages?.error) {
-      toast.error(options.toastMessages.error);
+      //
+      showNotification.error(options.toastMessages.error);
     }
     if (options.onError) {
-      options.onError(error);
+      //
     }
     console.error("GET request error:", error);
 
-    throw error; // Re-throw for further handling if needed
+    throw error;
   }
 };
 
-const usePost = async (
+const axiosPost = async (
   endpoint = null,
   data = {},
   options = {
@@ -88,10 +74,7 @@ const usePost = async (
     const response = await axios.post("http://127.0.0.1:4000/auth/login", data);
     // Handle success
     if (options.toastMessages?.success) {
-      toast({
-        title: "Success",
-        description: options.toastMessages.success,
-      });
+      showNotification.success(options.toastMessages.success);
     }
     if (options.onSuccess) {
       options.onSuccess(response.data);
@@ -104,11 +87,7 @@ const usePost = async (
   } catch (error) {
     // Handle errors
     if (options.toastMessages?.error) {
-      toast({
-        title: "Error",
-        description: options.toastMessages.error,
-        variant: "error",
-      });
+      showNotification.error(options.toastMessages.error);
     }
     if (options.onError) {
       options.onError(error);
@@ -119,4 +98,4 @@ const usePost = async (
   }
 };
 
-export { useGet, usePost };
+export { axiosGet, axiosPost };

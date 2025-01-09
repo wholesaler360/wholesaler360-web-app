@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { authRoutes, unAuthRoutes } from "./router/routes";
 import PublicRoutes from "./router/PublicRoutes";
 import AuthenticatedRoutes from "./router/AuthenticatedRoutes";
+import RootLayout from "./pages/RootLayout";
 
 function AppContainer() {
   return (
@@ -15,6 +16,7 @@ function AppContainer() {
             element={<PublicRoutes>{route?.element}</PublicRoutes>}
           />
         ))}
+        <Route element={<RootLayout />}>
         {authRoutes?.map((route, id) => (
           <Route
             key={id}
@@ -24,10 +26,15 @@ function AppContainer() {
             }
           />
         ))}
+        </Route>
         <Route
           key={authRoutes.length + 1}
           path="*"
-          element={<PublicRoutes><div>Error 404 Page Not Found!</div></PublicRoutes>}
+          element={
+            <PublicRoutes>
+              <div>Error 404 Page Not Found!</div>
+            </PublicRoutes>
+          }
         />
       </Routes>
     </>

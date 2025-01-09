@@ -1,10 +1,9 @@
-import { RefreshTokenApi } from "@/API/api_end_points";
+import { RefreshTokenApi } from "@/API/apiEndPoints";
 import axios from "axios";
 import { clearAccessToken, getAccessToken, setAccessToken } from "./authUtils";
-import { toast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
+import { showNotification } from "@/core/toaster/toast";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Import meta.env to access Vite environment variables
-
 
 const api = axios.create({
   baseURL: "http://localhost:4000/", // Replace with your backend URL
@@ -27,7 +26,9 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    response;
+  },
   async (error) => {
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -40,11 +41,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         clearAccessToken();
         Navigate("/login");
-        toast({
-          title: "Session Expired",
-          description: "Your session has expired. Please log in again.",
-          variant: "destructive",
-        });
+        showNotification.error("Session expired. Please login again.");
       }
     }
     return Promise.reject(error);
