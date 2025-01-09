@@ -1,18 +1,17 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "@/App.jsx";
 import { ACCESS_TOKEN_KEY } from "@/constants/globalConstants";
+import { showNotification } from "@/core/toaster/toast";
 
 function PublicRoutes({ children }) {
   const navigate = useNavigate();
-  const { setLoggedIn } = useContext(AuthContext);
   useEffect(() => {
     if (
       localStorage.getItem(`${ACCESS_TOKEN_KEY}`) &&
       localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != null &&
       localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != undefined
     ) {
-      setLoggedIn(true);
+      showNotification.error("You are already logged in");
       navigate("/");
     }
   }, []);
