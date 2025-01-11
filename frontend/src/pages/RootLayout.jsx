@@ -18,7 +18,7 @@ function RootLayout() {
         <link rel="icon" type="image/png" href="/dummy-favicon.png" />
       </Helmet>
       <Suspense fallback={<div>Loading...</div>}>
-        <SidebarProvider>
+        <SidebarProvider >
           <AppSidebar />
           <SidebarInset>
             <Header /> {/* This is the header */}
