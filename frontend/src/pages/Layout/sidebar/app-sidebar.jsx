@@ -1,5 +1,16 @@
 import * as React from "react";
-import { Command, LifeBuoy, Send, SquareTerminal } from "lucide-react";
+import {
+  Box,
+  Command,
+  FileText,
+  LifeBuoy,
+  Send,
+  ShoppingBag,
+  ShoppingCart,
+  UserRound,
+  UsersRound,
+  Wallet,
+} from "lucide-react";
 
 import { NavMain } from "./sidebar-components/nav-main";
 import { NavProjects } from "./sidebar-components/nav-projects";
@@ -14,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const data = {
   user: {
@@ -31,19 +43,104 @@ const data = {
     {
       title: "Customers",
       url: "#",
-      icon: SquareTerminal,
+      icon: UsersRound,
+      isActive: false,
+    },
+    {
+      title: "Vendors",
+      url: "#",
+      icon: UserRound,
+      isActive: false,
+    },
+    {
+      title: "Inventory",
+      url: "#",
+      icon: Box,
       isActive: false,
       items: [
         {
-          title: "History",
+          title: "Products",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Categories",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Stock",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Sales",
+      url: "#",
+      icon: ShoppingBag,
+      isActive: false,
+      items: [
+        {
+          title: "Quotation",
+          url: "#",
+        },
+        {
+          title: "Invoice",
+          url: "#",
+        },
+        {
+          title: "Sales Return",
+          url: "#",
+        },
+      ],
+    },
+
+    {
+      title: "Purchase",
+      url: "#",
+      icon: ShoppingCart,
+      isActive: false,
+      items: [
+        {
+          title: "Purchase Invoice",
+          url: "#",
+        },
+        {
+          title: "Purchase Return",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Reports",
+      url: "#",
+      icon: FileText,
+      isActive: false,
+      items: [
+        {
+          title: "Sales",
+          url: "#",
+        },
+        {
+          title: "Purchase",
+          url: "#",
+        },
+        {
+          title: "Inventory",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Finance & Accounts",
+      url: "#",
+      icon: Wallet,
+      isActive: false,
+      items: [
+        {
+          title: "Expenses",
+          url: "#",
+        },
+        {
+          title: "Payments",
           url: "#",
         },
       ],
@@ -65,6 +162,7 @@ const data = {
 
 export function AppSidebar({ ...props }) {
   return (
+    // <ScrollArea>
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
@@ -86,12 +184,15 @@ export function AppSidebar({ ...props }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <ScrollArea>
+          <NavMain items={data.navMain} />
+        </ScrollArea>
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
+    // </ScrollArea>
   );
 }
