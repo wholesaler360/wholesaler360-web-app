@@ -17,24 +17,20 @@ function AppContainer() {
           />
         ))}
         <Route element={<RootLayout />}>
-        {authRoutes?.map((route, id) => (
-          <Route
-            key={id}
-            path={route?.path}
-            element={
-              <AuthenticatedRoutes>{route?.element}</AuthenticatedRoutes>
-            }
-          />
-        ))}
+          {authRoutes?.map((route, id) => (
+            <Route
+              key={id}
+              path={route?.path}
+              element={
+                <AuthenticatedRoutes>{route?.element}</AuthenticatedRoutes>
+              }
+            />
+          ))}
         </Route>
         <Route
           key={authRoutes.length + 1}
           path="*"
-          element={
-            <PublicRoutes>
-              <div>Error 404 Page Not Found!</div>
-            </PublicRoutes>
-          }
+          element={<div>Error 404 Page Not Found!</div>}
         />
       </Routes>
     </>

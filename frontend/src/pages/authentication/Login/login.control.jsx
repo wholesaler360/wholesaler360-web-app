@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { axiosPost } from "@/API/api-context";
+import { axiosPost } from "@/context/api-context";
 import { setAccessToken } from "@/lib/authUtils";
 import { showNotification } from "@/core/toaster/toast";
 
@@ -20,22 +20,18 @@ function LoginController({ children }) {
         password: data.password,
       };
 
-      const response = await axiosPost("/auth/login", formData, {
-        toastMessages: {
-          success: "Login Successful",
-          error: "Login Failed",  
-        },
-      });
-      console.log(response);
-      if (response.code === 200) {
+      const response = await axiosPost("/auth/login", formData);
+      if (response?.status === 200) {
         setAccessToken(response.data.accessToken);
         navigate("/"); // Redirect to home page
       } else {
-        showNotification.error("Login Failed");
+        showNotification.error(
+          "Server responded with status: " + response?.status
+        );
       }
     } catch (error) {
       showNotification.error("Login Failed");
-      throw new Error("Login Failed");
+      console.error("Login failed:", error);
     }
   };
 
