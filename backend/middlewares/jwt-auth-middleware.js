@@ -60,7 +60,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
             path: 'role',
             populate: {
                 path: 'sections.module', // Populate the 'sections' field inside 'role'
-                model: 'Module', // Replace 'Section' with the actual model name for the sections
+                model: 'Module',        // Replace 'Section' with the actual model name for the sections
             },
         });
         console.log(requestType," ",requestModule);
