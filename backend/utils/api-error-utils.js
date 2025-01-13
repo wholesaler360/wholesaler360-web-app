@@ -98,9 +98,13 @@ class ApiError extends Error {
     static validationFailed(message = "Validation failed",errors = []) {
         return new ApiError(422, message, null, errors);
     }
+// Conflict with the other data
+    static valueAlreadyExists(message = "valueAlreadyExists",errors = []) {
+        return new ApiError(409, message, null, errors);
+    }
 
-    static valueAlreadyExists(message = "valueAlreadyExistes",errors = []) {
-        return new ApiError(422, message, null, errors);
+    static tokenNotFound(message="Token not found",errors = []) {
+        return new ApiError(404,message,errors)
     }
 }
 
