@@ -3,7 +3,7 @@ import {User} from '../src/users/user-model.js';
 import { ApiError } from '../utils/api-error-utils.js';
 import { ApiResponse } from '../utils/api-Responnse-utils.js';
 import { asyncHandler } from '../utils/asyncHandler-utils.js';
-import jwt, { decode } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import {requestVerify} from '../utils/convert-array-to-binary-utils.js'
 
 const authMiddleware = asyncHandler(async(req,res,next)=>{
@@ -13,9 +13,8 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
 
     if(!accessToken && !refreshToken)
     {
-        // TODO : Redirect to login page
-
-        return next(ApiError.validationFailed("Please provide the tokens"));
+        // TODO : check this 
+        return res.redirect('/login');
     }
 
     try {
@@ -29,7 +28,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
                 return next(ApiError.tokenNotFound());
             }
             const user = await User.findById(decodedRefreshToken.user_id);
-
+            
             if(!user.refreshToken === refreshToken)
             {
                 return next(ApiError.unauthorized("Login Again"));

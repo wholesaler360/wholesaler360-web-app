@@ -137,7 +137,7 @@ const deleteRole = asyncHandler(async (req, res, next) => {
     }
 });
 
-const fetchAllRole = asyncHandler(async(req,res)=>{
+const fetchAllRole = asyncHandler(async(req, res, next)=>{
     const roles = await Role.aggregate([
         {
             $group: {
@@ -152,6 +152,7 @@ const fetchAllRole = asyncHandler(async(req,res)=>{
             }
         }
     ]);
+
     if (roles.length === 0) {
         return next(ApiError.dataNotFound("No Role Found"))
     }

@@ -10,7 +10,7 @@ import { roleRouter } from './src/roles/role-route.js';
 import { userRouter } from './src/users/user-route.js';
 import authRouter from './src/login/login-route.js';
 import authMiddleware from './middlewares/jwt-auth-middleware.js';
-
+ 
 const app = express();
 
 app.use(express.json());
@@ -20,7 +20,7 @@ app.use(urlencoded(
                 extended: true,
                 limit: '16kb'
             })
-        );
+    );
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
@@ -28,9 +28,9 @@ app.use(cors({
 
 app.use(cookieParser());
 
-app.use('/login',authRouter);
+app.use('/login', authRouter);
 
-app.post('/createModule' , createModule)
+app.post('/createModule', createModule)
 
 // Use the authMiddleware for all routes
 app.use(authMiddleware);
@@ -39,12 +39,10 @@ app.use('/role', roleRouter);
 
 app.use('/user',userRouter);
 
-app.get('/*', (req, res, next) => {
+// catch all undefined routes for authenticated users
+app.use('*', (req, res, next) => {
     return next(new ApiError(404, 'Route not found'));
 })
-
-
-
 
 // Ensure error handling middleware is used after all routes
 app.use(errorHandler);
