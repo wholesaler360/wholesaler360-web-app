@@ -177,12 +177,12 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
-  useEffect(() => {
-    const fetchData = async () => {
-      const user = await axiosPost("/user-info");
-    };
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const user = await axiosPost("/user-info");
+  //   };
+  //   fetchData();
+  // }, []);
   return (
     // <ScrollArea>
     <Sidebar variant="inset" collapsible="icon" {...props}>

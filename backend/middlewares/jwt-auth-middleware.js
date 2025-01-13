@@ -7,8 +7,9 @@ import jwt, { decode } from 'jsonwebtoken'
 import {requestVerify} from '../utils/convert-array-to-binary-utils.js'
 
 const authMiddleware = asyncHandler(async(req,res,next)=>{
-    const {accessToken} = req.cookies;
-    const {refreshToken} = req.cookies;
+    const accessToken = req.headers["authorization"];
+    const refreshToken = req.headers["authorization"];
+    console.log("frontend", accessToken, "\n \n", refreshToken);
 
     if(!accessToken && !refreshToken)
     {
