@@ -33,9 +33,16 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useContext } from "react";
+import { UserMenuContext } from "./userMenu.control";
 
-export function NavUser({ user }) {
+export function UserMenu({ user }) {
+  const { logout } = useContext(UserMenuContext);
   const { isMobile } = useSidebar();
+
+  const handleLogout = () => {
+    logout();
+  }
 
   return (
     <SidebarMenu>
@@ -103,8 +110,9 @@ export function NavUser({ user }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOut />
-              Log out
+              <button onClick={handleLogout} className="flex items-center w-full gap-2">
+                <LogOut /> Log out
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

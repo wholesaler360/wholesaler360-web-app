@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import Header from "./Layout/header/header";
 import { AppSidebar } from "./Layout/sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -18,7 +18,7 @@ function RootLayout() {
         <link rel="icon" type="image/png" href="/dummy-favicon.png" />
       </Helmet>
       <Suspense fallback={<div>Loading...</div>}>
-        <SidebarProvider >
+        <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
             <Header /> {/* This is the header */}
