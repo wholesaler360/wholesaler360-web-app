@@ -16,12 +16,16 @@ function LoginController({ children }) {
   const submitLoginForm = async (data) => {
     try {
       const formData = {
-        mobile: data.mobile,
+        mobileNo: data.mobile,
         password: data.password,
       };
 
-      const response = await axiosPost("/auth/login", formData);
+      const response = await axiosPost("/login", {
+        mobileNo: data.mobile,
+        password: data.password,
+      });
       if (response?.status === 200) {
+        console.log(response)
         setAccessToken(response.data.accessToken);
         navigate("/"); // Redirect to home page
       } else {

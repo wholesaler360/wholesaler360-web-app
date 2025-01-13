@@ -12,7 +12,7 @@ import { showNotification } from "@/core/toaster/toast";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const api = axios.create({
-  baseURL: BACKEND_URL || "http://localhost:4000/",
+  baseURL: BACKEND_URL || "http://127.0.0.1:9991",
   timeout: 10000,
   withCredentials: true, // Required for refresh token in cookies
   headers: {
