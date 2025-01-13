@@ -8,19 +8,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoginContext } from "./login.control";
 
 function Login({ className, ...props }) {
+  const { submitLoginForm } = useContext(LoginContext);
+
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-
-  const { submitLoginForm } = useContext(LoginContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
@@ -30,7 +28,7 @@ function Login({ className, ...props }) {
     try {
       await submitLoginForm({
         mobile: mobile,
-        password: password
+        password: password,
       });
     } catch (err) {
       setError(err.message || "Login failed");
@@ -82,8 +80,8 @@ function Login({ className, ...props }) {
                     />
                   </div>
                   {error && <p className="text-red-500 text-sm">{error}</p>}
-                  <Button type="submit" className="w-full">
-                    Login
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? <>Please wait</> : "Login"}
                   </Button>
                   <Button variant="outline" className="w-full">
                     Login with Fingerprint

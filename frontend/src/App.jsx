@@ -1,28 +1,25 @@
 import { BrowserRouter } from "react-router-dom";
 import { createContext, useEffect, useState } from "react";
 import AppContainer from "./AppContainer";
-import { ACCESS_TOKEN_KEY } from "./constants/globalConstants";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "./context/theme-context";
 
 export const AuthContext = createContext(null);
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
   useEffect(() => {
-    if (
-      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != undefined &&
-      localStorage.getItem(`${ACCESS_TOKEN_KEY}`) != null
-    ) {
-      setLoggedIn(true);
-    }
-  });
+    console.log("App mounted");
+  }, []);
 
   return (
     <>
       <BrowserRouter basename="/">
-        <AuthContext.Provider value={{ loggedIn, setLoggedIn }}>
-          <AppContainer />
-        </AuthContext.Provider>
+        <ThemeProvider>
+          <AuthContext.Provider value={{}}>
+            <Toaster position="top-right" />
+            <AppContainer />
+          </AuthContext.Provider>
+        </ThemeProvider>
       </BrowserRouter>
     </>
   );

@@ -1,13 +1,18 @@
-import { RefreshTokenApi } from "@/API/api_end_points";
+import { RefreshTokenApi } from "@/constants/apiEndPoints";
 import axios from "axios";
-import { clearAccessToken, getAccessToken, setAccessToken } from "./authUtils";
-import { toast } from "@/hooks/use-toast";
-import { Navigate } from "react-router-dom";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Import meta.env to access Vite environment variables
+import {
+  clearAccessToken,
+  getAccessToken,
+  isAccessTokenExpired,
+  refreshAccessToken,
+  setAccessToken,
+} from "./authUtils";
+import { showNotification } from "@/core/toaster/toast";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const api = axios.create({
-  baseURL: "http://localhost:4000/", // Replace with your backend URL
+  baseURL: BACKEND_URL || "http://localhost:4000/",
   timeout: 10000,
   withCredentials: true, // Required for refresh token in cookies
   headers: {
@@ -16,9 +21,24 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    if (config.url === RefreshTokenApi) {
+      return config;
+    }
     const token = getAccessToken();
     if (token) {
+      const isExpired = await isAccessTokenExpired();
+      if (isExpired) {
+        const newToken = await refreshAccessToken();
+        console.log("New Token:", newToken);
+        if (!newToken) {
+          clearAccessToken();
+          showNotification.error("Session expired. Please login again.");
+          return Promise.reject("Session expired");
+        }
+        setAccessToken(newToken);
+        config.headers.Authorization = `Bearer ${newToken}`;
+      }
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -27,26 +47,10 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const { data } = await api.post(`${RefreshTokenApi}`);
-        setAccessToken(data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        clearAccessToken();
-        Navigate("/login");
-        toast({
-          title: "Session Expired",
-          description: "Your session has expired. Please log in again.",
-          variant: "destructive",
-        });
-      }
-    }
     return Promise.reject(error);
   }
 );

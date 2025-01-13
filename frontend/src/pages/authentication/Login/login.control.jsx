@@ -1,8 +1,8 @@
 import React, { createContext, useContext } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { usePost } from "@/API/api-context";
-import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { axiosPost } from "@/context/api-context";
 import { setAccessToken } from "@/lib/authUtils";
+import { showNotification } from "@/core/toaster/toast";
 
 // Create the LoginContext with default values
 const LoginContext = createContext({
@@ -20,21 +20,18 @@ function LoginController({ children }) {
         password: data.password,
       };
 
-      const response = await usePost("/auth/login", formData);
-
-      if (response.code === 200) {
+      const response = await axiosPost("/auth/login", formData);
+      if (response?.status === 200) {
         setAccessToken(response.data.accessToken);
-        navigate("/"); // Navigate to home page on successful login
+        navigate("/"); // Redirect to home page
       } else {
-        throw new Error("Invalid response code");
+        showNotification.error(
+          "Server responded with status: " + response?.status
+        );
       }
     } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "Login failed. Please try again.",
-        variant: "error",
-      });
-      Navigate("/login");
+      showNotification.error("Login Failed");
+      console.error("Login failed:", error);
     }
   };
 
@@ -45,9 +42,4 @@ function LoginController({ children }) {
   );
 }
 
-// Custom hook to use LoginContext easily
-function useLoginContext() {
-  return useContext(LoginContext);
-}
-
-export { LoginContext, LoginController, useLoginContext };
+export { LoginContext, LoginController };
