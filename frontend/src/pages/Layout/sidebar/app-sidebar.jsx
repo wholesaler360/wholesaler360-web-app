@@ -12,10 +12,10 @@ import {
   Wallet,
 } from "lucide-react";
 
-import { NavMain } from "./sidebar-components/nav-main";
-import { NavProjects } from "./sidebar-components/nav-projects";
-import { NavSecondary } from "./sidebar-components/nav-secondary";
-import { NavUser } from "./sidebar-components/nav-user";
+import { NavItems } from "./navItems/NavItems";
+import { NavItems2 } from "./navItems2/NavItems2";
+import { NavFooterItems } from "./navFooterItems/NavFooterItems.jsx";
+import { UserMenu } from "./userMenu/UserMenu";
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +26,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import UserMenuComponent from "./userMenu/userMenu-index";
 
 const data = {
   user: {
@@ -33,7 +34,7 @@ const data = {
     mobile: "+91 7096562308",
     avatar: "/avatars/avatar-1.jpg",
   },
-  navMain: [
+  NavItems: [
     {
       title: "Dashboard",
       url: "#",
@@ -146,7 +147,14 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
+  NavItems2: [
+    //   {
+    //     name: "Project 1",
+    //     url: "#",
+    //     icon: Command,
+    //   },
+  ],
+  NavFooterItems: [
     {
       title: "Support",
       url: "#",
@@ -185,12 +193,13 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <ScrollArea>
-          <NavMain items={data.navMain} />
+          <NavItems items={data?.NavItems} />
         </ScrollArea>
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavItems2 projects={data?.NavItems2} />
+        <NavFooterItems items={data?.NavFooterItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <UserMenuComponent user={data.user} />
       </SidebarFooter>
     </Sidebar>
     // </ScrollArea>
