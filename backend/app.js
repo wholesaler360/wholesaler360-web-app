@@ -22,7 +22,7 @@ app.use(urlencoded(
             })
         );
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: "http://localhost:5173",
     credentials: true
 }));
 
@@ -33,7 +33,7 @@ app.use('/login',authRouter);
 app.post('/createModule' , createModule)
 
 // Use the authMiddleware for all routes
-// app.use(authMiddleware);
+app.use(authMiddleware);
 
 app.use('/role', roleRouter);
 
