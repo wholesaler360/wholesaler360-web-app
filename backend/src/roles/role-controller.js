@@ -1,41 +1,46 @@
 import { Role } from "./role-model.js";
 import { ApiResponse } from "../../utils/api-Responnse-utils.js";
 import { ApiError } from "../../utils/api-error-utils.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 import { Module } from "../sections/module-model.js";
 
 const createRole = asyncHandler(async (req, res, next) => {
-    const {name} = req.body;
-    if (!name?.trim()) {
+    const { name } = req.body;
+    if (!(name?.trim())) {
         return next(ApiError.validationFailed("Role name is required"));
     }
 
-    name.trim().toLowerCase();
+    const roleName = name.trim().toLowerCase();
 
-    const existingRole = await Role.findOne({ name });
+    const existingRole = await Role.findOne({ name: roleName });
 
-    if (existingRole || !(existingRole?.isRoleDeleted)) {
+    if (existingRole) {
         return next(ApiError.valueAlreadyExists("Role with this name already exists"));
     }
 
-    const fetchedModule = await Module.findOne({name : "dashboard"})
+    const fetchedModule = await Module.findOne({ name: "dashboard" });
+    if (!fetchedModule) {
+        return next(ApiError.dataNotFound("Default module 'dashboard' not found"));
+    }
+
     try {
         const role = new Role({
-            name: name.trim().toLowerCase(),
-            sections : [{module : fetchedModule._id, permission : 8}],
+            name: roleName,
+            sections: [{ module: fetchedModule._id, permission: 8 }],
         });
 
         await role.save();
 
         // Respond with success
         res.status(201).json(ApiResponse.successCreated(role, "Role created successfully"));
-    } catch (error) {   
-        
+    } catch (error) {
+        return next(ApiError.dataNotInserted("Role not created"));
     }
 });
 
 const fetchPermission = asyncHandler(async (req,res,next) => {
     const {name} = req.body;
+    
     if (!name?.trim()) {
         return next(ApiError.validationFailed("Role name is required"));
     }
@@ -66,6 +71,7 @@ const assignPermission = asyncHandler(async (req, res, next) => {
     if (sections && !Array.isArray(sections)) {
         return next(ApiError.validationFailed("Sections must be an array"));
     }
+
     name.trim().toLowerCase();
     const existingRole = await Role.findOne({ name });
 
@@ -101,7 +107,7 @@ const assignPermission = asyncHandler(async (req, res, next) => {
     res.status(201).json(ApiResponse.successUpdated(existingRole, "Role updated successfully"));
 
     } catch (error) {
-        return next(new ApiError(500, error.message));
+        return next(ApiError.dataNotUpdated("Permission not Updated"));
     }
 });
 
@@ -131,4 +137,25 @@ const deleteRole = asyncHandler(async (req, res, next) => {
     }
 });
 
-export { createRole , assignPermission, fetchPermission, deleteRole };
+const fetchAllRole = asyncHandler(async(req,res)=>{
+    const roles = await Role.aggregate([
+        {
+            $group: {
+                _id: null,
+                roleNames: { $push: "$name" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                roleNames: 1
+            }
+        }
+    ]);
+    if (roles.length === 0) {
+        return next(ApiError(404,"No Role Found"))
+    }
+
+    res.status(200).json(ApiResponse.successRead(roles[0],"data read successfull"));
+});
+export { createRole , assignPermission, fetchPermission, deleteRole , fetchAllRole};
