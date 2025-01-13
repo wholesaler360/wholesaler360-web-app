@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserMenuComponent from "./userMenu/userMenu-index";
+import { useEffect } from "react";
+import { axiosGet, axiosPost } from "@/context/api-context";
 
 const data = {
   user: {
@@ -37,9 +39,15 @@ const data = {
   NavItems: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: Command,
       isActive: true,
+    },
+    {
+      title: "Demo",
+      url: "/demo",
+      icon: Command,
+      isActive: false,
     },
     {
       title: "Customers",
@@ -169,6 +177,12 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
+  useEffect(() => {
+    const fetchData = async () => {
+      const user = await axiosPost("/user-info");
+    };
+    fetchData();
+  }, []);
   return (
     // <ScrollArea>
     <Sidebar variant="inset" collapsible="icon" {...props}>
