@@ -7,7 +7,7 @@ const connectDB = async () => {
         console.log("Connection Establised Sucsessfully",`DB_host: ${connectionInstance.connection.host}`)  
         // console.log("AA Await chhe");
     } catch (error) {
-        // src/db/index.js focuses on database-specific issues.
+        // api/db/index.js focuses on database-specific issues.
         console.log("Mongodb Connection not established",error);
         process.exit(1);
     }

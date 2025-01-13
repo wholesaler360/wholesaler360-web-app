@@ -26,7 +26,7 @@ function LoginController({ children }) {
       });
       if (response?.status === 200) {
         console.log(response)
-        setAccessToken(response.data.accessToken);
+        setAccessToken(response.data.value.accessToken);
         navigate("/"); // Redirect to home page
       } else {
         showNotification.error(
