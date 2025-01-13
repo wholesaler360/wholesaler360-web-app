@@ -6,8 +6,11 @@ import { ApiError } from './utils/api-error-utils.js';
 import { ApiResponse } from './utils/api-Responnse-utils.js';
 import { errorHandler } from './middlewares/errorHandler-middleware.js';
 import { createModule } from './src/sections/module-controller.js';
-import { authRouter } from './middlewares/auth-route.js';
 import { roleRouter } from './src/roles/role-route.js';
+import { userRouter } from './src/users/user-route.js';
+import authRouter from './src/login/login-route.js';
+import authMiddleware from './middlewares/jwt-auth-middleware.js';
+
 const app = express();
 
 app.use(express.json());
@@ -25,15 +28,24 @@ app.use(cors({
 
 app.use(cookieParser());
 
-
-app.use('/customer', authRouter);
-app.use('/role', roleRouter);
-
-app.get('/*', (req, res, next) => {
-    return next(ApiError.dataNotDeleted(401,"Route not found"));
-})
+app.use('/login',authRouter);
 
 app.post('/createModule' , createModule)
+
+// Use the authMiddleware for all routes
+// app.use(authMiddleware);
+
+app.use('/role', roleRouter);
+
+app.use('/user',userRouter);
+
+app.get('/*', (req, res, next) => {
+    return next(new ApiError(404, 'Route not found'));
+})
+
+
+
+
 // Ensure error handling middleware is used after all routes
 app.use(errorHandler);
 
