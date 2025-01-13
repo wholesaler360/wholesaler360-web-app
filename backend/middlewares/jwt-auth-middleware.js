@@ -3,18 +3,18 @@ import {User} from '../src/users/user-model.js';
 import { ApiError } from '../utils/api-error-utils.js';
 import { ApiResponse } from '../utils/api-Responnse-utils.js';
 import { asyncHandler } from '../utils/asyncHandler-utils.js';
-import jwt, { decode } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import {requestVerify} from '../utils/convert-array-to-binary-utils.js'
 
 const authMiddleware = asyncHandler(async(req,res,next)=>{
-    const {accessToken} = req.cookies;
-    const {refreshToken} = req.cookies;
+    const accessToken = req.headers["authorization"];
+    const refreshToken = req.headers["authorization"];
+    console.log("frontend", accessToken, "\n \n", refreshToken);
 
     if(!accessToken && !refreshToken)
     {
-        // TODO : Redirect to login page
-
-        return next(ApiError.validationFailed("Please provide the tokens"));
+        // TODO : check this 
+        return res.redirect('/login');
     }
 
     try {
@@ -28,7 +28,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
                 return next(ApiError.tokenNotFound());
             }
             const user = await User.findById(decodedRefreshToken.user_id);
-
+            
             if(!user.refreshToken === refreshToken)
             {
                 return next(ApiError.unauthorized("Login Again"));
@@ -60,7 +60,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
             path: 'role',
             populate: {
                 path: 'sections.module', // Populate the 'sections' field inside 'role'
-                model: 'Module', // Replace 'Section' with the actual model name for the sections
+                model: 'Module',        // Replace 'Section' with the actual model name for the sections
             },
         });
         console.log(requestType," ",requestModule);
