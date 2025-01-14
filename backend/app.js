@@ -5,10 +5,10 @@ import 'dotenv/config';
 import { ApiError } from './utils/api-error-utils.js';
 import { ApiResponse } from './utils/api-Responnse-utils.js';
 import { errorHandler } from './middlewares/errorHandler-middleware.js';
-import { createModule } from './src/sections/module-controller.js';
-import { roleRouter } from './src/roles/role-route.js';
-import { userRouter } from './src/users/user-route.js';
-import authRouter from './src/login/login-route.js';
+import { createModule } from './api/sections/module-controller.js';
+import { roleRouter } from './api/roles/role-route.js';
+import { userRouter } from './api/users/user-route.js';
+import authRouter from './api/login/login-route.js';
 import authMiddleware from './middlewares/jwt-auth-middleware.js';
  
 const app = express();

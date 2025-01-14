@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import {User} from '../src/users/user-model.js';
+import {User} from '../api/users/user-model.js';
 import { ApiError } from '../utils/api-error-utils.js';
 import { ApiResponse } from '../utils/api-Responnse-utils.js';
 import { asyncHandler } from '../utils/asyncHandler-utils.js';
@@ -44,7 +44,9 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
 
             const options = {
                 httpOnly: true,
-                secure : process.env.NODE_ENV === 'production'
+                secure : process.env.NODE_ENV === 'production',
+                // TODO : check below line
+                sameSite : process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax'
             }
 
             res.cookie('accessToken', newAccessToken, options);
