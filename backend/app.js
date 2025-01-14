@@ -13,6 +13,7 @@ import authMiddleware from './middlewares/jwt-auth-middleware.js';
  
 const app = express();
 // test 1
+// test 2
 
 app.use(express.json());
 
