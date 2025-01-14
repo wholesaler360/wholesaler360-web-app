@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { authRoutes, unAuthRoutes } from "./router/routes";
 import PublicRoutes from "./router/PublicRoutes";
 import AuthenticatedRoutes from "./router/AuthenticatedRoutes";
-import RootLayout from "./pages/RootLayout";
+import RootLayout from "./pages/Layout/RootLayout";
 
 function AppContainer() {
   return (

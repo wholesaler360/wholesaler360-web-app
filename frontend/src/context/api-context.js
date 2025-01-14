@@ -23,19 +23,18 @@ const axiosGet = async (endpoint = null) => {
 
 const axiosPost = async (endpoint = null, data = {}) => {
   try {
-    if (!endpoint || typeof endpoint !== "string") {
-      throw new Error("Valid endpoint is required");
-    }
-
+    // if (!endpoint || typeof endpoint !== "string") {
+    //   throw new Error("Valid endpoint is required");
+    // }
     const response = await api.post(endpoint, data);
-    
     return response;
   } catch (error) {
     console.error("POST request error:", {
-      message: error.message,
-      response: error.response,
+      message: error.response.data.message,
+      statusCode: error.response.data.statusCode,
       config: error.config,
     });
+    return error.response;
   }
 };
 

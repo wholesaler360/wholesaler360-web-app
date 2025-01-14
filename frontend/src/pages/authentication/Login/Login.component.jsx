@@ -10,9 +10,9 @@ import {
 import { useContext, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoginContext } from "./login.control";
+import { LoginContext } from "./Login.control";
 
-function Login({ className, ...props }) {
+function LoginComponent({ className, ...props }) {
   const { submitLoginForm } = useContext(LoginContext);
 
   const [mobile, setMobile] = useState("");
@@ -96,4 +96,4 @@ function Login({ className, ...props }) {
   );
 }
 
-export default Login;
+export default LoginComponent;

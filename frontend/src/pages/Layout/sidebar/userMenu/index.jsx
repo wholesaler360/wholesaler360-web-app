@@ -1,15 +1,15 @@
 import React from "react";
-import { UserMenu } from "./UserMenu";
+import UserMenuComponent from "./UserMenu.component";
 import { UserMenuController } from "./userMenu.control.jsx";
 
-const UserMenuComponent = ({ user }) => {
+const UserMenu = ({ user }) => {
   return (
     <>
       <UserMenuController>
-        <UserMenu user={user} />
+        <UserMenuComponent user={user} />
       </UserMenuController>
     </>
   );
-};
+}; 
 
-export default UserMenuComponent;
+export default UserMenu;
