@@ -1,6 +1,6 @@
 import { Suspense, useEffect } from "react";
-import Header from "./Layout/header/header";
-import { AppSidebar } from "./Layout/sidebar/app-sidebar";
+import Header from "./header/header";
+import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { Helmet } from "react-helmet";

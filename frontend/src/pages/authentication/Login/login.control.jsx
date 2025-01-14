@@ -20,18 +20,16 @@ function LoginController({ children }) {
         password: data.password,
       };
 
-      const response = await axiosPost("/login", {
-        mobileNo: data.mobile,
-        password: data.password,
-      });
+      const response = await axiosPost("/login", formData);
       if (response?.status === 200) {
-        console.log(response)
         setAccessToken(response.data.value.accessToken);
         navigate("/"); // Redirect to home page
       } else {
-        showNotification.error(
-          "Server responded with status: " + response?.status
-        );
+        if (response?.data?.message) {
+          showNotification.error(response?.data?.message);
+        } else {
+          showNotification.error("Login Failed");
+        }
       }
     } catch (error) {
       showNotification.error("Login Failed");

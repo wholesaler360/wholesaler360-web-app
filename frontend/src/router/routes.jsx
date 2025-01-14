@@ -1,6 +1,7 @@
-import LoginComponent from "@/pages/authentication/Login/login-index";
-import Dashboard from "@/pages/Features/Dashboard.jsx";
+import Login from "@/pages/authentication/Login";
+import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
+import RolesAndPermissions from "@/pages/Features/roles and permissions/index.jsx";
 
 const authRoutes = [
   {
@@ -11,12 +12,16 @@ const authRoutes = [
     path: "/demo",
     element: <Demo />,
   },
+  {
+    path: "/roles-and-permissions",
+    element: <RolesAndPermissions />,
+  },
 ];
 
 const unAuthRoutes = [
   {
     path: "/login",
-    element: <LoginComponent />,
+    element: <Login />,
   },
 ];
 

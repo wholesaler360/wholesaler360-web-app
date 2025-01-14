@@ -15,7 +15,6 @@ import {
 import { NavItems } from "./navItems/NavItems";
 import { NavItems2 } from "./navItems2/NavItems2";
 import { NavFooterItems } from "./navFooterItems/NavFooterItems.jsx";
-import { UserMenu } from "./userMenu/UserMenu";
 import {
   Sidebar,
   SidebarContent,
@@ -26,9 +25,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import UserMenuComponent from "./userMenu/userMenu-index";
-import { useEffect } from "react";
-import { axiosGet, axiosPost } from "@/context/api-context";
+import  UserMenu  from "./userMenu/index.jsx";
 
 const data = {
   user: {
@@ -213,7 +210,7 @@ export function AppSidebar({ ...props }) {
         <NavFooterItems items={data?.NavFooterItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <UserMenuComponent user={data.user} />
+        <UserMenu user={data.user} />
       </SidebarFooter>
     </Sidebar>
     // </ScrollArea>
