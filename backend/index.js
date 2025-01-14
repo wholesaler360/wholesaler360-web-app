@@ -1,19 +1,19 @@
-import app from './app.js';
-import 'dotenv/config';
+import 'dotenv/config'
+import  app  from './app.js'
+import connectDB from './db/index.js';
 
-const PORT = process.env.PORT;
 const localhost = "127.0.0.1"
+const port = process.env.PORT;
 
+connectDB()
+.then(()=>{
 
-app.get('/',(req,res)=>{
-    res.status(200).send("This is server listening")
+    app.listen(port,()=>{
+        console.log(`Server is running...http://${localhost}:${process.env.PORT}`);
+    })
+})
+.catch((err)=>{
+    console.log("Mongodb Connection Error",err);
+    process.exit(1);
 })
 
-// Return Page not found for all other routes
-app.get('/*',(req,res)=>{
-    res.status(404).send("Page Not Found")
-})
-
-app.listen(PORT, localhost, () => {
-    console.log(`Server running at http://${localhost}:${PORT}`);
-});
