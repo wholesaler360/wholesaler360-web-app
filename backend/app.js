@@ -10,12 +10,8 @@ import { roleRouter } from './api/roles/role-route.js';
 import { userRouter } from './api/users/user-route.js';
 import authRouter from './api/login/login-route.js';
 import authMiddleware from './middlewares/jwt-auth-middleware.js';
-// Demo branch change
-// new demo 
-//try demo
+
 const app = express();
-// test 1
-// test 2
 
 app.use(express.json());
 
