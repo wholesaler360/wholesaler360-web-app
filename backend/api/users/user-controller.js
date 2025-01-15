@@ -7,12 +7,11 @@ import { uploadFile,deleteFromLocalPath } from "../../utils/cloudinary-utils.js"
 
 
 const createUser = asyncHandler(async(req,res,next)=>{
-    // res.status(200).send("Jay shree ram")
 
     // take the values and validate it 
-    const {name,email,mobileNo,password,confirmPassword,role} = req.body;
+    const {name, email, mobileNo, password, confirmPassword, role} = req.body;
 
-    if ([name, email , mobileNo , password, confirmPassword,role ].some((field) => !field?.trim()==="")) {
+    if ([name, email , mobileNo , password, confirmPassword, role ].some((field) => !field?.trim()==="")) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
 
