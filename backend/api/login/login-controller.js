@@ -48,9 +48,8 @@ const login = asyncHandler(async(req,res,next)=>{
     }
 
     res.status(200)
-        .cookie('accessToken', accessToken, options)
-        .cookie('refreshToken', refreshToken, options)
-        .json(ApiResponse.successRead({user, token:{accessToken,refreshToken}}, "User Logged In Successfully"));
+        .cookie('refreshToken',refreshToken,options)
+        .json(ApiResponse.successRead({user,accessToken}, "User Logged In Successfully"));
 
 });
 
@@ -92,9 +91,8 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         }
         
         console.log("----------------------------------------------------------------------");
-        res.cookie('accessToken', newAccessToken, options);
         res.cookie('refreshToken', newRefreshToken, options);
-        res.status(200).json(ApiResponse.successRead({user,token:{newAccessToken,newRefreshToken}},"Token Refreshed Successfully"));
+        res.status(200).json(ApiResponse.successRead({user,newAccessToken},"Token Refreshed Successfully"));
     } catch (error) {
         // TODO : Redirect to login page
         return next(ApiError.dataNotInserted("Unable to generate new access Token"));
@@ -136,9 +134,8 @@ const logout = asyncHandler(async(req,res,next)=>{
               httpOnly:true,
               secure : process.env.NODE_ENV === "production",
             }
-            
+            console.log("------------------------------------------------------------------------");
             res.status(200)
-            .clearCookie("accessToken",options)
             .clearCookie("refreshToken",options)
             .json(ApiResponse.successUpdated(loggedOutUser,"User Logged Out Successfully"))
     } catch (error) {
