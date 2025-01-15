@@ -91,7 +91,6 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         }
         
         console.log("----------------------------------------------------------------------");
-        res.cookie('accessToken', newAccessToken, options);
         res.cookie('refreshToken', newRefreshToken, options);
         res.status(200).json(ApiResponse.successRead({user,newAccessToken},"Token Refreshed Successfully"));
     } catch (error) {
