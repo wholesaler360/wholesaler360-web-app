@@ -10,7 +10,8 @@ import { roleRouter } from './api/roles/role-route.js';
 import { userRouter } from './api/users/user-route.js';
 import authRouter from './api/login/login-route.js';
 import authMiddleware from './middlewares/jwt-auth-middleware.js';
- 
+
+
 const app = express();
 
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(urlencoded(
                 limit: '16kb'
             })
     );
+    
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
@@ -28,7 +30,7 @@ app.use(cors({
 
 app.use(cookieParser());
 
-app.use('/login', authRouter);
+app.use('/auth', authRouter);
 
 app.post('/createModule', createModule)
 
@@ -37,7 +39,7 @@ app.post('/createModule', createModule)
 
 app.use('/role', roleRouter);
 
-app.use('/user',userRouter);
+app.use('/user', userRouter);
 
 // catch all undefined routes for authenticated users
 app.use('*', (req, res, next) => {
