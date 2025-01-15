@@ -8,8 +8,7 @@ const axiosGet = async (endpoint = null) => {
       throw new Error("Valid endpoint is required");
     }
 
-    const url = `${api.defaults.baseURL}${endpoint}`;
-    const response = await api.get(url);
+    const response = await api.get(endpoint);
 
     return response.data;
   } catch (error) {
