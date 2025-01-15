@@ -29,7 +29,7 @@ app.use(cors({
 
 app.use(cookieParser());
 
-app.use('/login', authRouter);
+app.use('/auth',authRouter);
 
 app.post('/createModule', createModule)
 
