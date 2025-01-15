@@ -11,6 +11,10 @@ import { userRouter } from './api/users/user-route.js';
 import authRouter from './api/login/login-route.js';
 import authMiddleware from './middlewares/jwt-auth-middleware.js';
 
+// testing 1
+// testing 2
+// testing 3
+
 const app = express();
 
 app.use(express.json());
