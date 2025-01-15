@@ -73,8 +73,6 @@ const createUser = asyncHandler(async(req,res,next)=>{
         deleteFromLocalPath(req.files?.avatar[0]?.path);
         return next(ApiError.dataNotInserted("User not created"));
     }
-
-
 });
 
     
@@ -83,7 +81,16 @@ const createUser = asyncHandler(async(req,res,next)=>{
 const updateUser = asyncHandler(async(req,res,next)=>{
     
 })
+
 const deleteUser = asyncHandler(async(req,res,next)=>{
+
+})
+
+const fetchUser = asyncHandler(async(req,res,next)=>{
+
+})
+
+const fetchAllUsers = asyncHandler(async(req,res,next)=>{
 
 })
 export {createUser}

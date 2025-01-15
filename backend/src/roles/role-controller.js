@@ -15,7 +15,7 @@ const createRole = asyncHandler(async (req, res, next) => {
 
     const existingRole = await Role.findOne({ name: roleName });
 
-    if (existingRole && existingRole.isRoleDeleted===false) {
+    if (existingRole && existingRole?.isRoleDeleted===false) {
         return next(ApiError.valueAlreadyExists("Role with this name already exists"));
     }
 
@@ -58,7 +58,7 @@ const updateRole = asyncHandler(async (req, res, next) => {
     const roleName = name.trim().toLowerCase();
     const existingRole = await Role.findOne({ name: roleName });
 
-    if (!existingRole || existingRole.isRoleDeleted) {
+    if (!existingRole || existingRole?.isRoleDeleted) {
         return next(ApiError.dataNotFound("Role with this name does not  exists"));
     }
     
@@ -66,7 +66,7 @@ const updateRole = asyncHandler(async (req, res, next) => {
 
     const roleWithNewName = await Role.findOne({ name: newRoleName });
 
-    if(roleWithNewName && roleWithNewName.isRoleDeleted === false)
+    if(roleWithNewName && roleWithNewName?.isRoleDeleted === false)
     {
         return next(ApiError.validationFailed("Role with this name already exists"));
     } 
