@@ -6,11 +6,7 @@ import { ThemeProvider } from "./context/theme-context";
 
 export const AuthContext = createContext(null);
 
-function App() {
-  useEffect(() => {
-    console.log("App mounted");
-  }, []);
-
+function App() {  
   return (
     <>
       <BrowserRouter basename="/">

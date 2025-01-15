@@ -37,7 +37,7 @@ app.use('/login', authRouter);
 app.post('/createModule', createModule)
 
 // Use the authMiddleware for all routes
-app.use(authMiddleware);
+// app.use(authMiddleware);
 
 app.use('/role', roleRouter);
 

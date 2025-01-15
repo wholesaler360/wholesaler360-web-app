@@ -35,14 +35,15 @@ import {
 } from "@/components/ui/sidebar";
 import { useContext } from "react";
 import { UserMenuContext } from "./userMenu.control";
+import { Link } from "react-router-dom";
 
-export function UserMenu({ user }) {
+function UserMenuComponent({ user }) {
   const { logout } = useContext(UserMenuContext);
   const { isMobile } = useSidebar();
 
   const handleLogout = () => {
     logout();
-  }
+  };
 
   return (
     <SidebarMenu>
@@ -89,8 +90,12 @@ export function UserMenu({ user }) {
                 Users
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <ShieldCheck />
-                Roles & Permission
+                <Link to="/roles-and-permissions"
+                  className="flex items-center w-full gap-2"
+                >
+                  <ShieldCheck />
+                  Roles & Permissions
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -110,7 +115,10 @@ export function UserMenu({ user }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <button onClick={handleLogout} className="flex items-center w-full gap-2">
+              <button
+                onClick={handleLogout}
+                className="flex items-center w-full gap-2"
+              >
                 <LogOut /> Log out
               </button>
             </DropdownMenuItem>
@@ -120,3 +128,5 @@ export function UserMenu({ user }) {
     </SidebarMenu>
   );
 }
+
+export default UserMenuComponent;

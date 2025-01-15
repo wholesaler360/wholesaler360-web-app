@@ -3,7 +3,7 @@ const convertArrayToBinaryValue = (binaryArray) => {
     binaryArray.forEach((bit) => {
         binaryValue = (binaryValue << 1) | bit;
         console.log(binaryValue);
-    });
+    }); 
     return binaryValue;
 }
 
