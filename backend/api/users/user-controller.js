@@ -55,7 +55,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
     const avatar = await uploadFile(avatarLocalPath);
 
     // User created
-    console.log(avatar.url);
+    console.log(avatar);
 
     try {
         const userCreated = await User.create({
@@ -63,7 +63,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
             email ,
             mobileNo ,
             password ,
-            avatar : avatar.url,
+            avatar : avatar,
             role : assignedRoleId._id
         });
 

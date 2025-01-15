@@ -12,10 +12,9 @@ const createRole = asyncHandler(async (req, res, next) => {
     }
 
     const roleName = name.trim().toLowerCase();
-
     const existingRole = await Role.findOne({ name: roleName });
 
-    if (existingRole && existingRole.isRoleDeleted===false) {
+    if (existingRole && existingRole?.isRoleDeleted===false) {
         return next(ApiError.valueAlreadyExists("Role with this name already exists"));
     }
 
@@ -24,7 +23,7 @@ const createRole = asyncHandler(async (req, res, next) => {
         return next(ApiError.dataNotFound("Default module 'dashboard' not found"));
     }
     try {
-        if(existingRole.isRoleDeleted === true)
+        if(existingRole?.isRoleDeleted === true)
         {
             existingRole.isRoleDeleted = false;
             existingRole.sections = [{ module: fetchedModule._id, permission: 8 }];
@@ -44,6 +43,7 @@ const createRole = asyncHandler(async (req, res, next) => {
             res.status(201).json(ApiResponse.successCreated(role, "Role created successfully"));
         }
     } catch (error) {
+        console.log('inside catch');
         return next(ApiError.dataNotInserted("Role not created"));
     }
 });
@@ -66,13 +66,13 @@ const updateRole = asyncHandler(async (req, res, next) => {
 
     const roleWithNewName = await Role.findOne({ name: newRoleName });
 
-    if(roleWithNewName && roleWithNewName.isRoleDeleted === false)
+    if(roleWithNewName && roleWithNewName?.isRoleDeleted === false)
     {
         return next(ApiError.validationFailed("Role with this name already exists"));
     } 
 
     try {
-        if(roleWithNewName.isRoleDeleted === true)
+        if(roleWithNewName?.isRoleDeleted === true)
         {
             roleWithNewName.isRoleDeleted = false;
             roleWithNewName.name = newRoleName;
@@ -150,7 +150,7 @@ const assignPermission = asyncHandler(async (req, res, next) => {
         // Prepare sections for update
         const preparedSections = await Promise.all(
             sections.map(async (section) => {
-                if (!section.module || section.permission === undefined) {
+                if (!section?.module || section?.permission === undefined) {
                     throw ApiError.validationFailed("Invalid section data");
                 }
 
@@ -242,7 +242,7 @@ const fetchAllRole = asyncHandler(async(req, res, next)=>{
         }
     ]);
 
-    if (roles.length === 0) {
+    if (roles?.length === 0) {
         return next(ApiError.dataNotFound("No Role Found"))
     }
 

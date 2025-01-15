@@ -48,9 +48,9 @@ const login = asyncHandler(async(req,res,next)=>{
     }
 
     res.status(200)
-        .cookie('accessToken',accessToken,options)
-        .cookie('refreshToken',refreshToken,options)
-        .json(ApiResponse.successRead({user,token:{accessToken,refreshToken}},"User Logged In Successfully"));
+        .cookie('accessToken', accessToken, options)
+        .cookie('refreshToken', refreshToken, options)
+        .json(ApiResponse.successRead({user, token:{accessToken,refreshToken}}, "User Logged In Successfully"));
 
 });
 
@@ -70,7 +70,7 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         }
 
         const user = await User.findById(decodedRefreshToken._id);
-        if (!user || user.refreshToken !== refreshToken) {
+        if (!user || user?.refreshToken !== refreshToken) {
             // TODO : Redirect to login page
             user.refreshToken = undefined;
             return next(ApiError.unauthorizedAccess("User Does Not Exists or Login Again"));
@@ -110,7 +110,7 @@ const logout = asyncHandler(async(req,res,next)=>{
     console.log("---------------------------------LOGOUT-----------------------------");
     console.log(refreshToken);
     try {
-        const decodedRefreshToken = jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET);
+        const decodedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
         if (!decodedRefreshToken || !decodedRefreshToken._id) {
             return next(ApiError.validationFailed("Invalid refresh token"));
         }

@@ -12,7 +12,7 @@ class ApiResponse {
     
     // Static method for creating a response for a successful update
     static successUpdated(data, message) {
-        return new ApiResponse(201, data, message);
+        return new ApiResponse(200, data, message);
     }
 
     // Static method for creating a response for a successful read
