@@ -58,7 +58,7 @@ const updateRole = asyncHandler(async (req, res, next) => {
     const roleName = name.trim().toLowerCase();
     const existingRole = await Role.findOne({ name: roleName });
 
-    if (!existingRole || existingRole.isRoleDeleted) {
+    if (!existingRole || existingRole?.isRoleDeleted) {
         return next(ApiError.dataNotFound("Role with this name does not  exists"));
     }
     
@@ -142,7 +142,7 @@ const assignPermission = asyncHandler(async (req, res, next) => {
 
     const existingRole = await Role.findOne({ name });
 
-    if (!existingRole || existingRole.isRoleDeleted) {
+    if (!existingRole || existingRole?.isRoleDeleted) {
         return next(ApiError.dataNotFound("Role with this name does not exists"));
     }
 
@@ -193,7 +193,7 @@ const deleteRole = asyncHandler(async (req, res, next) => {
     }
     const existingRole = await Role.findOne({ name: roleName });
 
-    if (!existingRole || existingRole.isRoleDeleted) {
+    if (!existingRole || existingRole?.isRoleDeleted) {
         return next(ApiError.dataNotFound("Role with this name does not exists"));
     }
     console.log(existingRole);
