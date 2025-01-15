@@ -7,13 +7,11 @@ import { uploadFile,deleteFromLocalPath } from "../../utils/cloudinary-utils.js"
 
 
 const createUser = asyncHandler(async(req,res,next)=>{
-    // res.status(200).send("Jay shree ram")
 
     // take the values and validate it 
-    const {name,email,mobileNo,password,confirmPassword,role} = req.body;
-        console.log(role);
+    const {name, email, mobileNo, password, confirmPassword, role} = req.body;
 
-    if ([name, email , mobileNo , password, confirmPassword,role ].some((field) => !field?.trim()==="")) {
+    if ([name, email , mobileNo , password, confirmPassword, role ].some((field) => !field?.trim()==="")) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
 
@@ -56,7 +54,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
     const avatar = await uploadFile(avatarLocalPath);
 
     // User created
-    console.log(avatar.url);
+    console.log(avatar);
 
     try {
         const userCreated = await User.create({
@@ -64,7 +62,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
             email ,
             mobileNo ,
             password ,
-            avatar : avatar.url,
+            avatar : avatar,
             role : assignedRoleId._id
         });
 
@@ -74,8 +72,6 @@ const createUser = asyncHandler(async(req,res,next)=>{
         deleteFromLocalPath(req.files?.avatar[0]?.path);
         return next(ApiError.dataNotInserted("User not created"));
     }
-
-
 });
 
     
@@ -84,7 +80,16 @@ const createUser = asyncHandler(async(req,res,next)=>{
 const updateUser = asyncHandler(async(req,res,next)=>{
     
 })
+
 const deleteUser = asyncHandler(async(req,res,next)=>{
+
+})
+
+const fetchUser = asyncHandler(async(req,res,next)=>{
+
+})
+
+const fetchAllUsers = asyncHandler(async(req,res,next)=>{
 
 })
 export {createUser}
