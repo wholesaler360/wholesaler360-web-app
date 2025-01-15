@@ -11,7 +11,6 @@ const createUser = asyncHandler(async(req,res,next)=>{
 
     // take the values and validate it 
     const {name,email,mobileNo,password,confirmPassword,role} = req.body;
-        console.log(role);
 
     if ([name, email , mobileNo , password, confirmPassword,role ].some((field) => !field?.trim()==="")) {
         return next(ApiError.validationFailed("Please provide all required fields"));
