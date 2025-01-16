@@ -1,8 +1,9 @@
 import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { axiosPost } from "@/context/api-context";
+import { axiosPost } from "@/constants/api-context";
 import { setAccessToken } from "@/lib/authUtils";
 import { showNotification } from "@/core/toaster/toast";
+import { LoginApi } from "@/constants/apiEndPoints";
 
 // Create the LoginContext with default values
 const LoginContext = createContext({
@@ -20,7 +21,7 @@ function LoginController({ children }) {
         password: data.password,
       };
 
-      const response = await axiosPost("/login", formData);
+      const response = await axiosPost(LoginApi, formData);
       if (response?.status === 200) {
         setAccessToken(response.data.value.accessToken);
         navigate("/"); // Redirect to home page

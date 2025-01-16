@@ -6,7 +6,7 @@ function RolesAndPermissions() {
   return (
     <>
       <RolesAndPermissionController>
-      <RolesAndPermissionsComponent />
+        <RolesAndPermissionsComponent />
       </RolesAndPermissionController>
     </>
   );

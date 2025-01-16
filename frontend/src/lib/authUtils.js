@@ -1,8 +1,7 @@
 import { RefreshTokenApi } from "@/constants/apiEndPoints";
 import { ACCESS_TOKEN_KEY } from "@/constants/globalConstants";
-import api from "./axiosInstance";
 import { jwtDecode } from "jwt-decode";
-import { axiosPost } from "@/context/api-context";
+import { axiosGet, axiosPost } from "@/constants/api-context";
 
 export const getAccessToken = () => {
   try {
@@ -51,9 +50,8 @@ export const isAccessTokenExpired = async () => {
 
 export const refreshAccessToken = async () => {
   try {
-    const { data } = await axiosPost(RefreshTokenApi);
-    setAccessToken(data.accessToken); // Directly set the new token
-    return data.accessToken;
+    const data = await axiosGet(RefreshTokenApi);
+    return data.value.newAccessToken;
   } catch (error) {
     console.error("Error refreshing access token:", error.message);
     return null; // Return null to indicate failure
