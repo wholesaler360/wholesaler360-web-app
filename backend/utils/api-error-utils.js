@@ -86,7 +86,7 @@ class ApiError extends Error {
      * @returns {ApiError}
      */
     static incorrectPassword(message = "Incorrect password") {
-        return new ApiError(402, message);
+        return new ApiError(401, message);
     }
 
     /**
@@ -98,8 +98,9 @@ class ApiError extends Error {
     static validationFailed(message = "Validation failed",errors = []) {
         return new ApiError(422, message, null, errors);
     }
-// Conflict with the other data
-    static valueAlreadyExists(message = "valueAlreadyExists",errors = []) {
+    
+    // Conflict with the other data
+    static valueAlreadyExists(message = "Value already exists",errors = []) {
         return new ApiError(409, message, null, errors);
     }
 

@@ -1,9 +1,9 @@
 import 'dotenv/config';
-import {User} from '../src/users/user-model.js';
+import {User} from '../api/users/user-model.js';
 import { ApiError } from '../utils/api-error-utils.js';
 import { ApiResponse } from '../utils/api-Responnse-utils.js';
 import { asyncHandler } from '../utils/asyncHandler-utils.js';
-import jwt, { decode } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import {requestVerify} from '../utils/convert-array-to-binary-utils.js'
 
 const authMiddleware = asyncHandler(async(req,res,next)=>{
@@ -20,7 +20,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     }
 
     try {
-        const decodedAccessToken = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET);
+        const decodedAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
         
         if(!decodedAccessToken)
         {
@@ -39,13 +39,13 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
         });
         
         console.log("Checking for the user permissions");
-        console.log(requestType," ",requestModule);
+        console.log(requestType, " ", requestModule);
 
-        if (!user || user.isUserDeleted) {
+        if (!user || user?.isUserDeleted) {
             return next(ApiError.dataNotFound("User not found"));
         }
         
-        if (!user.role || !user.role.sections || !Array.isArray(user.role.sections)) {
+        if (!user?.role || !user?.role.sections || !Array.isArray(user?.role.sections)) {
             return next(ApiError.unauthorizedAccess("User does not have valid sections assigned"));
         }
 

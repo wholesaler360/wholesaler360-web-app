@@ -3,7 +3,7 @@ const convertArrayToBinaryValue = (binaryArray) => {
     binaryArray.forEach((bit) => {
         binaryValue = (binaryValue << 1) | bit;
         console.log(binaryValue);
-    });
+    }); 
     return binaryValue;
 }
 
@@ -22,7 +22,7 @@ const requestTypeToNum = (requestType) => {
     }
 }
 
-const requestVerify = (permission,requestType) => {
+const requestVerify = (permission, requestType) => {
     const requestName = requestTypeToNum(requestType);
     
     if((permission & requestName))

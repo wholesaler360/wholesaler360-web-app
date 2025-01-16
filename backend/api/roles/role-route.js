@@ -14,4 +14,5 @@ roleRouter.route('/fetchRole').post(fetchPermission)
 roleRouter.route('/deleteRole').delete(deleteRole)
 
 roleRouter.route('/fetchAllRoles').get(fetchAllRole)
+
 export { roleRouter }
