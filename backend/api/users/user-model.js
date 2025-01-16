@@ -1,7 +1,7 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose, {Schema} from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Role } from "../roles/role-model.js";
+
 const userSchema = new Schema(
     {
       name: {
@@ -65,7 +65,7 @@ const userSchema = new Schema(
   
   // decrypt and checking
   userSchema.methods.isPasswordCorrect = async function (password){
-    return await bcrypt.compare(password,this.password)
+    return await bcrypt.compare(password, this.password)
   }
   
   // access token which is ticket to communication with the portal (time limited)
