@@ -10,7 +10,10 @@ import { roleRouter } from './api/roles/role-route.js';
 import { userRouter } from './api/users/user-route.js';
 import authRouter from './api/login/login-route.js';
 import authMiddleware from './middlewares/jwt-auth-middleware.js';
+import { vendorRouter } from './api/vendors/vendor-route.js';
 
+
+// TODO : Validation like email, mobile number etc..,
 
 const app = express();
 
@@ -41,6 +44,8 @@ app.use('/role', roleRouter);
 
 app.use('/user', userRouter);
 
+app.use('/vendor', vendorRouter)
+
 // catch all undefined routes for authenticated users
 app.use('*', (req, res, next) => {
     return next(new ApiError(404, 'Route not found'));
@@ -48,6 +53,5 @@ app.use('*', (req, res, next) => {
 
 // Ensure error handling middleware is used after all routes
 app.use(errorHandler);
-
 
 export default app;

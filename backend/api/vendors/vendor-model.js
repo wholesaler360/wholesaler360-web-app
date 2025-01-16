@@ -61,10 +61,12 @@ const vendorSchema = new Schema(
         },
         mobileNo: {
             type: String,
+            unique : true,
             required: true
         },
         email: {
             type: String,
+            unique : true,
             required: true
         },
         gstin: {

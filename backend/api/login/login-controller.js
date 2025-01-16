@@ -9,14 +9,14 @@ const login = asyncHandler(async(req,res,next)=>{
     // take the values and validate it
     const {mobileNo,password} = req.body;
 
-    if ([mobileNo , password].some((field) => !field?.trim()==="")) {
+    if ([mobileNo , password].some((field) => !field?.trim())) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
     
     // Checks if the user already exists
     const user = await User.findOne({mobileNo : mobileNo});
     console.log(user);
-    if(!user || user?.isUserDeleted)
+    if(!user || user.isUserDeleted)
     {
         return next(ApiError.dataNotFound("User not found"));
     }
@@ -71,9 +71,7 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         const user = await User.findById(decodedRefreshToken._id)
             
         if (!user || user?.refreshToken !== refreshToken) {
-            // TODO : Redirect to login page
-            
-            user?.refreshToken = null;
+            user.refreshToken = null;
             // request.redirect('auth/login');
             return next(ApiError.unauthorizedAccess("User Does Not Exists or Login Again"));
         }

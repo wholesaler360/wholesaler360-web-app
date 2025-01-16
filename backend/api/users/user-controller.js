@@ -3,7 +3,7 @@ import { ApiError } from "../../utils/api-error-utils.js";
 import { User } from "./user-model.js";
 import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 import { Role } from "../roles/role-model.js";
-import { uploadFile,deleteFromLocalPath } from "../../utils/cloudinary-utils.js";
+import { uploadFile, deleteFromLocalPath } from "../../utils/cloudinary-utils.js";
 
 
 const createUser = asyncHandler(async(req,res,next)=>{
@@ -11,7 +11,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
     // take the values and validate it 
     const {name, email, mobileNo, password, confirmPassword, role} = req.body;
 
-    if ([name, email , mobileNo , password, confirmPassword, role ].some((field) => !field?.trim()==="")) {
+    if ([name, email, mobileNo, password, confirmPassword, role ].some((field) => !field?.trim())) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
 
@@ -29,8 +29,8 @@ const createUser = asyncHandler(async(req,res,next)=>{
     // Checks if the password and confirm password are same
     if(confirmPassword !== password)
     {
-            deleteFromLocalPath(req.files?.avatar[0]?.path);
-            return next(ApiError.validationFailed("confirm password does not matchs the password"))
+        deleteFromLocalPath(req.files?.avatar[0]?.path);
+        return next(ApiError.validationFailed("confirm password does not matchs the password"))
     }
 
     // Checks if role exists or not and trim and convert to lower case
@@ -53,9 +53,6 @@ const createUser = asyncHandler(async(req,res,next)=>{
     // Upload the avatar to cloudinary
     const avatar = await uploadFile(avatarLocalPath);
 
-    // User created
-    console.log(avatar);
-
     try {
         const userCreated = await User.create({
             name ,
@@ -66,7 +63,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
             role : assignedRoleId._id
         });
 
-        res.status(201).json(ApiResponse.successCreated(userCreated,"User Created Successfully"))
+        res.status(201).json(ApiResponse.successCreated(userCreated, "User Created Successfully"))
 
     } catch (error) {
         deleteFromLocalPath(req.files?.avatar[0]?.path);

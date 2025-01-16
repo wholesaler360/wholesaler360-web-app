@@ -1,4 +1,4 @@
-import { createRole,updateRole,assignPermission,fetchPermission,deleteRole,fetchAllRole } from "./role-controller.js";
+import { createRole, updateRole, assignPermission, fetchPermission, deleteRole, fetchAllRole } from "./role-controller.js";
 import Router from 'express'
 
 const roleRouter = Router()
