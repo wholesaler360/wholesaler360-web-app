@@ -7,11 +7,42 @@ import { uploadFile, deleteFromLocalPath } from "../../utils/cloudinary-utils.js
 
 
 const createVendor = asyncHandler(async(req, res, next)=>{
-    const {name, mobileNo, email, gstin, address, bankDetails, balance} = req.body;
+    const {
+        name, mobileNo, email, gstin, balance, 
+        addressLine1, addressLine2, city, state, postalCode, 
+        country, branchName, ifsc, bankName, accountNumber 
+    } = req.body;
 
-    if ([name, mobileNo, email, address, bankDetails].some((field) => !field?.trim())) {
+    // Check if all the required fields are present or not 
+    if (
+        [name, mobileNo, email].some((field) => !field?.trim())  
+        || !addressLine1   
+        || !city           
+        || !state          
+        || !postalCode     
+        || !country        
+        || !bankName   
+        || !ifsc       
+        || !accountNumber
+    ) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
+
+    const address = {
+        addressLine1,
+        addressLine2,
+        city,
+        state,
+        postalCode,
+        country
+    };
+
+    const bankDetails = {
+        branchName,
+        ifsc,
+        bankName,
+        accountNumber
+    };
 
     const existingVendor = await Vendor.findOne({ 
         $or: [{ email }, { mobileNo }],
@@ -23,8 +54,6 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     }
 
     let avatar;
-    console.log('avatar path', req.files?.avatar?.[0]?.path);
-
     // Handle avatar upload
     if(req.files?.avatar?.[0]?.path) {
         avatar = await uploadFile(req.files.avatar[0].path);
@@ -32,7 +61,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
 
     try {
         const vendorCreated = await Vendor.create({
-            createdBy: req.user._id,
+            createdBy: req.fetchedUser._id,
             name,
             mobileNo,
             email,
@@ -42,10 +71,12 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             imageUrl: avatar,
             balance: balance || 0.0
         });
-
+        
         return res.status(201).json(ApiResponse.successCreated(vendorCreated, "Vendor created successfully"));
     } catch (error) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
-        return next(ApiError.dataNotInserted("Vendor not created"));
+        return next(ApiError.dataNotInserted("Vendor not created", error));
     }
 });
+
+export { createVendor };
