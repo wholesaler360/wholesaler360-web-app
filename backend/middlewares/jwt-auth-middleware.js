@@ -18,9 +18,31 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
         // TODO : Redirect to login page
         return next(ApiError.validationFailed("Please provide the tokens"));
     }
+    
+    let decodedAccessToken;
 
     try {
-        const decodedAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+        decodedAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    } catch (error) {
+        if(error.name === 'TokenExpiredError')
+        {
+            return next(new ApiError(400,error.message));
+        }
+        else
+        {
+            const options = {
+                httpOnly:true,
+                secure : process.env.NODE_ENV === "production",
+                sameSite : 'none'
+              }
+            res.clearCookie('refreshToken',options);
+            return next(new ApiError(400,error.message + " Invalid Access Token Login Again"));
+        }
+
+    }
+
+    try {
+        
         
         if(!decodedAccessToken)
         {
@@ -63,8 +85,9 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
                 return next(ApiError.unauthorizedAccess("You don't have permission to access this module"));
             }
         }
+        return next(ApiError.unauthorizedAccess("You don't have permission to access this module"));
     } catch (error) {
-        return next(new ApiError(500,error.message));
+        return next(new ApiError(500, error.message));
     }
 })
 
