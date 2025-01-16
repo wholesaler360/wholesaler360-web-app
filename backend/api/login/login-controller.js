@@ -44,7 +44,8 @@ const login = asyncHandler(async(req,res,next)=>{
 
     const options = {
         httpOnly: true,
-        secure : process.env.NODE_ENV === 'production'
+        secure : process.env.NODE_ENV === 'production',
+        sameSite : 'none'
     }
     const { password : $password, refreshToken: $userRefreshToken, ...sanitizedUser } = user.toObject();
     res.status(200)
@@ -73,7 +74,7 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         if (!user || user?.refreshToken !== refreshToken) {
             // TODO : Redirect to login page
             
-            user?.refreshToken = null;
+            user.refreshToken = null;
             // request.redirect('auth/login');
             return next(ApiError.unauthorizedAccess("User Does Not Exists or Login Again"));
         }
@@ -138,6 +139,7 @@ const logout = asyncHandler(async(req,res,next)=>{
             const options = {
               httpOnly:true,
               secure : process.env.NODE_ENV === "production",
+              sameSite : 'none'
             }
             console.log("------------------------------------------------------------------------");
             res.status(200)

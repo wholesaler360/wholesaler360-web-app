@@ -13,7 +13,6 @@ const taxSchema = new Schema(
       required: true,
       default: 0,
     },
-
     isTaxDeleted: {
       type: Boolean,
       default: false,
@@ -22,4 +21,4 @@ const taxSchema = new Schema(
   { timestamps: true }
 );
 
-export const User = mongoose.model("Tax", taxSchema);
+export const Tax = mongoose.model("Tax", taxSchema);
