@@ -21,7 +21,7 @@ function RootLayout() {
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
-            <Header /> {/* This is the header */}
+            <Header />
             <Outlet /> {/* This is where the child routes will be rendered */}
           </SidebarInset>
         </SidebarProvider>
