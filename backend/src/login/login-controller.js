@@ -46,10 +46,10 @@ const login = asyncHandler(async(req,res,next)=>{
         httpOnly: true,
         secure : process.env.NODE_ENV === 'production'
     }
-
+    const { password : $password, refreshToken: $userRefreshToken, ...sanitizedUser } = user.toObject();
     res.status(200)
         .cookie('refreshToken',refreshToken,options)
-        .json(ApiResponse.successRead({user,accessToken},"User Logged In Successfully"));
+        .json(ApiResponse.successRead({user : sanitizedUser,accessToken},"User Logged In Successfully"));
 
 });
 
@@ -68,31 +68,30 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
             return next(ApiError.tokenNotFound("Invalid Refresh Token"));
         }
 
-        const user = await User.findById(decodedRefreshToken._id);
+        const user = await User.findById(decodedRefreshToken._id)
+            
         if (!user || user.refreshToken !== refreshToken) {
             // TODO : Redirect to login page
             user.refreshToken = undefined;
             return next(ApiError.unauthorizedAccess("User Does Not Exists or Login Again"));
         }
 
+        
         const newAccessToken = await user.generateAccessToken();
-        const newRefreshToken = await user.generateRefreshToken();
         console.log("------------------------------------REFRESH---------------------------");
         console.log("Access Token :",newAccessToken,"\n\n");
-        console.log("Refresh Token :",newRefreshToken,);
         console.log("----------------------------------------------------------------------");
         
-        user.refreshToken = newRefreshToken;
-        await user.save();
-        
+        const { password, refreshToken: userRefreshToken, ...sanitizedUser } = user.toObject();
+
         const options = {
             httpOnly: true,
-            secure : process.env.NODE_ENV === 'production'
+            secure : process.env.NODE_ENV === 'production',
+            sameSite : 'none'
         }
         
         console.log("----------------------------------------------------------------------");
-        res.cookie('refreshToken', newRefreshToken, options);
-        res.status(200).json(ApiResponse.successRead({user,newAccessToken},"Token Refreshed Successfully"));
+        res.status(200).json(ApiResponse.successRead({user : sanitizedUser ,newAccessToken},"Token Refreshed Successfully"));
     } catch (error) {
         // TODO : Redirect to login page
         return next(ApiError.dataNotInserted("Unable to generate new access Token"));
@@ -121,6 +120,10 @@ const logout = asyncHandler(async(req,res,next)=>{
                   }
               },
                 {
+                  select : {
+                    password : 0,
+                    refreshToken : 0,
+                },
                   new : true,
                 }
               ) 
@@ -129,7 +132,7 @@ const logout = asyncHandler(async(req,res,next)=>{
                 return next(ApiError.validationFailed("User not found or already logged out"));
             }
 
-            // await loggedOutUser.save();
+
             const options = {
               httpOnly:true,
               secure : process.env.NODE_ENV === "production",
@@ -137,7 +140,7 @@ const logout = asyncHandler(async(req,res,next)=>{
             console.log("------------------------------------------------------------------------");
             res.status(200)
             .clearCookie("refreshToken",options)
-            .json(ApiResponse.successUpdated(loggedOutUser,"User Logged Out Successfully"))
+            .json(ApiResponse.successUpdated(loggedOutUser ,"User Logged Out Successfully"))
     } catch (error) {
         return next(ApiError.dataNotInserted("Unable to logout"));
     }
