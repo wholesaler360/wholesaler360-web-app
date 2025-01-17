@@ -5,3 +5,6 @@ export const LogoutApi = "/auth/logout";
 
 // Roles And Permissions
 export const FetchAllRoles = "/role/fetchAllRoles";
+export const UpdateRole = "/role/updateRole";
+export const FetchRolePermission = "/role/fetchRole";
+export const assignPermission = "/role/assignPermission";

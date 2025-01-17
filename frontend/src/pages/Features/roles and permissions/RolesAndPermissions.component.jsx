@@ -3,24 +3,14 @@ import { Button } from "@/components/ui/button"; // Adjust the path based on you
 import { PlusCircle } from "lucide-react";
 import { RolesAndPermissionsContext } from "./RolesAndPermissions.control";
 import { showNotification } from "@/core/toaster/toast";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import { Card } from "@/components/ui/card"; // Import ShadCN card
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { DataTable } from "@/components/DataTable";
 
 function RolesAndPermissionsComponent() {
   const [data, setData] = useState([]); // Initialize with an empty array
-  const { getRoles, columns } = useContext(RolesAndPermissionsContext);
+  const { getRoles, columns, refreshTrigger } = useContext(
+    RolesAndPermissionsContext
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,16 +24,14 @@ function RolesAndPermissionsComponent() {
       }
     };
     fetchData();
-  }, [getRoles]);
-
-  console.log(data);
+  }, [getRoles, refreshTrigger]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getRowId: (originalRow) => originalRow.id,
   });
-
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-1">
       <div className="flex items-center justify-between space-y-2">
@@ -54,44 +42,7 @@ function RolesAndPermissionsComponent() {
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-4">
-        <Table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </thead>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-                <TableCell>
-                  <Card>
-                    <Button as={Link} to={`/permissions/${row.original.name}`}>
-                      Edit
-                    </Button>
-                  </Card>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable table={table} />
     </div>
   );
 }

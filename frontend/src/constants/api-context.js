@@ -37,4 +37,21 @@ const axiosPost = async (endpoint = null, data = {}) => {
   }
 };
 
-export { axiosGet, axiosPost };
+const axiosPut = async (endpoint = null, data = {}) => {
+  try {
+    if (!endpoint || typeof endpoint !== "string") {
+      throw new Error("Valid endpoint is required");
+    }
+
+    const response = await api.put(endpoint, data);
+    return response;
+  } catch (error) {
+    console.error("PUT request error:", {
+      message: error.message,
+      response: error.response,
+      config: error.config,
+    });
+  }
+};
+
+export { axiosGet, axiosPost, axiosPut };
