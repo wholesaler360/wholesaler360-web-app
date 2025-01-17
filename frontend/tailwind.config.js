@@ -60,7 +60,17 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			}
-  		}
+  		},
+		  keyframes: {
+			shine: {
+			  '0%': { backgroundPosition: '200% 0' },
+			  '25%': { backgroundPosition: '-200% 0' },
+			  '100%': { backgroundPosition: '-200% 0' },
+			},
+		  },
+		  animation: {
+			shine: 'shine 3s ease-out infinite',
+		  },
   	}
   },
   plugins: [require("tailwindcss-animate")],
