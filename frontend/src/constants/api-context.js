@@ -54,4 +54,20 @@ const axiosPut = async (endpoint = null, data = {}) => {
   }
 };
 
-export { axiosGet, axiosPost, axiosPut };
+const axiosDelete = async (endpoint = null, data = {}) => {
+  try {
+    if (!endpoint || typeof endpoint !== "string") {
+      throw new Error("Valid endpoint is required");
+    }
+    const response = await api.delete(endpoint, data ); // Pass data in config object
+    return response;
+  } catch (error) {
+    console.error("DELETE request error:", {
+      message: error.message,
+      response: error.response,
+      config: error.config,
+    });
+  }
+};
+
+export { axiosGet, axiosPost, axiosPut, axiosDelete };

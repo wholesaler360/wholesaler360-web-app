@@ -8,3 +8,5 @@ export const FetchAllRoles = "/role/fetchAllRoles";
 export const UpdateRole = "/role/updateRole";
 export const FetchRolePermission = "/role/fetchRole";
 export const assignPermission = "/role/assignPermission";
+export const createRole = "/role/createRole";
+export const deleteRole = "/role/deleteRole";

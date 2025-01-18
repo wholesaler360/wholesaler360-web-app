@@ -1,14 +1,21 @@
 import {
   assignPermission,
+  createRole,
+  deleteRole,
   FetchAllRoles,
   FetchRolePermission,
   UpdateRole,
 } from "@/constants/apiEndPoints";
-import { axiosGet, axiosPost, axiosPut } from "@/constants/api-context";
+import {
+  axiosGet,
+  axiosPost,
+  axiosPut,
+  axiosDelete,
+} from "@/constants/api-context";
 import { createColumnHelper } from "@tanstack/react-table";
 import { createContext, useState, useEffect, useCallback } from "react";
 import { ButtonV2 } from "@/components/ui/button-v2";
-import { Edit, IdCard } from "lucide-react";
+import { Delete, Edit, IdCard, Trash } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,6 +52,18 @@ import {
   getNumberFromPermissions,
   getPermissionsFromNumber,
 } from "@/lib/roleUtils";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const roleFormSchema = z.object({
   roleName: z.string().min(2, {
@@ -62,6 +81,21 @@ function RolesAndPermissionController({ children }) {
   const getRoles = async () => {
     const data = await axiosGet(FetchAllRoles);
     return data;
+  };
+
+  const addRole = async (value) => {
+    try {
+      const response = await axiosPost(createRole, { name: value.roleName });
+      console.log(response);
+      if (response.status === 201) {
+        showNotification.success("Role added successfully");
+        setRefreshTrigger((prev) => prev + 1);
+      } else {
+        showNotification.error("Failed to add role");
+      }
+    } catch (error) {
+      showNotification.error("Failed to add role");
+    }
   };
 
   // Create columns for the table
@@ -193,6 +227,8 @@ function RolesAndPermissionController({ children }) {
             });
             if (response.status === 200) {
               setRolePermissions(response.data.value);
+            } else {
+              showNotification.error("Failed to fetch permissions");
             }
           } catch (error) {
             showNotification.error("Failed to fetch permissions");
@@ -363,11 +399,70 @@ function RolesAndPermissionController({ children }) {
         );
       },
     }),
+
+    columnHelper.display({
+      id: "deleteRole",
+      header: "Delete Role",
+      cell: ({ row }) => {
+        const data = {
+          name: row.original.name,
+        };
+        const handleDelete = async () => {
+          try {
+            const response = await axiosDelete(deleteRole, { data });
+            if (response.status === 204) {
+              showNotification.success("Role deleted successfully");
+              setRefreshTrigger((prev) => prev + 1);
+            } else {
+              showNotification.error("Failed to delete role");
+            }
+          } catch (error) {
+            showNotification.error("Failed to delete role");
+          }
+        };
+
+        return (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Are you sure you want to delete the role "{row.original.name}
+                  "?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  role "{row.original.name}" and remove all associated
+                  permissions.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        );
+      },
+    }),
   ];
 
   return (
     <RolesAndPermissionsContext.Provider
-      value={{ getRoles, columns, refreshTrigger }}
+      value={{ getRoles, addRole, columns, refreshTrigger }}
     >
       {children}
     </RolesAndPermissionsContext.Provider>
