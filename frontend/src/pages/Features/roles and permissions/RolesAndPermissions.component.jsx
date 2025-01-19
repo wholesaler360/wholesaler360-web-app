@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button"; // Adjust the path based on you
 import { PlusCircle } from "lucide-react";
 import { RolesAndPermissionsContext } from "./RolesAndPermissions.control";
 import { showNotification } from "@/core/toaster/toast";
-import { getCoreRowModel, getPaginationRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import { DataTable } from "@/components/datatable/DataTable";
 import {
   Dialog,
@@ -15,6 +21,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DataTableSkeleton } from "@/components/datatable/DataTableSkeleton";
+
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -31,7 +39,7 @@ const addRoleSchema = z.object({
   roleName: z.string().min(2, {
     message: "Role name must be at least 2 characters.",
   }),
-});
+})
 
 function RolesAndPermissionsComponent() {
   const [data, setData] = useState([]); // Initialize with an empty array
@@ -39,16 +47,21 @@ function RolesAndPermissionsComponent() {
   const { getRoles, addRole, columns, refreshTrigger } = useContext(
     RolesAndPermissionsContext
   );
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const response = await getRoles();
         if (response) {
           setData(response.value.roles);
         }
       } catch (error) {
         showNotification.error("Failed to fetch roles:");
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchData();
@@ -66,13 +79,22 @@ function RolesAndPermissionsComponent() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (originalRow) => originalRow.id,
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
+      sorting: [{ id: "createdOn", desc: true }],
       pagination: {
-        pageSize: 10,  
-        pageIndex: 0   
-      }
+        pageSize: 10,
+        pageIndex: 0,
+      },
     },
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: 'includesString',
   });
 
   const onSubmitNewRole = async (value) => {
@@ -80,12 +102,13 @@ function RolesAndPermissionsComponent() {
     setOpen(false);
     form.reset();
   };
+
   return (
-    <div className="flex flex-1 flex-col gap-6 px-4 py-1">
+    <div className="flex flex-1 flex-col gap-4 px-4 py-1">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-2xl font-medium">Roles & Permissions</h2>
-        <div className="flex items-center ml-auto mr-4">
-          <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex items-center ml-auto mr-2">
+        {!isLoading ? (<Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle /> Add Role
@@ -112,6 +135,7 @@ function RolesAndPermissionsComponent() {
                     name="roleName"
                     render={({ field }) => (
                       <FormItem>
+
                         <FormLabel>Role Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -126,12 +150,25 @@ function RolesAndPermissionsComponent() {
                 </form>
               </Form>
             </DialogContent>
-          </Dialog>
+          </Dialog>) : <div></div>}
         </div>
       </div>
-      <DataTable table={table} />
+      {isLoading? (
+        <DataTableSkeleton 
+          columnCount={5}
+          rowCount={5}
+          searchableColumnCount={1}
+          filterableColumnCount={0}
+          showViewOptions={true}
+          cellWidths={["200px", "150px", "150px", "150px", "100px"]}
+        />
+      ) : (
+        <DataTable table={table} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+  )}
     </div>
   );
 }
 
 export default RolesAndPermissionsComponent;
+
+

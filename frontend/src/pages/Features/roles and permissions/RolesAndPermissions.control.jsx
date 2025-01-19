@@ -64,6 +64,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
 
 const roleFormSchema = z.object({
   roleName: z.string().min(2, {
@@ -105,7 +106,9 @@ function RolesAndPermissionController({ children }) {
     // Accessor column for "role"
     columnHelper.accessor("name", {
       id: "role",
-      header: "Role",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Role" />
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex space-x-2">
@@ -120,7 +123,9 @@ function RolesAndPermissionController({ children }) {
     // Accessor column for "createdOn"
     columnHelper.accessor("createdAt", {
       id: "createdOn",
-      header: "Created On",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Created On" />
+      ),
       cell: (info) => new Date(info.getValue()).toLocaleDateString(), // Format date
     }),
 

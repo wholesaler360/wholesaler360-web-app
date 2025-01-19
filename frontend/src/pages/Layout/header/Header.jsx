@@ -10,8 +10,12 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import React from "react";
 import ThemeToggle from "./ThemeToggle";
+import { useBreadcrumbs } from "@/hooks/useBreadcrumbs";
+import { Link } from "react-router-dom";
 
 function Header() {
+  const breadcrumbs = useBreadcrumbs();
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2 ">
@@ -20,13 +24,25 @@ function Header() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Home</BreadcrumbPage>
+                <BreadcrumbLink as={Link} to="/">
+                  Dashboard
+                </BreadcrumbLink>
               </BreadcrumbItem>
+              {breadcrumbs.map((breadcrumb, index) => (
+                <React.Fragment key={breadcrumb.path}>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    {breadcrumb.isLast ? (
+                      <BreadcrumbPage>{breadcrumb.text}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink as={Link} to={breadcrumb.path}>
+                        {breadcrumb.text}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              ))}
             </BreadcrumbList>
           </Breadcrumb>
         </div>

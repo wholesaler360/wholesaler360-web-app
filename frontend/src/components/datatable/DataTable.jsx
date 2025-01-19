@@ -9,14 +9,18 @@ import {
 } from "../ui/table";
 import { flexRender } from "@tanstack/react-table";
 import DataTablePagination from "./DataTablePagination";
+import DataTableToolbar from "./DataTableToolbar";
+import {DataTableSkeleton }from "./DataTableSkeleton";
+import React from "react";
 
-export function DataTable({ table, children, classNames, ...props }) {
+function DataTable({ table, children, globalFilter, setGlobalFilter, classNames, ...props }) {
   return (
     <div
       className={cn("w-full space-y-2.5 overflow-auto", classNames)}
       {...props}
     >
       {children}
+      <DataTableToolbar table={table} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -80,5 +84,7 @@ export function DataTable({ table, children, classNames, ...props }) {
       </div>
       <DataTablePagination table={table} />
     </div>
-  );
+    );
 }
+
+export { DataTable };
