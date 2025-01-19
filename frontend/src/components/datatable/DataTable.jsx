@@ -10,7 +10,7 @@ import {
 import { flexRender } from "@tanstack/react-table";
 import DataTablePagination from "./DataTablePagination";
 
-export function DataTable({ table, children, classNames, ...props }) {
+function DataTable({ table, children, classNames, ...props }) {
   return (
     <div
       className={cn("w-full space-y-2.5 overflow-auto", classNames)}
@@ -82,3 +82,5 @@ export function DataTable({ table, children, classNames, ...props }) {
     </div>
   );
 }
+
+export default DataTable;
