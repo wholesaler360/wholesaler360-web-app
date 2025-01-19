@@ -46,7 +46,7 @@ const updateTaxPercent = asyncHandler(async (req, res, next) => {
 });
 
 const countNoOfProductsHavingTax = async (taxId) => {
-    const count = await Product.countDocuments({ taxId });
+    const count = await Product.countDocuments({ taxRate : taxId });
     return count;
 };
 

@@ -49,9 +49,9 @@ const deleteFromCloudinary = async (publicID)=>{
 }
 
 const deleteFromLocalPath = async(localFilePath) =>{
-    if(!localFilePath)
+    if(fs.existsSync(localFilePath) === false)
     {
-        return null;
+        return ;
     }
     fs.unlinkSync(localFilePath)
 }

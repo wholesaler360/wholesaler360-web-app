@@ -107,6 +107,10 @@ class ApiError extends Error {
     static tokenNotFound(message="Token not found",errors = []) {
         return new ApiError(404,message,errors)
     }
+
+    static imageNotGenerated(message="image not generated",errors = []) {
+        return new ApiError(417,message,errors)
+    }
 }
 
 export { ApiError };

@@ -38,13 +38,20 @@ app.use("/auth", authRouter);
 
 app.post("/createModule", createModule);
 
+
+app.get('/public/temp/:image', (req, res) => {
+    res.sendFile(req.params.image, { root: 'public/temp' });
+});
+// Use the authMiddleware for all routes
+app.use(authMiddleware);
+
+
 app.use("/product", productRouter);
+
 
 app.use("/tax", taxRouter);
 
-app.use("/category", categoryRouter);
-// Use the authMiddleware for all routes
-app.use(authMiddleware);
+app.use('/category', categoryRouter);
 
 app.use("/role", roleRouter);
 

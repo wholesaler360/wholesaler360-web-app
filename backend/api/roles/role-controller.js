@@ -45,45 +45,47 @@ const createRole = asyncHandler(async (req, res, next) => {
 });
 
 const updateRole = asyncHandler(async (req, res, next) => {
-  const { name, newName } = req.body;
-  console.log(req.body);
-  if (!name?.trim() || !newName?.trim()) {
-    return next(ApiError.validationFailed("Role name is required"));
-  }
 
-  const roleName = name.trim().toLowerCase();
-  const existingRole = await Role.findOne({
-    name: roleName,
-    isRoleDeleted: false,
-  });
-  if (!existingRole) {
-    return next(ApiError.dataNotFound("Role with this name does not  exists"));
-  }
+    const { name , newName } = req.body;
 
-  const newRoleName = newName.trim().toLowerCase();
+    if (!name?.trim() || !newName?.trim()) {
+        return next(ApiError.validationFailed("Role name is required"));
+    }
 
-  const roleWithNewName = await Role.findOne({
-    name: newRoleName,
-    isRoleDeleted: false,
-  });
-  if (roleWithNewName) {
-    return next(
-      ApiError.validationFailed("Role with this name already exists")
-    );
-  }
+    const roleName = name.trim().toLowerCase();
+    // Checks if user is trying to update own role
+    if(roleName === 'super admin' || req.fetchedUser.role.name === roleName)
+    {
+        return next(ApiError.validationFailed("Cannot update your own role"));
+    }
 
-  try {
-    existingRole.name = newRoleName;
-    await existingRole.save();
-    // Respond with success
-    res
-      .status(201)
-      .json(
-        ApiResponse.successUpdated(existingRole, "Role updated successfully")
-      );
-  } catch (error) {
-    return next(ApiError.dataNotUpdated("Role not updated"));
-  }
+    
+    const existingRole = await Role.findOne({ name: roleName , isRoleDeleted : false });
+    if (!existingRole ) {
+        return next(ApiError.dataNotFound("Role with this name does not  exists"));
+    }
+    
+    const newRoleName = newName.trim().toLowerCase();
+    
+    const roleWithNewName = await Role.findOne({ name: newRoleName , isRoleDeleted : false });
+    if(roleWithNewName)
+    {
+        return next(ApiError.validationFailed("Role with this name already exists"));
+    } 
+
+    try {
+      existingRole.name = newRoleName;
+      await existingRole.save();
+      // Respond with success
+      res
+        .status(201)
+        .json(
+          ApiResponse.successUpdated(existingRole, "Role updated successfully")
+        );
+    } catch (error) {
+      return next(ApiError.dataNotUpdated("Role not updated"));
+    }
+
 });
 
 const fetchPermission = asyncHandler(async (req, res, next) => {
@@ -114,61 +116,60 @@ const fetchPermission = asyncHandler(async (req, res, next) => {
 });
 
 const countNoOfUsersHavingRole = async (roleId) => {
-  const count = await User.countDocuments({ roleId });
-  return count;
+
+    const count = await User.countDocuments({ role : roleId });
+    return count;
 };
 
 const assignPermission = asyncHandler(async (req, res, next) => {
-  const { name, sections } = req.body;
+    const { name, sections } = req.body;
+    const currentUser = req.fetchedUser;
+    
+    if (!name?.trim()) {
+        return next(ApiError.validationFailed("Role name is required"));
+    }
+    const roleName = name.trim().toLowerCase();
+    
+    if(name === 'super admin')
+    {
+        return next(ApiError.validationFailed("Cannot update super admin role"));
+    }
 
-  if (!name?.trim()) {
-    return next(ApiError.validationFailed("Role name is required"));
-  }
-  const roleName = name.trim().toLowerCase();
 
-  if (name === "super admin") {
-    return next(ApiError.validationFailed("Cannot update super admin role"));
-  }
+    if(roleName === currentUser.role.name)
+    {
+        return next(ApiError.validationFailed("Cannot update your own role"));
+    }
 
-  if (sections && !Array.isArray(sections)) {
-    return next(ApiError.validationFailed("Sections must be an array"));
-  }
+    if (sections && !Array.isArray(sections)) {
+        return next(ApiError.validationFailed("Sections must be an array"));
+    }
 
-  const existingRole = await Role.findOne({
-    name: roleName,
-    isRoleDeleted: false,
-  });
+    const existingRole = await Role.findOne({ name : roleName , isRoleDeleted : false });
 
-  if (!existingRole) {
-    return next(ApiError.dataNotFound("Role with this name does not exists"));
-  }
-  try {
-    // Prepare sections for update
-    const preparedSections = await Promise.all(
-      sections.map(async (section) => {
-        if (
-          !section?.module ||
-          section?.permission === undefined ||
-          typeof section?.permission !== "number"
-        ) {
-          next(
-            ApiError.validationFailed(
-              "Module and permission are required for each section"
-            )
-          );
-        }
+    if (!existingRole) {
+        return next(ApiError.dataNotFound("Role with this name does not exists"));
+    }
+    try {
+        // Prepare sections for update
+        const preparedSections = await Promise.all(
+            sections.map(async (section) => {
+                if (!section?.module || section?.permission === undefined || (typeof section?.permission !== "number")) {
+                    next(ApiError.validationFailed("Module and permission are required for each section"));
+                }
 
-        // Check if the module exists
-        const moduleDoc = await Module.findOne({ name: section.module });
-        if (!moduleDoc) {
-          throw ApiError.dataNotFound(`${section.module} does not exist`);
-        }
-        return {
-          module: moduleDoc._id,
-          permission: parseInt(section.permission, 10),
-        };
-      })
-    );
+                // Check if the module exists
+                const moduleDoc = await Module.findOne({ name : section.module });
+                if (!moduleDoc) {
+                    throw ApiError.dataNotFound(`${section.module} does not exist`);
+                }
+                return {
+                    module: moduleDoc._id,
+                    permission: parseInt(section.permission, 10),
+                };
+            })
+        );
+
 
     // Update the role with the prepared sections
     existingRole.sections = preparedSections;
@@ -235,10 +236,12 @@ const deleteRole = asyncHandler(async (req, res, next) => {
 const fetchAllRole = asyncHandler(async (req, res, next) => {
   const roles = await Role.aggregate([
     {
+
       $match: {
         isRoleDeleted: false,
       },
     },
+
     {
       $addFields: {
         roleInfo: {
