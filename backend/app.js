@@ -16,15 +16,6 @@ import authMiddleware from "./middlewares/jwt-auth-middleware.js";
 
 const app = express();
 
-// Delay middleware
-const addDelay = (ms) => (req, res, next) => {
-  setTimeout(() => {
-    next();
-  }, ms);
-};
-
-const delayTime = 3000; // Delay in milliseconds (e.g., 3 seconds)
-app.use(addDelay(delayTime));
 app.use(express.json());
 
 app.use(
