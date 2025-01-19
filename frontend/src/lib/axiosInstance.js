@@ -38,6 +38,7 @@ api.interceptors.request.use(
         }
         setAccessToken(newToken);
         config.headers.Authorization = `Bearer ${newToken}`;
+        return config;
       }
       config.headers.Authorization = `Bearer ${token}`;
     }
