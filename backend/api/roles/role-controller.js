@@ -78,7 +78,7 @@ const updateRole = asyncHandler(async (req, res, next) => {
       await existingRole.save();
       // Respond with success
       res
-        .status(201)
+        .status(200)
         .json(
           ApiResponse.successUpdated(existingRole, "Role updated successfully")
         );
@@ -177,16 +177,11 @@ const assignPermission = asyncHandler(async (req, res, next) => {
     await existingRole.save();
 
     // Respond with success
-    res
-      .status(201)
-      .json(
-        ApiResponse.successUpdated(existingRole, "Role updated successfully")
-      );
-  } catch (error) {
-    return next(
-      ApiError.dataNotUpdated("Permission not Updated or Module not found")
-    );
-  }
+    res.status(200).json(ApiResponse.successUpdated(existingRole, "Role updated successfully"));
+
+    } catch (error) {
+        return next(ApiError.dataNotUpdated("Permission not Updated or Module not found"));
+    }
 });
 
 const deleteRole = asyncHandler(async (req, res, next) => {

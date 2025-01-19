@@ -85,7 +85,7 @@ const deleteCategory = asyncHandler(async(req,res,next)=>{
     try {
         category.isCategoryDeleted = true;
         await category.save();
-        return res.status(200).json(ApiResponse.successDeleted(category,"Category deleted successfully"));
+        return res.status(204).json(ApiResponse.successDeleted(category,"Category deleted successfully"));
     } catch (error) {
         return next(ApiError.dataNotDeleted("Category not deleted"));
     }
