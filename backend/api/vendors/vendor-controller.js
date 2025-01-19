@@ -2,7 +2,6 @@ import { ApiResponse } from "../../utils/api-Responnse-utils.js";
 import { ApiError } from "../../utils/api-error-utils.js";
 import { Vendor } from "./vendor-model.js";
 import { asyncHandler } from "../../utils/asyncHandler-utils.js";
-import { Role } from "../roles/role-model.js";
 import { uploadFile, deleteFromLocalPath } from "../../utils/cloudinary-utils.js";
 
  
@@ -79,4 +78,41 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     }
 });
 
-export { createVendor };
+
+const fetchAllVendors = asyncHandler(async(req, res, next) => {
+    const vendors = await Vendor.find({ 
+        isDeleted: false,
+    }, { __v: 0, deletedAt: 0, updatedAt: 0 });
+    
+    if (!vendors?.length) {
+        return next(ApiError.dataNotFound("No vendors found"));
+    }
+
+    return res.status(200).json(
+        ApiResponse.successRead(vendors, "Vendors fetched successfully")
+    );
+});
+
+
+const fetchVendorById = asyncHandler(async(req, res, next) => {
+    const { vendorId } = req.params;
+
+    if (!vendorId?.trim()) {
+        return next(ApiError.validationFailed("Vendor ID is required"));
+    }
+
+    const vendor = await Vendor.findOne({ 
+        _id: vendorId,
+        isVendorDeleted: false 
+    });
+
+    if (!vendor) {
+        return next(ApiError.notFound("Vendor not found"));
+    }
+    
+    return res.status(200).json(
+        ApiResponse.success(vendor, "Vendor fetched successfully")
+    );
+});
+
+export { createVendor, fetchAllVendors, fetchVendorById };

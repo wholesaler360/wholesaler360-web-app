@@ -87,7 +87,7 @@ const vendorSchema = new Schema(
             type: Number,
             default: 0.0
         },
-        isVendorDeleted: {
+        isDeleted: {
             type: Boolean,
             default: false
         }
