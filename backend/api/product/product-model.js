@@ -5,6 +5,7 @@ const productSchema = new Schema(
     name: {
       type: String,
       required: true,
+      lowercase: true,
       trim: true,
       index: true,
     },
@@ -29,6 +30,7 @@ const productSchema = new Schema(
     alertQuantity: {
       type: Number,
       required: true,
+      default: 5,
     },
     taxRate: {
       type: Schema.Types.ObjectId,
@@ -39,14 +41,10 @@ const productSchema = new Schema(
     discountType: {
       type: String,
       enum: ["fixed", "rate"],
+      default: "fixed",
     },
     discountValue: {
       type: Number,
-      required: true,
-      default: 0,
-    },
-    discount: {
-      type: Array,
       required: true,
       default: 0,
     },

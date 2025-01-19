@@ -6,7 +6,6 @@ const inventorySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref : "Product",
       required: true,
-      index: true,
     },
     stock: {
       type: Number,

@@ -63,7 +63,7 @@ const updateCategory = asyncHandler(async(req,res,next)=>{
 });
 
 const countNoOfProductsHavingCategory = async (categoryId) => {
-    const count = await Product.countDocuments({ categoryId });
+    const count = await Product.countDocuments({ category : categoryId });
     return count;
 };
 
@@ -112,15 +112,23 @@ const getAllCategories = asyncHandler(async(req,res,next)=>{
                     }
                 },
                 {
+                    $addFields: {
+                        categoryInfo: {
+                            name: "$name",
+                            createdAt: "$createdAt"
+                        }
+                    }
+                },
+                {
                     $group: {
                         _id: null,
-                        name: { $push: "$name" },
+                        categories: { $push: "$categoryInfo" },
                     }
                 },
                 {
                     $project: {
                         _id: 0,
-                        name: 1,
+                        categories: 1,
                     }
                 }
             ]);

@@ -47,13 +47,20 @@ const updateRole = asyncHandler(async (req, res, next) => {
     }
 
     const roleName = name.trim().toLowerCase();
+    // Checks if user is trying to update own role
+    if(roleName === 'super admin' || req.fetchedUser.role.name === roleName)
+    {
+        return next(ApiError.validationFailed("Cannot update your own role"));
+    }
+
+    
     const existingRole = await Role.findOne({ name: roleName , isRoleDeleted : false });
     if (!existingRole ) {
         return next(ApiError.dataNotFound("Role with this name does not  exists"));
     }
     
     const newRoleName = newName.trim().toLowerCase();
-
+    
     const roleWithNewName = await Role.findOne({ name: newRoleName , isRoleDeleted : false });
     if(roleWithNewName)
     {
@@ -98,12 +105,13 @@ const fetchPermission = asyncHandler(async (req,res,next) => {
 });
 
 const countNoOfUsersHavingRole = async (roleId) => {
-    const count = await User.countDocuments({ roleId });
+    const count = await User.countDocuments({ role : roleId });
     return count;
 };
 
 const assignPermission = asyncHandler(async (req, res, next) => {
     const { name, sections } = req.body;
+    const currentUser = req.fetchedUser;
     
     if (!name?.trim()) {
         return next(ApiError.validationFailed("Role name is required"));
@@ -113,6 +121,12 @@ const assignPermission = asyncHandler(async (req, res, next) => {
     if(name === 'super admin')
     {
         return next(ApiError.validationFailed("Cannot update super admin role"));
+    }
+
+
+    if(roleName === currentUser.role.name)
+    {
+        return next(ApiError.validationFailed("Cannot update your own role"));
     }
 
     if (sections && !Array.isArray(sections)) {
@@ -178,6 +192,7 @@ const deleteRole = asyncHandler(async (req, res, next) => {
     console.log(existingRole);
 
     const countOfUser = await countNoOfUsersHavingRole(existingRole._id);
+    console.log(countOfUser);
     if(countOfUser > 0)
     {
         return next(ApiError.validationFailed("Cannot delete role as it is assigned to some users"));
