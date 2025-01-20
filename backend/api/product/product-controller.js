@@ -107,6 +107,58 @@ const createProduct = asyncHandler(async (req, res, next) => {
   }
 });
 
+const fetchAllProduct = asyncHandler(async (req, res, next) => {
+  const products = await Product.aggregate([
+    {
+      $match: { isProductDeleted: false },
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    {
+      $lookup: {
+        from: "taxes",
+        localField: "taxRate",
+        foreignField: "_id",
+        as: "taxRate",
+      },
+    },
+    {
+      $addFields: {
+        productInfo : {
+          name: "$name",
+          skuCode: "$skuCode",
+          productImg: "$productImg",
+          salePrice: "$salePrice",
+          alertQuantity: "$alertQuantity",
+          discountType: "$discountType",
+          discountValue: "$discountValue",
+          category: { $arrayElemAt: ["$category.name", 0] },
+          taxRate: { $arrayElemAt: ["$taxRate.percent", 0] },
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        product: { $push: "$productInfo" },
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        product: 1,
+      },
+    },
+  ]);
+  res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));
+});
+
 const getDiscountTypes = asyncHandler(async (req, res, next) => {
   try {
     const discountTypes = Product.schema.path("discountType").enumValues;
@@ -123,4 +175,4 @@ const getDiscountTypes = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { createProduct, getDiscountTypes };
+export { createProduct, fetchAllProduct, getDiscountTypes };
