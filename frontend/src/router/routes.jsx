@@ -1,6 +1,8 @@
 import Login from "@/pages/authentication/Login";
+import Categories from "@/pages/Features/categories";
 import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
+import Products from "@/pages/Features/products";
 import RolesAndPermissions from "@/pages/Features/roles and permissions/index.jsx";
 
 const authRoutes = [
@@ -15,6 +17,14 @@ const authRoutes = [
   {
     path: "/roles-and-permissions",
     element: <RolesAndPermissions />,
+  },
+  {
+    path: "/categories",
+    element: <Categories />,
+  },
+  {
+    path: "/products",
+    element: <Products />,
   },
 ];
 
