@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Product } from "./product-model.js";
 import { Category } from "../product-category/product-category-model.js";
+import { Inventory } from "../inventory/inventory-model.js";
 import { Tax } from "./tax/tax-model.js";
 import { ApiError } from "../../utils/api-error-utils.js";
 import { ApiResponse } from "../../utils/api-Responnse-utils.js";
@@ -107,6 +108,71 @@ const createProduct = asyncHandler(async (req, res, next) => {
   }
 });
 
+const updateProduct = asyncHandler(async (req, res, next) => {
+});
+
+const getStock = async (product_id) => {
+  const count = await Inventory.countDocuments({ product: product_id });
+  return count;
+};
+
+const deleteProduct = asyncHandler(async (req, res, next) => {
+console.log("-------------Deleting Product-------------");
+    let { skuCode } = req.body;
+    if (!skuCode) {
+        return next(ApiError.validationFailed("Sku code is required"));
+    }
+    skuCode = skuCode.toLowerCase();
+    const product = await Product.findOne({ skuCode , isProductDeleted: false });
+    if (!product) {
+      return next(ApiError.dataNotFound("Product does not exists"));
+    }
+
+    // const countOfStock = await getStock(product._id);
+    
+    // if(countOfStock > 0){
+    //   return next(ApiError.validationFailed("Cannot delete product, stock exists"));
+    // }
+    
+    try{
+        product.isProductDeleted = true;
+        await product.save();
+        console.log(product);
+        res.status(204).json(ApiResponse.successDeleted(product, "Product deleted successfully"));
+        console.log("----------------Product Deleted Successfully----------------");
+    }catch(error){
+    console.error(error);
+        return next(ApiError.dataNotDeleted(error.message, error));
+    }
+});
+
+const getProduct = asyncHandler(async (req, res, next) => {
+  let { skuCode } = req.body;
+  if (!skuCode) {
+    return next(ApiError.validationFailed("Sku code is required"));
+  }
+
+  skuCode = skuCode.toLowerCase();
+  try {
+  const product = await Product.findOne({ skuCode, isProductDeleted: false })
+    ?.populate({
+      path: "category",
+      select: "-_id -isCategoryDeleted -__v -createdAt -updatedAt",
+    })
+    .populate({
+      path: "taxRate",
+      select: "-_id -isTaxDeleted -__v -createdAt -updatedAt",
+    });
+  if (!product) {
+    return next(ApiError.dataNotFound("Product does not exists"));
+  }
+
+  res.status(200).json(ApiResponse.successRead(product, "Product fetched successfully"));
+  } catch (error) {
+    return next(ApiError.dataNotFound(error.message, error));
+  }
+});
+
 const fetchAllProduct = asyncHandler(async (req, res, next) => {
   const products = await Product.aggregate([
     {
@@ -175,4 +241,4 @@ const getDiscountTypes = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { createProduct, fetchAllProduct, getDiscountTypes };
+export { createProduct, getProduct ,fetchAllProduct, getDiscountTypes , deleteProduct };

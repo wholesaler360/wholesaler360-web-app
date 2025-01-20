@@ -35,8 +35,6 @@ const productSchema = new Schema(
     taxRate: {
       type: Schema.Types.ObjectId,
       ref : "Tax",
-      required: true,
-      default: 0,
     },
     discountType: {
       type: String,
