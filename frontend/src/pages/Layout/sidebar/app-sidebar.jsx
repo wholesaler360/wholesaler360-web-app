@@ -25,7 +25,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import  UserMenu  from "./userMenu/index.jsx";
+import UserMenu from "./userMenu/index.jsx";
 
 const data = {
   user: {
@@ -70,7 +70,7 @@ const data = {
         },
         {
           title: "Categories",
-          url: "#",
+          url: "/categories",
         },
         {
           title: "Stock",
