@@ -29,8 +29,23 @@ import {
   FetchAllCategories,
   UpdateCategory,
 } from "@/constants/apiEndPoints";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,6 +69,10 @@ function CategoriesController({ children }) {
       if (response.status === 201) {
         showNotification.success("Category added successfully");
         setRefreshTrigger((prev) => prev + 1);
+        } else if (response.status === 409) {
+          showNotification.error("Category already exists");
+      } else {
+        throw new Error("Failed to add category");
       }
     } catch (error) {
       showNotification.error("Failed to add category");
@@ -62,7 +81,10 @@ function CategoriesController({ children }) {
 
   const updateCategory = async (oldName, newName) => {
     try {
-      const response = await axiosPut(UpdateCategory, { name: oldName, newName });
+      const response = await axiosPut(UpdateCategory, {
+        name: oldName,
+        newName,
+      });
       if (response.status === 200) {
         showNotification.success("Category updated successfully");
         setRefreshTrigger((prev) => prev + 1);
@@ -126,7 +148,7 @@ function CategoriesController({ children }) {
         };
         const handleDelete = async () => {
           try {
-            const response = await axiosDelete(DeleteCategory, {data}); // Replace with your endpoint
+            const response = await axiosDelete(DeleteCategory, { data }); // Replace with your endpoint
             if (response.status === 204) {
               showNotification.success("Category deleted successfully");
               setRefreshTrigger((prev) => prev + 1);
@@ -140,10 +162,7 @@ function CategoriesController({ children }) {
           <div className="flex space-x-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <ButtonV2
-                  variant="ghost"
-                  size="icon"
-                >
+                <ButtonV2 variant="ghost" size="icon">
                   <Edit className="h-4 w-4" />
                 </ButtonV2>
               </DialogTrigger>
@@ -155,7 +174,10 @@ function CategoriesController({ children }) {
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmitEdit)} className="space-y-4">
+                  <form
+                    onSubmit={form.handleSubmit(onSubmitEdit)}
+                    className="space-y-4"
+                  >
                     <FormField
                       control={form.control}
                       name="categoryName"
@@ -214,7 +236,13 @@ function CategoriesController({ children }) {
 
   return (
     <CategoriesContext.Provider
-      value={{ getCategories, addCategory, updateCategory, columns, refreshTrigger }}
+      value={{
+        getCategories,
+        addCategory,
+        updateCategory,
+        columns,
+        refreshTrigger,
+      }}
     >
       {children}
     </CategoriesContext.Provider>
