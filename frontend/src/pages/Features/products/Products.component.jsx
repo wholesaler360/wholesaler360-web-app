@@ -12,14 +12,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useToast } from "@/hooks/use-toast";
+import { showNotification } from "@/core/toaster/toast";
 
 export function ProductsComponent() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
   const { getProducts, columns, refreshTrigger } = useContext(ProductsContext);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,17 +29,13 @@ export function ProductsComponent() {
           setData(response.value.product);
         }
       } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to fetch products",
-        });
+        showNotification.error("Failed to fetch products");
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [getProducts, refreshTrigger, toast]);
+  }, [getProducts, refreshTrigger]);
 
   const table = useReactTable({
     data,
@@ -59,9 +54,14 @@ export function ProductsComponent() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Products</h2>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage your product inventory and details here.
+          </p>
+        </div>
+        <Button className="h-10">
+          <PlusCircle className="mr-2 h-5 w-5" />
           Add Product
         </Button>
       </div>
@@ -73,15 +73,17 @@ export function ProductsComponent() {
           searchableColumnCount={1}
           filterableColumnCount={0}
           showViewOptions={true}
+          className="p-4"
         />
       ) : (
-        <DataTable
-          table={table}
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-        />
+        <div className="relative">
+          <DataTable
+            table={table}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+          />
+        </div>
       )}
     </div>
   );
 }
-

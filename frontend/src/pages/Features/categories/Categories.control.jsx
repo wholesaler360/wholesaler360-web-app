@@ -69,8 +69,8 @@ function CategoriesController({ children }) {
       if (response.status === 201) {
         showNotification.success("Category added successfully");
         setRefreshTrigger((prev) => prev + 1);
-        } else if (response.status === 409) {
-          showNotification.error("Category already exists");
+      } else if (response.status === 409) {
+        showNotification.error("Category already exists");
       } else {
         throw new Error("Failed to add category");
       }
@@ -162,7 +162,10 @@ function CategoriesController({ children }) {
           <div className="flex space-x-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <ButtonV2 variant="ghost" size="icon">
+                <ButtonV2 variant="ghost" 
+                size="icon"
+                className="text-blue-600 hover:text-blue-600 hover:bg-blue-50 "
+              >
                   <Edit className="h-4 w-4" />
                 </ButtonV2>
               </DialogTrigger>
@@ -204,7 +207,7 @@ function CategoriesController({ children }) {
                 <ButtonV2
                   variant="ghost"
                   size="icon"
-                  className=" p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="h-4 w-4" />
                 </ButtonV2>

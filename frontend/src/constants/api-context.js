@@ -1,5 +1,4 @@
 import api from "@/lib/axiosInstance";
-import { showNotification } from "@/core/toaster/toast";
 
 const axiosGet = async (endpoint = null) => {
   try {
