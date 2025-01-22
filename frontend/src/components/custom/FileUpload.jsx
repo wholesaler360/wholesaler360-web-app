@@ -19,6 +19,7 @@ export function FileUpload({ onImageCropped }) {
   const [zoom, setZoom] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const inputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const onCropComplete = (croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -92,20 +93,63 @@ export function FileUpload({ onImageCropped }) {
     onImageCropped(null);
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setImage(reader.result);
+          setIsDialogOpen(true);
+        };
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col items-center gap-4">
         <Label 
           htmlFor="image-upload" 
           className={cn(
-            "flex min-h-[160px] w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-4",
-            "hover:bg-muted/25 transition-colors"
+            "flex min-h-[160px] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4",
+            "transition-all duration-200",
+            isDragging 
+              ? "border-primary bg-primary/10 scale-[1.02]" 
+              : "border-muted-foreground/25 hover:bg-muted/25",
           )}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <div className="flex flex-col items-center gap-2">
-            <ImagePlus className="h-10 w-10 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Click to upload or drag and drop
+            <ImagePlus className={cn(
+              "h-10 w-10 transition-colors duration-200",
+              isDragging ? "text-primary" : "text-muted-foreground"
+            )} />
+            <p className={cn(
+              "text-sm transition-colors duration-200",
+              isDragging ? "text-primary" : "text-muted-foreground"
+            )}>
+              {isDragging ? "Drop image here" : "Click to upload or drag and drop"}
             </p>
             <p className="text-xs text-muted-foreground">
               SVG, PNG, JPG or GIF (max. 800x400px)

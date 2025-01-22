@@ -89,7 +89,7 @@ function AddProductComponent() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50">
+    <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -329,7 +329,7 @@ function AddProductComponent() {
             <CardContent className="p-6">
               <h3 className="mb-6 text-lg font-semibold">Product Preview</h3>
               {croppedImage ? (
-                <div className="overflow-hidden rounded-lg border bg-white">
+                <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-950">
                   <div className="aspect-square">
                     <img
                       src={URL.createObjectURL(croppedImage)}
@@ -355,7 +355,7 @@ function AddProductComponent() {
                   </div>
                 </div>
               ) : (
-                <div className="flex h-[400px] items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
+                <div className="flex h-[400px] items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 dark:bg-zinc-800">
                   <p className="text-sm text-gray-500">
                     Upload an image to see preview
                   </p>
