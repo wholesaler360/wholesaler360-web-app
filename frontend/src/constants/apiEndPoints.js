@@ -20,3 +20,5 @@ export const DeleteCategory = "/category/deleteCategory";
 // Products
 export const FetchAllProducts = "/product/fetchAllProduct";
 export const DeleteProduct = "product/deleteProduct";
+export const CreateProduct = "/product/createProduct";
+export const FetchAllTaxes = "/tax/getAllTax";

@@ -13,13 +13,14 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { showNotification } from "@/core/toaster/toast";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export function ProductsComponent() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
   const { getProducts, columns, refreshTrigger } = useContext(ProductsContext);
-
+  const Navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,6 +37,10 @@ export function ProductsComponent() {
     };
     fetchData();
   }, [getProducts, refreshTrigger]);
+
+  const handleAddProduct = () => {
+    Navigate("/products/add");
+  };
 
   const table = useReactTable({
     data,
@@ -60,7 +65,12 @@ export function ProductsComponent() {
             Manage your product inventory and details here.
           </p>
         </div>
-        <Button className="h-10">
+        <Button
+          className="h-10"
+          onClick={() => {
+            handleAddProduct();
+          }}
+        >
           <PlusCircle className="mr-2 h-5 w-5" />
           Add Product
         </Button>
