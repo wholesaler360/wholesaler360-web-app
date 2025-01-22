@@ -41,8 +41,18 @@ const uploadFile = async (localFilePath) => {
 
 const deleteFromCloudinary = async (publicID)=>{
     try {
-       const result = await cloudinary.uploader.destroy(publicID)
-        console.log("Delete Successfully..");
+        // We need to extract the publicID from the URL inorder to delete the file from cloudinary
+        // e.g https://res.cloudinary.com/ddfgsdg/image/upload/v163sdfg/sgdsfgsdgsdg.jpg
+        // publicID = sgdsfgsdgsdg.jpg
+        const publicIDForDelete = publicID.split('/').slice(-1)[0].split('.')[0];
+
+        console.log(`Deleting file from cloudinary with publicID : ${publicIDForDelete}`);
+       const result = await cloudinary.uploader.destroy(publicIDForDelete)
+       if (result.result === 'ok') {
+           console.log("Delete Successfully..");
+       } else {
+           console.log("Failed to delete the file from cloudinary");
+       }
     } catch (error) {
         console.log("Error deleting the cloudinary file");
     }
