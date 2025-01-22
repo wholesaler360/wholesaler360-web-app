@@ -13,7 +13,7 @@ import { taxRouter } from "./api/product/tax/tax-route.js";
 import { categoryRouter } from "./api/product-category/product-category-route.js";
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
-
+import seederRouter from "./utils/seeder-utils.js";
 const app = express();
 
 app.use(express.json());
@@ -34,14 +34,17 @@ app.use(
 
 app.use(cookieParser());
 
+
 app.use("/auth", authRouter);
 
 app.post("/createModule", createModule);
 
+app.use("/seed", seederRouter);
 
 app.get('/public/temp/:image', (req, res) => {
     res.sendFile(req.params.image, { root: 'public/temp' });
 });
+
 // Use the authMiddleware for all routes
 app.use(authMiddleware);
 
