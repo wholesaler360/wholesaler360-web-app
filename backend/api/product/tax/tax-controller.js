@@ -69,7 +69,7 @@ const deleteTax = asyncHandler(async (req, res, next) => {
     try {
         tax.isTaxDeleted = true;
         await tax.save();
-        res.status(200).json(ApiResponse.successRead(tax, 'Tax deleted successfully'));
+        res.status(204).json(ApiResponse.successDeleted(tax, 'Tax deleted successfully'));
     } catch (error) {
         return next(ApiError.dataNotInserted("Tax not deleted"));
     }

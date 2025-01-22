@@ -110,6 +110,23 @@ const fetchPermission = asyncHandler(async (req, res, next) => {
   if (!existingRole) {
     return next(ApiError.dataNotFound("Role with this name does not exists"));
   }
+
+  // Embed all modules in the response
+  const allModules = await Module.find();
+  const setOfExistingModules = new Set(existingRole.sections.map((section) => section.module.name));
+  
+  allModules.forEach((module) => {
+    if(!setOfExistingModules.has(module.name))
+    {
+      const {_id, name} = module;
+        existingRole.sections.push({
+            module: {_id,name},
+            permission : 0
+        });
+    }
+  });
+  
+  // Todo to remove the sections sub_id fromt the existingRole
   res
     .status(200)
     .json(ApiResponse.successRead(existingRole, "Role fetched successfully"));
