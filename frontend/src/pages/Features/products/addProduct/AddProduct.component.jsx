@@ -21,13 +21,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { AddProductContext } from "./AddProduct.control";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, SparkleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 function AddProductComponent() {
   const {
@@ -119,26 +121,6 @@ function AddProductComponent() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
-                {/* Image Upload Section */}
-                <FormField
-                  control={form.control}
-                  name="productImg"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product Image</FormLabel>
-                      <FormControl>
-                        <FileUpload
-                          onImageCropped={(croppedImg) => {
-                            setCroppedImage(croppedImg);
-                            field.onChange(croppedImg);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Basic Details Section */}
                 <div className="space-y-4">
                   <Label className="text-base font-semibold">
@@ -287,7 +269,7 @@ function AddProductComponent() {
                             <SelectContent>
                               {taxes.map((tax) => (
                                 <SelectItem key={tax.name} value={tax.name}>
-                                  {tax.name} ({tax.rate}%)
+                                  {tax.name} ({tax.percent}%)
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -297,6 +279,29 @@ function AddProductComponent() {
                       )}
                     />
                   </div>
+                  {/* Image Upload Section */}
+                  <FormField
+                    control={form.control}
+                    name="productImg"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Image</FormLabel>
+                        <FormControl>
+                          <FileUpload
+                            onImageCropped={(croppedImg) => {
+                              setCroppedImage(croppedImg);
+                              field.onChange(croppedImg);
+                            }}
+                            formData={{
+                              productName: form.watch("name"),
+                              categoryName: form.watch("categoryName"),
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 <div className="flex justify-end gap-4 pt-4">
