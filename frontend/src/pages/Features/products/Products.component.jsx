@@ -20,17 +20,21 @@ export function ProductsComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
   const { getProducts, columns, refreshTrigger } = useContext(ProductsContext);
-  const Navigate = useNavigate();
+  const navigate = useNavigate(); // Fixed casing
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const response = await getProducts();
-        if (response.success) {
-          setData(response.value.product);
-        }
+        
+        // Handle different response structures
+        const productsData = response?.value[0].product ;
+        
+        setData(productsData);
       } catch (error) {
         showNotification.error("Failed to fetch products");
+        setData([]); // Ensure data is always an array
       } finally {
         setIsLoading(false);
       }
@@ -39,11 +43,12 @@ export function ProductsComponent() {
   }, [getProducts, refreshTrigger]);
 
   const handleAddProduct = () => {
-    Navigate("/products/add");
+    navigate("/products/add");
   };
 
+  // Move table initialization after data is loaded
   const table = useReactTable({
-    data,
+    data: Array.isArray(data) ? data : [], // Ensure data is always an array
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -55,6 +60,7 @@ export function ProductsComponent() {
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
   });
+
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
