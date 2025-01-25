@@ -199,15 +199,20 @@ const deleteRole = asyncHandler(async (req, res, next) => {
     console.log(existingRole);
 
     const countOfUser = await countNoOfUsersHavingRole(existingRole._id);
+
     if(countOfUser > 0)
     {
         return next(ApiError.validationFailed("Cannot delete role as it is assigned to some users"));
     }
+
     try {
         existingRole.isRoleDeleted = true;
         await existingRole.save();
 
-        res.status(204).json(ApiResponse.successDeleted(existingRole, "Role deleted successfully"));
+        return res.status(200).json(
+            ApiResponse.successDeleted(existingRole, "Role deleted successfully")
+        );
+
     } catch (error) {
         return next(new ApiError(500, error.message));
     }

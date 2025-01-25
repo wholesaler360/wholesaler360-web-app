@@ -56,21 +56,23 @@ const vendorSchema = new Schema(
         name: {
             type: String,
             required: true,
-            trim: true,
-            index: true
+            trim: true
         },
         mobileNo: {
             type: String,
             unique : true,
-            required: true
+            required: true,
+            index: true
         },
         email: {
             type: String,
             unique : true,
-            required: true
+            required: true,
+            index: true
         },
         gstin: {
-            type: String
+            type: String, 
+            unique : true,  
         },
         address: {
             type: addressSchema,
