@@ -11,6 +11,7 @@ import {
   UsersRound,
   Wallet,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 import { NavItems } from "./navItems/NavItems";
 import { NavItems2 } from "./navItems2/NavItems2";
@@ -25,7 +26,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import  UserMenu  from "./userMenu/index.jsx";
+import UserMenu from "./userMenu/index.jsx";
 
 const data = {
   user: {
@@ -66,11 +67,11 @@ const data = {
       items: [
         {
           title: "Products",
-          url: "#",
+          url: "/products",
         },
         {
           title: "Categories",
-          url: "#",
+          url: "/categories",
         },
         {
           title: "Stock",
@@ -174,14 +175,23 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const user = await axiosPost("/user-info");
-  //   };
-  //   fetchData();
-  // }, []);
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  // Deep clone and update the navigation items with active states
+  const navItems = React.useMemo(() => {
+    return data.NavItems.map(item => ({
+      ...item,
+      isActive: item.url === currentPath || 
+                item.items?.some(subItem => subItem.url === currentPath),
+      items: item.items?.map(subItem => ({
+        ...subItem,
+        isActive: subItem.url === currentPath
+      }))
+    }));
+  }, [currentPath]);
+
   return (
-    // <ScrollArea>
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
@@ -204,15 +214,24 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <ScrollArea>
-          <NavItems items={data?.NavItems} />
+          <NavItems 
+            items={navItems} 
+            currentPath={currentPath}
+          />
         </ScrollArea>
-        <NavItems2 projects={data?.NavItems2} />
-        <NavFooterItems items={data?.NavFooterItems} className="mt-auto" />
+        <NavItems2 
+          projects={data?.NavItems2} 
+          currentPath={currentPath}
+        />
+        <NavFooterItems 
+          items={data?.NavFooterItems} 
+          currentPath={currentPath} 
+          className="mt-auto" 
+        />
       </SidebarContent>
       <SidebarFooter>
         <UserMenu user={data.user} />
       </SidebarFooter>
     </Sidebar>
-    // </ScrollArea>
   );
 }

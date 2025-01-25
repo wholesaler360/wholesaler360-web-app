@@ -7,7 +7,6 @@ const roleSchema = new Schema(
             required: true,
             lowercase: true,
             trim: true,
-            unique: true, // Ensure role names are unique
         },
         sections: [
             {

@@ -2,11 +2,10 @@ import mongoose, { Schema } from "mongoose";
 
 const inventorySchema = new Schema(
   {
-    product_detail: {
+    product: {
       type: Schema.Types.ObjectId,
       ref : "Product",
       required: true,
-      index: true,
     },
     stock: {
       type: Number,
@@ -17,4 +16,4 @@ const inventorySchema = new Schema(
   { timestamps: true }
 );
 
-export const User = mongoose.model("Inventory", inventorySchema);
+export const Inventory = mongoose.model("Inventory", inventorySchema);

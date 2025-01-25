@@ -18,7 +18,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
     // Checks if the user already exists
     const existingUser = await User.findOne({
         $or: [{ email }, { mobileNo }],
-      })
+      isUserDeleted : false})
 
     if(existingUser)
     {

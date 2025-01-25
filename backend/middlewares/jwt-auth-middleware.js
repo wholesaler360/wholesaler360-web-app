@@ -85,7 +85,6 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
             }
         }
         return next(ApiError.unauthorizedAccess("You don't have permission to access this module"));
-    
     } catch (error) {
         return next(new ApiError(500, error.message));
     }
