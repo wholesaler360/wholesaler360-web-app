@@ -14,6 +14,11 @@ import { categoryRouter } from "./api/product-category/product-category-route.js
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
+import { vendorRouter } from "./api/vendors/vendor-route.js";
+
+
+// TODO : Validation like email, mobile number etc..,
+
 const app = express();
 
 app.use(express.json());
@@ -59,6 +64,8 @@ app.use('/category', categoryRouter);
 app.use("/role", roleRouter);
 
 app.use("/user", userRouter);
+
+app.use('/vendor', vendorRouter)
 
 // catch all undefined routes for authenticated users
 app.use("*", (req, res, next) => {

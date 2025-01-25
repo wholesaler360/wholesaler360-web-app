@@ -15,7 +15,6 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     
     if(!accessToken)
     {
-        // TODO : Redirect to login page
         return next(ApiError.validationFailed("Please provide the tokens"));
     }
     
