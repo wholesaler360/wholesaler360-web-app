@@ -14,19 +14,7 @@ import { categoryRouter } from "./api/product-category/product-category-route.js
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
-import express, { urlencoded } from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import 'dotenv/config';
-import { ApiError } from './utils/api-error-utils.js';
-import { ApiResponse } from './utils/api-Responnse-utils.js';
-import { errorHandler } from './middlewares/errorHandler-middleware.js';
-import { createModule } from './api/sections/module-controller.js';
-import { roleRouter } from './api/roles/role-route.js';
-import { userRouter } from './api/users/user-route.js';
-import authRouter from './api/login/login-route.js';
-import authMiddleware from './middlewares/jwt-auth-middleware.js';
-import { vendorRouter } from './api/vendors/vendor-route.js';
+import { vendorRouter } from "./api/vendors/vendor-route.js";
 
 
 // TODO : Validation like email, mobile number etc..,
