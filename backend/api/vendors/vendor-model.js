@@ -60,19 +60,16 @@ const vendorSchema = new Schema(
         },
         mobileNo: {
             type: String,
-            unique : true,
             required: true,
             index: true
         },
         email: {
             type: String,
-            unique : true,
             required: true,
             index: true
         },
         gstin: {
             type: String, 
-            unique : true,  
         },
         address: {
             type: addressSchema,
@@ -85,7 +82,7 @@ const vendorSchema = new Schema(
             type: bankDetailsSchema,
             required: true
         },
-        balance: {
+        payableBalance: {
             type: Number,
             default: 0.0
         },

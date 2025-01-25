@@ -44,12 +44,22 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     };
 
     const existingVendor = await Vendor.findOne({ 
-        $or: [{ email }, { mobileNo }],
+        $or: [{ email, isDeleted: false}, { mobileNo, isDeleted: false }],
     });
 
     if(existingVendor) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.valueAlreadyExists("Vendor Already Exists"))
+    }
+
+    const existingGstin = await Vendor.findOne({ 
+        gstin,
+        isDeleted: false    
+    });
+
+    if(existingGstin) {
+        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
+        return next(ApiError.valueAlreadyExists("GST Number is already registered with another vendor"))
     }
 
     let avatar;
@@ -82,7 +92,12 @@ const createVendor = asyncHandler(async(req, res, next)=>{
 const fetchAllVendors = asyncHandler(async(req, res, next) => {
     const vendors = await Vendor.find({ 
         isDeleted: false,
-    }, { __v: 0, deletedAt: 0, updatedAt: 0 });
+    }, { 
+        __v: 0, 
+        deletedAt: 0, 
+        updatedAt: 0,
+        createdAt: 0 
+    });
     
     if (!vendors?.length) {
         return next(ApiError.dataNotFound("No vendors found"));
@@ -103,12 +118,14 @@ const fetchVendor = asyncHandler(async(req, res, next) => {
 
     // TODO : Mobile number validations
 
+    // This will fetch the deleted vendors also 
     const vendor = await Vendor.findOne({ 
         mobileNo,
     }, { 
-        __v: 0,
+        __v: 0,     
         deletedAt: 0,
-        updatedAt: 0 
+        updatedAt: 0,
+        createdAt: 0
     });
 
     if (!vendor) {
@@ -138,7 +155,11 @@ const deleteVendor = asyncHandler(async(req, res, next) => {
     
     try {
         vendor.isDeleted = true;
+        const imgUrl = vendor.imageUrl
+        vendor.imageUrl = null;
+
         await vendor.save();
+        deleteFromCloudinary(imgUrl);
 
         return res.status(200).json(
             ApiResponse.successDeleted("Vendor deleted successfully")
@@ -170,7 +191,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     // Check if new email already exists for another vendor
     if (email && email !== vendor.email) {
-        const emailExists = await Vendor.findOne({ email });
+        const emailExists = await Vendor.findOne({ email , isDeleted: false });
         if (emailExists) {
             return next(ApiError.valueAlreadyExists("Email already registered with another vendor"));
         }
@@ -178,7 +199,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     // Check if new gstin already exists for another vendor
     if (gstin && gstin !== vendor.gstin) {
-        const gstinExists = await Vendor.findOne({ gstin });
+        const gstinExists = await Vendor.findOne({ gstin , isDeleted: false });
         if (gstinExists) {
             return next(ApiError.valueAlreadyExists("GSTIN is already associated with another vendor"));
         }
@@ -201,8 +222,10 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
+        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        
         return res.status(200).json(
-            ApiResponse.successUpdated(updatedVendor, "Vendor updated successfully")
+            ApiResponse.successUpdated(remaining, "Vendor updated successfully")
         );
     } catch (error) {
         return next(ApiError.dataNotUpdated("Failed to update vendor", error));
@@ -237,25 +260,22 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
     // Delete old avatar from cloudinary only if new avatar is uploaded
     if (avatar) {
         vendor.imageUrl = avatar;
+        
         // If old avatar exists, delete it from cloudinary
         if (oldAvatarUrl) {
             deleteFromCloudinary(oldAvatarUrl);
         }
-
-        // Delete newly received avatar from local path
-        deleteFromLocalPath(req.files.avatar[0].path);
     }
     else {
-        // Delete newly received avatar from local path
-        deleteFromLocalPath(req.files.avatar[0].path);
         return next(ApiError.dataNotUpdated("Failed to update avatar"));
     }
 
     try {
         const updatedVendor = await vendor.save();
+        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
 
         return res.status(200).json(
-            ApiResponse.successUpdated(updatedVendor, "Avatar updated successfully")
+            ApiResponse.successUpdated(remaining, "Avatar updated successfully")
         );
 
     } catch (error) {

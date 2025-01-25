@@ -15,6 +15,8 @@ vendorRouter.route('/updateAvatar').put(
 vendorRouter.route('/fetchAll').get(fetchAllVendors)
 vendorRouter.route('/fetch').get(fetchVendor)
 vendorRouter.route('/delete').delete(deleteVendor)
-vendorRouter.route('/update').put(updateVendor)
+
+// Need to use multer to handle form data even if there are no files
+vendorRouter.route('/update').put(upload.none(), updateVendor)
 
 export { vendorRouter }
