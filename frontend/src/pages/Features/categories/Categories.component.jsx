@@ -84,17 +84,17 @@ function CategoriesComponent() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     initialState: {
-        sorting: [{ id: "createdOn", desc: true }],
-        pagination: {
-          pageSize: 10,
-          pageIndex: 0,
-        },
+      sorting: [{ id: "createdOn", desc: true }],
+      pagination: {
+        pageSize: 10,
+        pageIndex: 0,
       },
+    },
     state: {
       globalFilter,
     },
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'includesString',
+    globalFilterFn: "includesString",
   });
 
   const onSubmit = async (values) => {
@@ -104,48 +104,54 @@ function CategoriesComponent() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-4 py-1">
+    <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium">Categories</h2>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Categories</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage your product categories here.
+          </p>
+        </div>
         <div className="flex items-center space-x-2">
-          {!isLoading && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Category
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Category</DialogTitle>
-                  <DialogDescription>
-                    Enter a name for the new category.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="categoryName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter>
-                      <Button type="submit">Add Category</Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Category
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Category</DialogTitle>
+                <DialogDescription>
+                  Enter a name for the new category.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="categoryName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button type="submit">Add Category</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       {isLoading ? (
@@ -168,5 +174,3 @@ function CategoriesComponent() {
 }
 
 export default CategoriesComponent;
-
-
