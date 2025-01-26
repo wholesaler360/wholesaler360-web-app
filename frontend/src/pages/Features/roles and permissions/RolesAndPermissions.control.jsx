@@ -87,7 +87,6 @@ function RolesAndPermissionController({ children }) {
   const addRole = async (value) => {
     try {
       const response = await axiosPost(createRole, { name: value.roleName });
-      console.log(response);
       if (response.status === 201) {
         showNotification.success("Role added successfully");
         setRefreshTrigger((prev) => prev + 1);

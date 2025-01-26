@@ -17,11 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
 import { showNotification } from "@/core/toaster/toast";
+import { useNavigate } from "react-router-dom";
 
 const ProductsContext = createContext({});
 
 function ProductsController({ children }) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const navigate = useNavigate();
 
   const getProducts = useCallback(async () => {
     const response = await axiosGet(FetchAllProducts);
@@ -98,6 +100,12 @@ function ProductsController({ children }) {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
+        const handleEdit = () => {
+          navigate("/product/edit", { 
+            state: { productSkuCode: row.original.skuCode }
+          });
+        };
+
         const handleDelete = async () => {
           try {
             const response = await axiosDelete(`${DeleteProduct}`, {
@@ -120,6 +128,7 @@ function ProductsController({ children }) {
               variant="ghost"
               size="icon"
               className="text-blue-600 hover:text-blue-600 hover:bg-blue-50 "
+              onClick={handleEdit}
             >
               <Edit className="h-4 w-4" />
             </Button>
