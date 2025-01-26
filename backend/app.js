@@ -11,6 +11,7 @@ import { userRouter } from "./api/users/user-route.js";
 import { productRouter } from "./api/product/product-route.js";
 import { taxRouter } from "./api/product/tax/tax-route.js";
 import { categoryRouter } from "./api/product-category/product-category-route.js";
+import { customerRouter } from "./api/customer/customer-route.js";
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
@@ -65,7 +66,11 @@ app.use("/role", roleRouter);
 
 app.use("/user", userRouter);
 
+
+app.use("/customer", customerRouter);
+
 app.use('/vendor', vendorRouter)
+
 
 // catch all undefined routes for authenticated users
 app.use("*", (req, res, next) => {

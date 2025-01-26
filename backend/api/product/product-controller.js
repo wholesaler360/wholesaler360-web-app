@@ -112,7 +112,7 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
     {
         return next(ApiError.validationFailed("Sku code is required"));
     }
-    skuCode = skuCode.toLowerCase();
+    skuCode = skuCode.trim().toLowerCase();
     const product = await Product.findOne({skuCode : skuCode});
     
     if(!product || product.isProductDeleted)
@@ -120,7 +120,7 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
         return next(ApiError.dataNotFound("Product does not exists or product is deleted"));
       }
       
-    let  newSkuCode = req.body?.newSkuCode?.toLowerCase() || skuCode;
+    // let  newSkuCode = req.body?.newSkuCode?.toLowerCase() || skuCode;
     let name = req.body?.name?.toLowerCase(); 
     let categoryName = req.body?.categoryName?.toLowerCase();
     let salePrice = req.body?.salePrice;
@@ -129,7 +129,7 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
     let discountType = req.body?.discountType === "rate" ? "rate" : "fixed";
     let discountValue = !(req.body?.discountValue)  ? 0 : req.body?.discountValue;
     
-    if ([name, categoryName ,newSkuCode, taxName ].some((field) => !field?.trim()==="")) {
+    if ([name, categoryName , taxName ].some((field) => !field?.trim()==="")) {
       return next(
         ApiError.validationFailed("Please provide all required fields")
       );
@@ -146,7 +146,6 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
     }
     try {
       product.name = name;
-      product.skuCode = newSkuCode;
       product.category = category._id;
       product.salePrice = salePrice;
       product.alertQuantity = alertQuantity;
@@ -165,8 +164,6 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
       console.log(error);
       return next(ApiError.dataNotUpdated(error.message,error));
     }
-
-    
 });
 
 const updateProductImage = asyncHandler(async (req , res , next)=>{
@@ -236,7 +233,10 @@ console.log("-------------Deleting Product-------------");
     
     try{
         product.isProductDeleted = true;
+        const ImageUrl = product.productImg;
+        product.productImg = "";
         await product.save();
+        await deleteFromCloudinary(ImageUrl);
         console.log(product);
         res.status(204).json(ApiResponse.successDeleted(product, "Product deleted successfully"));
         console.log("----------------Product Deleted Successfully----------------");
