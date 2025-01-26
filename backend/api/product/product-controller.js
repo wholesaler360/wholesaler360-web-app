@@ -183,18 +183,19 @@ const updateProductImage = asyncHandler(async (req , res , next)=>{
       if(!product){
         return next(ApiError.dataNotFound("Product does not exists"));
       }
-      
+      const oldProductImg = product.productImg;
       const productImgUrl = await uploadFile(productImgLocalPath);
       if(productImgUrl === null){
           return next(ApiError.dataNotUpdated("Product image not uploaded"));
       }
       console.log("Product Image URL: ", productImgUrl);
 
-      await deleteFromCloudinary(product.productImg);
-
+      
       product.productImg = productImgUrl;
-
+      
       await product.save();
+
+      await deleteFromCloudinary(oldProductImg);
 
       res.status(200).json(ApiResponse.successUpdated(product, "Product image updated successfully"));
       console.log("----------------Product Image Updated Successfully----------------");

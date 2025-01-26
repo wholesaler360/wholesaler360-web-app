@@ -24,7 +24,12 @@ const customerSchema = new mongoose.Schema({
     gstin : {
         type: String,
         trim: true,
-        lowercase: true,
+        uppercase: true,
+        default: null,
+    },
+    avatar : {
+        type: String,
+        default: null
     },
     billingAddress: {
         name : {
@@ -116,10 +121,17 @@ const customerSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    isCustomerDeleted:{
+    isDeleted:{
         type: Boolean,
         default: false,
+    },
+    createdBy : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
     }
+},
+{
+    timestamps: true
 }
 );
 
