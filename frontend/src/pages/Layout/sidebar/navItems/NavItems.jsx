@@ -1,4 +1,5 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Collapsible,
@@ -16,35 +17,77 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import React from "react";
 
-export function NavItems({ items }) {
+export function NavItems({ items, currentPath }) {
+  const navigate = useNavigate();
+  const [openItems, setOpenItems] = React.useState([]);
+
+  const handleClick = (e, url) => {
+    e.preventDefault();
+    if (url && url !== "#") {
+      navigate(url);
+    }
+  };
+
+  const isItemActive = (item) => {
+    return (
+      item.url === currentPath ||
+      item.items?.some((subItem) => subItem.url === currentPath)
+    );
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title} variant={item.isActive ? "active" : "default"}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
-              </SidebarMenuButton>
-              {item.items?.length ? (
-                <>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuAction className="data-[state=open]:rotate-90">
-                      <ChevronRight />
-                      <span className="sr-only">Toggle</span>
-                    </SidebarMenuAction>
+        {items.map((item) => {
+          if (item.items?.length) {
+            return (
+              <Collapsible
+                key={item.title}
+                open={openItems.includes(item.title) || isItemActive(item)}
+                onOpenChange={(isOpen) => {
+                  setOpenItems((prev) =>
+                    isOpen
+                      ? [...prev, item.title]
+                      : prev.filter((i) => i !== item.title)
+                  );
+                }}
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={item.title}
+                      variant={isItemActive(item) ? "active" : "default"}
+                    >
+                      <div className="flex w-full items-center">
+                        <item.icon
+                          className={isItemActive(item) ? "text-primary" : ""}
+                        />
+                        <span className="flex-1">{item.title}</span>
+                        <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </div>
+                    </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
+                      {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={subItem.url === currentPath}
+                          >
+                            <a
+                              href={subItem.url}
+                              onClick={(e) => handleClick(e, subItem.url)}
+                              className={
+                                subItem.url === currentPath
+                                  ? "text-primary"
+                                  : ""
+                              }
+                            >
                               <span>{subItem.title}</span>
                             </a>
                           </SidebarMenuSubButton>
@@ -52,11 +95,33 @@ export function NavItems({ items }) {
                       ))}
                     </SidebarMenuSub>
                   </CollapsibleContent>
-                </>
-              ) : null}
+                </SidebarMenuItem>
+              </Collapsible>
+            );
+          }
+
+          // Render simple item without sub-items
+          return (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                variant={isItemActive(item) ? "active" : "default"}
+              >
+                <a
+                  href={item.url}
+                  onClick={(e) => handleClick(e, item.url)}
+                  className={isItemActive(item) ? "text-primary" : ""}
+                >
+                  <item.icon
+                    className={isItemActive(item) ? "text-primary" : ""}
+                  />
+                  <span>{item.title}</span>
+                </a>
+              </SidebarMenuButton>
             </SidebarMenuItem>
-          </Collapsible>
-        ))}
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );

@@ -110,8 +110,8 @@ function RolesAndPermissionsComponent() {
         <div className="flex items-center ml-auto mr-2">
         {!isLoading ? (<Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <PlusCircle /> Add Role
+              <Button className="h-10">
+                <PlusCircle className="mr-2 h-5 w-5"/> Add Role
               </Button>
             </DialogTrigger>
             <DialogContent>
