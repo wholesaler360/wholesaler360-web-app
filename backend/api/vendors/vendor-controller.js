@@ -59,7 +59,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
 
     if(existingGstin) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
-        return next(ApiError.valueAlreadyExists("GST Number is already registered with another vendor"))
+        return next(ApiError.valueAlreadyExists("GSTIN is already associated with another vendor"))
     }
 
     let avatar;
@@ -121,6 +121,7 @@ const fetchVendor = asyncHandler(async(req, res, next) => {
     // This will fetch the deleted vendors also 
     const vendor = await Vendor.findOne({ 
         mobileNo,
+        isDeleted: false 
     }, { 
         __v: 0,     
         deletedAt: 0,
@@ -152,6 +153,10 @@ const deleteVendor = asyncHandler(async(req, res, next) => {
     if (!vendor || vendor.isDeleted) {
         return next(ApiError.dataNotFound("Vendor not found"));
     }
+
+    if (vendor.payableBalance !== 0) {
+        return next(ApiError.validationFailed("Cannot delete vendor with payable balance remaining"));
+    }
     
     try {
         vendor.isDeleted = true;
@@ -173,7 +178,7 @@ const deleteVendor = asyncHandler(async(req, res, next) => {
 
 const updateVendor = asyncHandler(async(req, res, next) => {
     const {
-        mobileNo, // for finding the vendor
+        mobileNo, newMobileNo, 
         name, email, gstin, addressLine1, 
         addressLine2, city, state, postalCode,
         country, branchName, ifsc, bankName, accountNumber
@@ -193,7 +198,15 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     if (email && email !== vendor.email) {
         const emailExists = await Vendor.findOne({ email , isDeleted: false });
         if (emailExists) {
-            return next(ApiError.valueAlreadyExists("Email already registered with another vendor"));
+            return next(ApiError.valueAlreadyExists("Email is already registered with another vendor"));
+        }
+    }
+
+    // Check if new mobile number already exists for another vendor
+    if (newMobileNo && newMobileNo !== vendor.mobileNo) {
+        const newMobileNoExists = await Vendor.findOne({ newMobileNo , isDeleted: false });
+        if (newMobileNoExists) {
+            return next(ApiError.valueAlreadyExists("Mobile number is already registered with another vendor"));
         }
     }
 
@@ -207,6 +220,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     // Update vendor fields
     vendor.name = name || vendor.name;
+    vendor.mobileNo = newMobileNo || vendor.mobileNo;
     vendor.email = email || vendor.email;
     vendor.gstin = gstin || vendor.gstin;
     vendor.address.addressLine1 = addressLine1 || vendor.address.addressLine1;
