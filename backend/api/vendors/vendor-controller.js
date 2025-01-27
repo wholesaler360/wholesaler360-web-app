@@ -7,7 +7,7 @@ import { uploadFile, deleteFromLocalPath, deleteFromCloudinary } from "../../uti
 
 const createVendor = asyncHandler(async(req, res, next)=>{
     const {
-        name, mobileNo, email, gstin, balance, 
+        name, mobileNo, email, gstin, payableBalance, 
         addressLine1, addressLine2, city, state, postalCode, 
         country, branchName, ifsc, bankName, accountNumber 
     } = req.body;
@@ -78,7 +78,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             address,
             bankDetails,
             imageUrl: avatar,
-            balance: balance || 0.0
+            payableBalance: payableBalance || 0.0
         });
         
         return res.status(201).json(ApiResponse.successCreated(vendorCreated, "Vendor created successfully"));
