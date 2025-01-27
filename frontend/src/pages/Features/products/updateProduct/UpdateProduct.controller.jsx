@@ -70,9 +70,13 @@ function UpdateProductController({ children }) {
     try {
       setIsLoading(true);
       const response = await axiosPut(UpdateProduct, data);
-      showNotification.success("Product updated successfully");
-      navigate("/products");
-      return response;
+      if (response.status === 200) {
+        showNotification.success("Product updated successfully");
+        navigate("/products");
+        return response;
+      } else {
+        throw new Error(response.data.message || "Failed to update product");
+      }
     } catch (error) {
       showNotification.error(error.message || "Failed to update product");
       throw error;
@@ -84,23 +88,18 @@ function UpdateProductController({ children }) {
   const updateProductImage = async (formData) => {
     try {
       setIsLoading(true);
-      
-      // Debug logging
-      console.log('FormData contents before sending:');
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value instanceof File ? `File: ${value.name}` : value);
-      }
 
       const response = await axiosPut(UpdateProductImage, formData);
 
       if (response.status === 200) {
         showNotification.success("Product image updated successfully");
+        navigate("/products");
         return { success: true, data: response.data };
       }
-      
+
       throw new Error(response.data?.message || "Failed to update image");
     } catch (error) {
-      console.error('Image upload error:', error);
+      console.error("Image upload error:", error);
       showNotification.error(error.message || "Failed to update product image");
       return { success: false, error };
     } finally {

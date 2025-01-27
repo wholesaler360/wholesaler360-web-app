@@ -66,7 +66,7 @@ function UpdateProductComponent() {
       }
     };
     fetchData();
-  }, []);
+  }, [croppedImage]);
 
   const onSubmit = async (values) => {
     try {
@@ -88,33 +88,15 @@ function UpdateProductComponent() {
   const handleImageUpdate = async () => {
     try {
       if (!croppedImage) return;
-      
+
       const formData = new FormData();
       formData.append("skuCode", productData.skuCode);
-      
-      // Create a file from the blob with a specific filename
-      const imageFile = new File([croppedImage], 'product-image.jpg', {
-        type: 'image/jpeg',
-        lastModified: new Date().getTime()
-      });
-      
-      // Append as 'productImg' - this name must match backend expectation
-      formData.append('productImg', imageFile);
 
-      // Debug log
-      console.log('Sending formData:', {
-        skuCode: productData.skuCode,
-        imageType: imageFile.type,
-        imageSize: imageFile.size
+      const imageFile = new File([croppedImage], "product-image.jpg", {
+        type: "image/jpeg",
       });
-
-      const result = await updateProductImage(formData);
-      if (result.success) {
-        setCroppedImage(null);
-        // Refresh the product data to show new image
-        const updatedProduct = await fetchProductDetails(productData.skuCode);
-        setProductData(updatedProduct);
-      }
+      formData.append("productImg", imageFile);
+      await updateProductImage(formData);
     } catch (error) {
       console.error("Image update error:", error);
     }

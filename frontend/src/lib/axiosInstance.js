@@ -22,11 +22,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    // Don't modify headers for multipart/form-data
-    if (config.headers['Content-Type']?.includes('multipart/form-data')) {
-      return config;
-    }
-
     if (config.url === RefreshTokenApi) {
       return config;
     }
@@ -35,6 +30,7 @@ api.interceptors.request.use(
       const isExpired = await isAccessTokenExpired();
       if (isExpired) {
         const newToken = await refreshAccessToken();
+        console.log("New Token:", newToken);
         if (!newToken) {
           clearAccessToken();
           showNotification.error("Session expired. Please login again.");
