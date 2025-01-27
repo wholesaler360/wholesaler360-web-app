@@ -13,16 +13,16 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     } = req.body;
 
     // Check if all the required fields are present or not 
-    if (
-        [name, mobileNo, email].some((field) => !field?.trim())  
-        || !addressLine1   
-        || !city           
-        || !state          
-        || !postalCode     
-        || !country        
-        || !bankName   
-        || !ifsc       
-        || !accountNumber
+    if ([
+            name, mobileNo, email, 
+            addressLine1, city, state, 
+            postalCode, country, bankName, 
+            ifsc, accountNumber
+
+        ].some((field) => 
+            // Apply trim only if field is a string
+            typeof field === "string" ? !field.trim() : !field
+        )  
     ) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
@@ -95,8 +95,7 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
     }, { 
         __v: 0, 
         deletedAt: 0, 
-        updatedAt: 0,
-        createdAt: 0 
+        updatedAt: 0
     });
     
     if (!vendors?.length) {
@@ -108,6 +107,22 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
     );
 });
 
+const fetchVendorsList = asyncHandler(async(req, res, next) => {
+    const vendors = await Vendor.find({ 
+        isDeleted: false,
+    }, { 
+        name: 1,
+        mobileNo: 1,
+    });
+    
+    if (!vendors?.length) {
+        return next(ApiError.dataNotFound("No vendors found"));
+    }
+
+    return res.status(200).json(
+        ApiResponse.successRead(vendors, "Vendors fetched successfully")
+    );
+});
 
 const fetchVendor = asyncHandler(async(req, res, next) => {
     const {mobileNo} = req.body;
@@ -298,4 +313,4 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 });
 
 
-export { createVendor, fetchAllVendors, fetchVendor, deleteVendor, updateVendor, updateAvatar };
+export { createVendor, fetchAllVendors, fetchVendorsList, fetchVendor, deleteVendor, updateVendor, updateAvatar };
