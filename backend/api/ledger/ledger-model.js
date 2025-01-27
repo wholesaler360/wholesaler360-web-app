@@ -23,8 +23,7 @@ const ledgerSchema = new Schema(
         },
         paymentMode: {
             type: String,
-            enum: ['cash', 'cheque', 'upi', 'online'],
-            required: true
+            enum: ['cash', 'cheque', 'upi', 'online', 'N/A'],
         },
         payableBalance: {
             type: Number,

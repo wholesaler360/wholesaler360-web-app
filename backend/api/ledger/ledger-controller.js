@@ -10,15 +10,19 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 const createLedgerService = async (data, fetchedUser) => {
     const { vendorId, amount, transactionType, paymentMode, description } = data;
 
+    console.log(vendorId, amount, transactionType, paymentMode, description);
     if ([
-        vendorId, amount, transactionType, 
-        paymentMode
+        vendorId, amount, transactionType
 
     ].some((field) => 
         typeof field === "string" ? !field.trim() : !field
     )  
     ) {
         return {success: false, errorType: "validationFailed", message: "Please provide all required fields", data: null};
+    }
+
+    if (transactionType === "debit" && !["cash", "cheque", "upi", "online"].includes(paymentMode)) {
+        return { success: false, errorType: "validationFailed", message: "Invalid payment mode", data: null };
     }
 
     const session = await mongoose.startSession();
@@ -49,16 +53,23 @@ const createLedgerService = async (data, fetchedUser) => {
         vendor.balance = payableBalance;
         await vendor.save({ session });
 
+
+
+        // TODO: check for the payable balance to be positive
+        // and also check why does this is not reflected in the vendor balance
+
+
         // Create the ledger entry
-        const ledgerEntry = await Ledger.create({
+        const ledgerEntry = await Ledger.create([
+            {
                 createdBy: fetchedUser._id,
                 vendorId,
                 amount,
                 transactionType,
-                paymentMode,
+                paymentMode: transactionType === "debit" ? paymentMode : null,
                 payableBalance,
                 description
-            },
+            }],
             { session }
         );
         
@@ -70,6 +81,7 @@ const createLedgerService = async (data, fetchedUser) => {
     catch (error) {
         await session.abortTransaction();
         session.endSession();
+        console.log(error);
         return { success: false, errorType: "dataNotInserted", message: "Failed to create ledger", data: null };
     }
 };
@@ -77,8 +89,8 @@ const createLedgerService = async (data, fetchedUser) => {
 
 // --------------------- Controller functions ---------------------- \\
 const createLedger = asyncHandler(async(reqOrData, res, next)=>{
-
-    const result = await createLedgerService(reqOrData, req.fetchedUser);
+    console.log(reqOrData.fetchedUser);
+    const result = await createLedgerService(reqOrData.body, reqOrData.fetchedUser);
 
     if (result.success) {
         return res.status(201).json(ApiResponse.successCreated(result.data, result.message));

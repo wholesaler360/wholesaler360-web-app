@@ -3,6 +3,6 @@ import Router from 'express'
 
 const ledgerRouter = Router()
 
-ledgerRouter.route('/create').get(createLedger)
+ledgerRouter.route('/create').post(createLedger)
 
 export { ledgerRouter }
