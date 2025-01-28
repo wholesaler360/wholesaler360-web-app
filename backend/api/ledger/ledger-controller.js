@@ -115,6 +115,10 @@ const showLedger = asyncHandler (async(req, res, next) => {
         { __v: 0, isDeleted: 0, updatedAt: 0 }
     ).sort({ createdAt: -1 }); // Latest first
 
+    if (!ledger || ledger.length === 0) {
+        return next(ApiError.dataNotFound("No ledger found"));
+    }
+    
     return res.status(200).json(ApiResponse.successRead(ledger, "Ledger fetched successfully"));
 });
 
