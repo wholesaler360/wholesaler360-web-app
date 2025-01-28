@@ -56,17 +56,26 @@ function UpdateProductComponent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        fetchCategories();
-        fetchTaxes();
+        await fetchCategories();
+        await fetchTaxes();
         const response = await fetchProductDetails(productSkuCode);
+        
+        // Transform the response data to match form field names
+        const formData = {
+          ...response,
+          // Map the nested objects to their names
+          categoryName: response.category?.name || '',
+          taxName: response.taxRate?.name || '',
+        };
+        
         setProductData(response);
-        form.reset(response);
+        form.reset(formData); // Set form values with transformed data
       } catch (error) {
         console.error("Failed to fetch product details", error);
       }
     };
     fetchData();
-  }, [croppedImage]);
+  }, []);
 
   const onSubmit = async (values) => {
     try {
@@ -88,15 +97,33 @@ function UpdateProductComponent() {
   const handleImageUpdate = async () => {
     try {
       if (!croppedImage) return;
-
+      
       const formData = new FormData();
       formData.append("skuCode", productData.skuCode);
-
-      const imageFile = new File([croppedImage], "product-image.jpg", {
-        type: "image/jpeg",
+      
+      // Create a file from the blob with a specific filename
+      const imageFile = new File([croppedImage], 'product-image.jpg', {
+        type: 'image/jpeg',
+        lastModified: new Date().getTime()
       });
-      formData.append("productImg", imageFile);
-      await updateProductImage(formData);
+      
+      // Append as 'productImg' - this name must match backend expectation
+      formData.append('productImg', imageFile);
+
+      // Debug log
+      console.log('Sending formData:', {
+        skuCode: productData.skuCode,
+        imageType: imageFile.type,
+        imageSize: imageFile.size
+      });
+
+      const result = await updateProductImage(formData);
+      if (result.success) {
+        setCroppedImage(null);
+        // Refresh the product data to show new image
+        const updatedProduct = await fetchProductDetails(productData.skuCode);
+        setProductData(updatedProduct);
+      }
     } catch (error) {
       console.error("Image update error:", error);
     }
@@ -193,7 +220,7 @@ function UpdateProductComponent() {
                             <FormLabel>Category</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value || ''} // Add default empty string
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -281,7 +308,7 @@ function UpdateProductComponent() {
                             <FormLabel>Tax Rate</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              value={field.value}
+                              value={field.value || ''} // Add default empty string
                             >
                               <FormControl>
                                 <SelectTrigger>
