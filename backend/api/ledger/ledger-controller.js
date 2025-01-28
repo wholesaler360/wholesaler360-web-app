@@ -66,7 +66,7 @@ const createLedgerService = async (data, fetchedUser) => {
                 vendorId,
                 amount,
                 transactionType,
-                paymentMode: transactionType === "debit" ? paymentMode : null,
+                paymentMode: transactionType === "debit" ? paymentMode : "N/A",
                 payableBalance,
                 description
             }],
@@ -102,5 +102,20 @@ const createLedger = asyncHandler(async(reqOrData, res, next)=>{
 });
 
 
+const showLedger = asyncHandler (async(req, res, next) => {
+    const { vendorId } = req.body;
 
-export { createLedger };
+    if (!vendorId) {
+        return next(ApiError.validationFailed("Please provide vendorId"));
+    }
+
+    const ledger = await Ledger.find({ 
+        vendorId, isDeleted: false 
+        },
+        { __v: 0, isDeleted: 0, updatedAt: 0 }
+    ).sort({ createdAt: -1 }); // Latest first
+
+    return res.status(200).json(ApiResponse.successRead(ledger, "Ledger fetched successfully"));
+});
+
+export { createLedger, showLedger};
