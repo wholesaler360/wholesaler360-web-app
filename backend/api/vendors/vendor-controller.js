@@ -13,16 +13,16 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     } = req.body;
 
     // Check if all the required fields are present or not 
-    if (
-        [name, mobileNo, email].some((field) => !field?.trim())  
-        || !addressLine1   
-        || !city           
-        || !state          
-        || !postalCode     
-        || !country        
-        || !bankName   
-        || !ifsc       
-        || !accountNumber
+    if ([
+            name, mobileNo, email, 
+            addressLine1, city, state, 
+            postalCode, country, bankName, 
+            ifsc, accountNumber
+
+        ].some((field) => 
+            // Apply trim only if field is a string
+            typeof field === "string" ? !field.trim() : !field
+        )  
     ) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
@@ -81,7 +81,9 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             payableBalance: payableBalance || 0.0
         });
         
-        return res.status(201).json(ApiResponse.successCreated(vendorCreated, "Vendor created successfully"));
+        const{isDeleted, __v, updatedAt, createdAt, ...remaining} = vendorCreated.toObject();
+
+        return res.status(201).json(ApiResponse.successCreated(remaining, "Vendor created successfully"));
     } catch (error) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.dataNotInserted("Vendor not created", error));
@@ -94,9 +96,9 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
         isDeleted: false,
     }, { 
         __v: 0, 
-        deletedAt: 0, 
         updatedAt: 0,
-        createdAt: 0 
+        createdAt: 0,
+        isDeleted: 0
     });
     
     if (!vendors?.length) {
@@ -108,6 +110,22 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
     );
 });
 
+const fetchVendorsList = asyncHandler(async(req, res, next) => {
+    const vendors = await Vendor.find({ 
+        isDeleted: false,
+    }, { 
+        name: 1,
+        mobileNo: 1,
+    });
+    
+    if (!vendors?.length) {
+        return next(ApiError.dataNotFound("No vendors found"));
+    }
+
+    return res.status(200).json(
+        ApiResponse.successRead(vendors, "Vendors fetched successfully")
+    );
+});
 
 const fetchVendor = asyncHandler(async(req, res, next) => {
     const {mobileNo} = req.body;
@@ -123,11 +141,12 @@ const fetchVendor = asyncHandler(async(req, res, next) => {
         mobileNo,
         isDeleted: false 
     }, { 
-        __v: 0,     
-        deletedAt: 0,
-        updatedAt: 0,
-        createdAt: 0
-    });
+            __v: 0, 
+            updatedAt: 0,
+            createdAt: 0,
+            isDeleted: 0
+        }
+    );
 
     if (!vendor) {
         return next(ApiError.dataNotFound("Vendor not found"));
@@ -236,7 +255,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
-        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
         
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Vendor updated successfully")
@@ -286,7 +305,7 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
-        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
 
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Avatar updated successfully")
@@ -298,4 +317,4 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 });
 
 
-export { createVendor, fetchAllVendors, fetchVendor, deleteVendor, updateVendor, updateAvatar };
+export { createVendor, fetchAllVendors, fetchVendorsList, fetchVendor, deleteVendor, updateVendor, updateAvatar };
