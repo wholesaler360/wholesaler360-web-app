@@ -81,7 +81,9 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             payableBalance: payableBalance || 0.0
         });
         
-        return res.status(201).json(ApiResponse.successCreated(vendorCreated, "Vendor created successfully"));
+        const{isDeleted, __v, updatedAt, createdAt, ...remaining} = vendorCreated.toObject();
+
+        return res.status(201).json(ApiResponse.successCreated(remaining, "Vendor created successfully"));
     } catch (error) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.dataNotInserted("Vendor not created", error));
@@ -94,8 +96,9 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
         isDeleted: false,
     }, { 
         __v: 0, 
-        deletedAt: 0, 
-        updatedAt: 0
+        updatedAt: 0,
+        createdAt: 0,
+        isDeleted: 0
     });
     
     if (!vendors?.length) {
@@ -138,11 +141,12 @@ const fetchVendor = asyncHandler(async(req, res, next) => {
         mobileNo,
         isDeleted: false 
     }, { 
-        __v: 0,     
-        deletedAt: 0,
-        updatedAt: 0,
-        createdAt: 0
-    });
+            __v: 0, 
+            updatedAt: 0,
+            createdAt: 0,
+            isDeleted: 0
+        }
+    );
 
     if (!vendor) {
         return next(ApiError.dataNotFound("Vendor not found"));
@@ -251,7 +255,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
-        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
         
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Vendor updated successfully")
@@ -301,7 +305,7 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
-        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
 
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Avatar updated successfully")

@@ -50,14 +50,14 @@ const createLedgerService = async (data, fetchedUser) => {
             return { success: false, errorType: "validationFailed", message: "Invalid transaction type", data: null };
         }
 
-        vendor.balance = payableBalance;
+        if (payableBalance < 0) {
+            await session.abortTransaction();
+            session.endSession();
+            return { success: false, errorType: "validationFailed", message: "You are paying more than payable balance", data: null };
+        }
+
+        vendor.payableBalance = payableBalance;
         await vendor.save({ session });
-
-
-
-        // TODO: check for the payable balance to be positive
-        // and also check why does this is not reflected in the vendor balance
-
 
         // Create the ledger entry
         const ledgerEntry = await Ledger.create([
@@ -72,11 +72,13 @@ const createLedgerService = async (data, fetchedUser) => {
             }],
             { session }
         );
-        
+
+        const {isDeleted, _id, updatedAt, __v, ...remaining} = ledgerEntry[0].toObject();
+
         await session.commitTransaction();
         session.endSession();
 
-        return { success: true, errorType: null, message: "Ledger created successfully", data: ledgerEntry };
+        return { success: true, errorType: null, message: "Ledger created successfully", data: remaining };
     }
     catch (error) {
         await session.abortTransaction();
