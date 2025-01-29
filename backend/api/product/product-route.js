@@ -1,26 +1,39 @@
-import { createProduct , updateProduct , updateProductImage , getProduct , fetchAllProduct, getDiscountTypes , deleteProduct} from "./product-controller.js";
+import {
+  createProduct,
+  updateProduct,
+  updateProductImage,
+  getProduct,
+  fetchAllProduct,
+  getDiscountTypes,
+  deleteProduct,
+} from "./product-controller.js";
 import { generateAndSaveImage } from "../../utils/ai-image-generate-utils.js";
-import  Router  from "express";
+import Router from "express";
 import { upload } from "../../middlewares/multer-middleware.js";
 const productRouter = Router();
 
+
 productRouter.route('/generateImage').post(generateAndSaveImage);
 
-productRouter.route('/fetchAllProduct').get(fetchAllProduct);
 
-productRouter.route('/fetchProduct').get(getProduct);
+productRouter.route("/fetchAllProduct").get(fetchAllProduct);
 
-productRouter.route('/discountTypes').get(getDiscountTypes);
+productRouter.route("/fetchProduct").post(getProduct);
 
-productRouter.route('/createProduct').post(
-    upload.fields([{name : 'productImg',maxCount : 1}])
-    ,createProduct)
+productRouter.route("/discountTypes").get(getDiscountTypes);
 
-productRouter.route('/updateProduct').put(updateProduct);
+productRouter
+  .route("/createProduct")
+  .post(upload.fields([{ name: "productImg", maxCount: 1 }]), createProduct);
 
-productRouter.route('/updateProductImage').put(
-    upload.fields([{name:'productImg',maxCount : 1}])
-    ,updateProductImage);
+productRouter.route("/updateProduct").put(updateProduct);
 
-productRouter.route('/deleteProduct').delete(deleteProduct);
+productRouter
+  .route("/updateProductImage")
+  .put(
+    upload.fields([{ name: "productImg", maxCount: 1 }]),
+    updateProductImage
+  );
+
+productRouter.route("/deleteProduct").delete(deleteProduct);
 export { productRouter };
