@@ -128,10 +128,10 @@ function RolesAndPermissionController({ children }) {
       cell: (info) => new Date(info.getValue()).toLocaleDateString(), // Format date
     }),
 
-    // Display column for "Edit Row" button
+    // Display column for "Edit Role" button
     columnHelper.display({
       id: "editRow",
-      header: "Edit Row",
+      header: "Edit Role",
       cell: ({ row }) => {
         const [open, setOpen] = useState(false);
         const form = useForm({

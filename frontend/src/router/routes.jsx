@@ -1,5 +1,6 @@
 import Login from "@/pages/authentication/Login";
 import Categories from "@/pages/Features/categories";
+import Customers from "@/pages/Features/customer";
 import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
 import Products from "@/pages/Features/products";
@@ -35,6 +36,10 @@ const authRoutes = [
   {
     path: "/product/edit",
     element: <UpdateProduct />,
+  },
+  {
+    path: "/customers",
+    element: <Customers />,
   },
 ];
 
