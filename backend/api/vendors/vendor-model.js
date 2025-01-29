@@ -94,4 +94,7 @@ const vendorSchema = new Schema(
     { timestamps: true }
 );
 
+
+
+
 export const Vendor = mongoose.model("Vendor", vendorSchema);

@@ -11,10 +11,12 @@ import { userRouter } from "./api/users/user-route.js";
 import { productRouter } from "./api/product/product-route.js";
 import { taxRouter } from "./api/product/tax/tax-route.js";
 import { categoryRouter } from "./api/product-category/product-category-route.js";
+import { customerRouter } from "./api/customer/customer-route.js";
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
 import { vendorRouter } from "./api/vendors/vendor-route.js";
+import { ledgerRouter } from "./api/ledger/ledger-route.js";
 
 
 // TODO : Validation like email, mobile number etc..,
@@ -65,7 +67,12 @@ app.use("/role", roleRouter);
 
 app.use("/user", userRouter);
 
-app.use('/vendor', vendorRouter)
+
+app.use("/customer", customerRouter);
+
+app.use('/vendor', vendorRouter);
+
+app.use('/ledger', ledgerRouter);
 
 // catch all undefined routes for authenticated users
 app.use("*", (req, res, next) => {

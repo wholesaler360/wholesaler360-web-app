@@ -12,7 +12,9 @@ import Router from "express";
 import { upload } from "../../middlewares/multer-middleware.js";
 const productRouter = Router();
 
-productRouter.route("/generateImage").post(generateAndSaveImage);
+
+productRouter.route('/generateImage').post(generateAndSaveImage);
+
 
 productRouter.route("/fetchAllProduct").get(fetchAllProduct);
 

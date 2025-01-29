@@ -7,22 +7,22 @@ import { uploadFile, deleteFromLocalPath, deleteFromCloudinary } from "../../uti
 
 const createVendor = asyncHandler(async(req, res, next)=>{
     const {
-        name, mobileNo, email, gstin, balance, 
+        name, mobileNo, email, gstin, payableBalance, 
         addressLine1, addressLine2, city, state, postalCode, 
         country, branchName, ifsc, bankName, accountNumber 
     } = req.body;
 
     // Check if all the required fields are present or not 
-    if (
-        [name, mobileNo, email].some((field) => !field?.trim())  
-        || !addressLine1   
-        || !city           
-        || !state          
-        || !postalCode     
-        || !country        
-        || !bankName   
-        || !ifsc       
-        || !accountNumber
+    if ([
+            name, mobileNo, email, 
+            addressLine1, city, state, 
+            postalCode, country, bankName, 
+            ifsc, accountNumber
+
+        ].some((field) => 
+            // Apply trim only if field is a string
+            typeof field === "string" ? !field.trim() : !field
+        )  
     ) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
@@ -59,7 +59,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
 
     if(existingGstin) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
-        return next(ApiError.valueAlreadyExists("GST Number is already registered with another vendor"))
+        return next(ApiError.valueAlreadyExists("GSTIN is already associated with another vendor"))
     }
 
     let avatar;
@@ -78,10 +78,12 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             address,
             bankDetails,
             imageUrl: avatar,
-            balance: balance || 0.0
+            payableBalance: payableBalance || 0.0
         });
         
-        return res.status(201).json(ApiResponse.successCreated(vendorCreated, "Vendor created successfully"));
+        const{isDeleted, __v, updatedAt, createdAt, ...remaining} = vendorCreated.toObject();
+
+        return res.status(201).json(ApiResponse.successCreated(remaining, "Vendor created successfully"));
     } catch (error) {
         deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.dataNotInserted("Vendor not created", error));
@@ -94,9 +96,9 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
         isDeleted: false,
     }, { 
         __v: 0, 
-        deletedAt: 0, 
         updatedAt: 0,
-        createdAt: 0 
+        createdAt: 0,
+        isDeleted: 0
     });
     
     if (!vendors?.length) {
@@ -108,6 +110,22 @@ const fetchAllVendors = asyncHandler(async(req, res, next) => {
     );
 });
 
+const fetchVendorsList = asyncHandler(async(req, res, next) => {
+    const vendors = await Vendor.find({ 
+        isDeleted: false,
+    }, { 
+        name: 1,
+        mobileNo: 1,
+    });
+    
+    if (!vendors?.length) {
+        return next(ApiError.dataNotFound("No vendors found"));
+    }
+
+    return res.status(200).json(
+        ApiResponse.successRead(vendors, "Vendors fetched successfully")
+    );
+});
 
 const fetchVendor = asyncHandler(async(req, res, next) => {
     const {mobileNo} = req.body;
@@ -121,12 +139,14 @@ const fetchVendor = asyncHandler(async(req, res, next) => {
     // This will fetch the deleted vendors also 
     const vendor = await Vendor.findOne({ 
         mobileNo,
+        isDeleted: false 
     }, { 
-        __v: 0,     
-        deletedAt: 0,
-        updatedAt: 0,
-        createdAt: 0
-    });
+            __v: 0, 
+            updatedAt: 0,
+            createdAt: 0,
+            isDeleted: 0
+        }
+    );
 
     if (!vendor) {
         return next(ApiError.dataNotFound("Vendor not found"));
@@ -152,6 +172,10 @@ const deleteVendor = asyncHandler(async(req, res, next) => {
     if (!vendor || vendor.isDeleted) {
         return next(ApiError.dataNotFound("Vendor not found"));
     }
+
+    if (vendor.payableBalance !== 0) {
+        return next(ApiError.validationFailed("Cannot delete vendor with payable balance remaining"));
+    }
     
     try {
         vendor.isDeleted = true;
@@ -173,7 +197,7 @@ const deleteVendor = asyncHandler(async(req, res, next) => {
 
 const updateVendor = asyncHandler(async(req, res, next) => {
     const {
-        mobileNo, // for finding the vendor
+        mobileNo, newMobileNo, 
         name, email, gstin, addressLine1, 
         addressLine2, city, state, postalCode,
         country, branchName, ifsc, bankName, accountNumber
@@ -193,7 +217,15 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     if (email && email !== vendor.email) {
         const emailExists = await Vendor.findOne({ email , isDeleted: false });
         if (emailExists) {
-            return next(ApiError.valueAlreadyExists("Email already registered with another vendor"));
+            return next(ApiError.valueAlreadyExists("Email is already registered with another vendor"));
+        }
+    }
+
+    // Check if new mobile number already exists for another vendor
+    if (newMobileNo && newMobileNo !== vendor.mobileNo) {
+        const newMobileNoExists = await Vendor.findOne({ newMobileNo , isDeleted: false });
+        if (newMobileNoExists) {
+            return next(ApiError.valueAlreadyExists("Mobile number is already registered with another vendor"));
         }
     }
 
@@ -207,6 +239,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     // Update vendor fields
     vendor.name = name || vendor.name;
+    vendor.mobileNo = newMobileNo || vendor.mobileNo;
     vendor.email = email || vendor.email;
     vendor.gstin = gstin || vendor.gstin;
     vendor.address.addressLine1 = addressLine1 || vendor.address.addressLine1;
@@ -222,7 +255,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
-        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
         
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Vendor updated successfully")
@@ -272,7 +305,7 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedVendor = await vendor.save();
-        const {createdBy, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+        const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
 
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Avatar updated successfully")
@@ -284,4 +317,4 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 });
 
 
-export { createVendor, fetchAllVendors, fetchVendor, deleteVendor, updateVendor, updateAvatar };
+export { createVendor, fetchAllVendors, fetchVendorsList, fetchVendor, deleteVendor, updateVendor, updateAvatar };
