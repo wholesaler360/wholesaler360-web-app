@@ -45,25 +45,21 @@ app.use('/auth', authRouter);
 
 app.post('/createModule', createModule)
 
-app.get('/product', productRouter)
+app.use('/seed', seederRouter);
 // Use the authMiddleware for all routes
-// app.use(authMiddleware);
+app.use(authMiddleware);
 
 app.use('/role', roleRouter);
-
-app.use("/tax", taxRouter);
-
-app.use('/category', categoryRouter);
-
-app.use("/role", roleRouter);
-
 app.use("/user", userRouter);
 
+
+app.use("/tax", taxRouter);
+app.use('/category', categoryRouter);
+app.get('/product', productRouter)
 
 app.use("/customer", customerRouter);
 
 app.use('/vendor', vendorRouter);
-
 app.use('/ledger', ledgerRouter);
 
 

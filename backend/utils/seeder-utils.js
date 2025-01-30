@@ -16,7 +16,7 @@ const all_Modules = [
     ,"inventory","product","tax","category","batch"
     ,"invoice","sales_return","quotation",
     "vendor","ledger",
-    "purchase_invoice","purchase_return",
+    "purchase","purchase_return",
     "sales_report","purchase_report","invetory_report","expense","payment",
     "customer_portal"
 ];
@@ -77,7 +77,9 @@ const createUserSuperAdmin = asyncHandler(async (req,res,next) => {
     try {
         // Check if the super admin user already exists
         const getId = await Role.findOne({ name: "super admin" });
-        const count = await User.countDocuments({ role: getId._id });
+        const count = await User.countDocuments(
+            { name : "super admin",email: "super@mail.com",mobileNo: "9999999999", }
+        );
 
         if(count > 0) {
             return next(ApiError.valueAlreadyExists("Super admin user already exists"));
