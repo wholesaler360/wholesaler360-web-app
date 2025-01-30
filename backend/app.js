@@ -42,7 +42,7 @@ app.use(cors({
 app.use(cookieParser());
 
 
-app.use(formatValidator);
+// app.use(formatValidator);
 
 app.use('/auth', authRouter);
 
