@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ApiError } from '../utils/api-error-utils.js';
+
 
 // RegEx Patterns
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -19,6 +19,15 @@ const universalValidationSchema = z.object({
     newMobileNo: z.string().regex(mobileRegex, "Invalid mobile number").optional(),
     gstin: z.string().regex(gstinRegex, "Invalid GSTIN format").optional(),
     pincode: z.string().regex(pincodeRegex, "Invalid pincode").optional(),
+
+    billingAddress: z.object({
+        pincode: z.string().regex(/^\d{6}$/, "Invalid billing pincode").optional(),
+    }).optional(),
+
+    shippingAddress: z.object({
+        pincode: z.string().regex(/^\d{6}$/, "Invalid shipping pincode").optional(),
+      }).optional(),
+      
     email: z.string().email("Invalid email format").min(5, "Invalid email format").optional(),
 
     // Names
@@ -45,19 +54,4 @@ const universalValidationSchema = z.object({
 }).passthrough(); // This ensures all fields are passed through, even if not defined in schema
 
 
-
-export const validateUniversal = async (req, res, next) => {
-    try {
-        const validData = await universalValidationSchema.parseAsync(req.body);
-        req.body = validData; // Replace body with validated data
-        next();
-    } catch (error) {
-        if (error.issues) {
-            // Pass only the first error message
-            next(ApiError.validationFailed(error.issues[0].message));
-            return;
-        }
-        next(ApiError.validationFailed(error.message));
-    }
-};
-
+export { universalValidationSchema };

@@ -14,6 +14,7 @@ import { categoryRouter } from "./api/product-category/product-category-route.js
 import { customerRouter } from "./api/customer/customer-route.js";
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
+import formatValidator from "./middlewares/formatValidation-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
 import { vendorRouter } from "./api/vendors/vendor-route.js";
 import { ledgerRouter } from "./api/ledger/ledger-route.js";
@@ -41,6 +42,7 @@ app.use(
 
 app.use(cookieParser());
 
+app.use(formatValidator);
 
 app.use("/auth", authRouter);
 
