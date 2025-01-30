@@ -8,7 +8,7 @@ import { uploadFile, deleteFromLocalPath, deleteFromCloudinary } from "../../uti
 const createVendor = asyncHandler(async(req, res, next)=>{
     const {
         name, mobileNo, email, gstin, payableBalance, 
-        addressLine1, addressLine2, city, state, postalCode, 
+        addressLine1, addressLine2, city, state, pincode, 
         country, branchName, ifsc, bankName, accountNumber 
     } = req.body;
 
@@ -16,7 +16,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     if ([
             name, mobileNo, email, 
             addressLine1, city, state, 
-            postalCode, country, bankName, 
+            pincode, country, bankName, 
             ifsc, accountNumber
 
         ].some((field) => 
@@ -32,7 +32,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
         addressLine2,
         city,
         state,
-        postalCode,
+        pincode,
         country
     };
 
@@ -199,7 +199,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     const {
         mobileNo, newMobileNo, 
         name, email, gstin, addressLine1, 
-        addressLine2, city, state, postalCode,
+        addressLine2, city, state, pincode,
         country, branchName, ifsc, bankName, accountNumber
     } = req.body;
 
@@ -246,7 +246,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     vendor.address.addressLine2 = addressLine2 || vendor.address.addressLine2;
     vendor.address.city = city || vendor.address.city;
     vendor.address.state = state || vendor.address.state;
-    vendor.address.postalCode = postalCode || vendor.address.postalCode;
+    vendor.address.pincode = pincode || vendor.address.pincode;
     vendor.address.country = country || vendor.address.country;
     vendor.bankDetails.branchName = branchName || vendor.bankDetails.branchName;
     vendor.bankDetails.ifsc = ifsc || vendor.bankDetails.ifsc;

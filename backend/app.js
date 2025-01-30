@@ -4,7 +4,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
 import { ApiError } from "./utils/api-error-utils.js";
-import { ApiResponse } from "./utils/api-Responnse-utils.js";
 import { errorHandler } from "./middlewares/errorHandler-middleware.js";
 import { createModule } from "./api/sections/module-controller.js";
 import { roleRouter } from "./api/roles/role-route.js";
@@ -15,6 +14,7 @@ import { categoryRouter } from "./api/product-category/product-category-route.js
 import { customerRouter } from "./api/customer/customer-route.js";
 import authRouter from "./api/login/login-route.js";
 import authMiddleware from "./middlewares/jwt-auth-middleware.js";
+import formatValidator from "./middlewares/formatValidation-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
 import { vendorRouter } from "./api/vendors/vendor-route.js";
 import { ledgerRouter } from "./api/ledger/ledger-route.js";
@@ -41,7 +41,11 @@ app.use(cors({
 
 app.use(cookieParser());
 
+
+app.use(formatValidator);
+
 app.use('/auth', authRouter);
+
 
 app.post('/createModule', createModule)
 
