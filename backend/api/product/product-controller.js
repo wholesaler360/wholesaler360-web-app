@@ -323,7 +323,52 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
+  if(products.length === 0){
+    return next(ApiError.dataNotFound("No products Exists"));
+  }
   res.status(200).json(ApiResponse.successRead(products, "Products fetched successfully"));
+});
+
+const fetchProductDropdown = asyncHandler(async (req, res, next) => {
+  const products = await Product.aggregate([
+    {
+      $match: { isProductDeleted: false },
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    {
+      $addFields: {
+        productInfo : {
+          id : "$_id",
+          name: "$name",
+          skuCode: "$skuCode",
+          category: { $arrayElemAt: ["$category.name", 0] },
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        product: { $push: "$productInfo" },
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        product: 1,
+      },
+    },
+  ]);
+  if(products.length === 0){
+    return next(ApiError.dataNotFound("No products Exists"));
+  }
+  res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));
 });
 
 const getDiscountTypes = asyncHandler(async (req, res, next) => {
@@ -342,4 +387,4 @@ const getDiscountTypes = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { createProduct, updateProduct ,updateProductImage, getProduct ,fetchAllProduct, getDiscountTypes , deleteProduct };
+export { createProduct, updateProduct ,updateProductImage, getProduct ,fetchAllProduct, getDiscountTypes ,fetchProductDropdown ,deleteProduct };

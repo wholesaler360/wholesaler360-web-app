@@ -13,7 +13,7 @@ const all_Modules = [
     "role",
     "customer",
     "company_setting","app_setting","profile_setting"
-    ,"stock","product","tax","category"
+    ,"inventory","product","tax","category","batch"
     ,"invoice","sales_return","quotation",
     "vendor","ledger",
     "purchase_invoice","purchase_return",

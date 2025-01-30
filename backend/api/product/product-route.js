@@ -1,4 +1,4 @@
-import { createProduct , updateProduct , updateProductImage , getProduct , fetchAllProduct, getDiscountTypes , deleteProduct} from "./product-controller.js";
+import { createProduct , updateProduct , updateProductImage , getProduct , fetchAllProduct, getDiscountTypes , fetchProductDropdown,deleteProduct} from "./product-controller.js";
 import { generateAndSaveImage } from "../../utils/ai-image-generate-utils.js";
 import  Router  from "express";
 import { upload } from "../../middlewares/multer-middleware.js";
@@ -21,6 +21,9 @@ productRouter.route('/updateProduct').put(updateProduct);
 productRouter.route('/updateProductImage').put(
     upload.fields([{name:'productImg',maxCount : 1}])
     ,updateProductImage);
+
+
+productRouter.route('/fetchProductDropdown').get(fetchProductDropdown);
 
 productRouter.route('/deleteProduct').delete(deleteProduct);
 export { productRouter };
