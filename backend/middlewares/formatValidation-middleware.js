@@ -1,4 +1,4 @@
-import ApiError from '../error/ApiError.js';
+import { ApiError } from '../utils/api-error-utils.js';
 import { universalValidationSchema } from '../utils/formatValidator-utils.js';
 import { asyncHandler } from '../utils/asyncHandler-utils.js';
 

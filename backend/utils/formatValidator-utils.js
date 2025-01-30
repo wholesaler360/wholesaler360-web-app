@@ -43,7 +43,7 @@ const universalValidationSchema = z.object({
     transactionType: z.string().transform(val => val?.toLowerCase().trim()).optional(),
     paymentMode: z.string().transform(val => val?.toLowerCase().trim()).optional(),
     taxName: z.string().transform(val => val?.toLowerCase().trim()).optional(),
-}).refine((data) => {
+}).passthrough().refine((data) => {   // This ensures all fields are passed through, even if not defined in schema
     if (data.newPassword && data.confirmPassword) {
         return data.newPassword === data.confirmPassword;
     }
@@ -51,7 +51,7 @@ const universalValidationSchema = z.object({
 }, {
     message: "New password and confirm password do not match",
     path: ["confirmPassword"]
-}).passthrough(); // This ensures all fields are passed through, even if not defined in schema
+}); 
 
 
 export { universalValidationSchema };

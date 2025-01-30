@@ -88,7 +88,7 @@ const createUserSuperAdmin = asyncHandler(async (req,res,next) => {
                 name: "super admin",
                 email: "super@mail.com",
                 mobileNo: "9999999999",
-                password: "ShreeRam",
+                password: "Ram@1234",
                 role : getId._id,
         })
         return res.status(201).json(ApiResponse.successCreated(user, "Super admin user created successfully"));};

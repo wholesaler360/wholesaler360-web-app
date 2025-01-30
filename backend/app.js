@@ -3,7 +3,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
 import { ApiError } from "./utils/api-error-utils.js";
-import { ApiResponse } from "./utils/api-Responnse-utils.js";
 import { errorHandler } from "./middlewares/errorHandler-middleware.js";
 import { createModule } from "./api/sections/module-controller.js";
 import { roleRouter } from "./api/roles/role-route.js";
