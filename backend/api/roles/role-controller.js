@@ -172,13 +172,13 @@ const assignPermission = asyncHandler(async (req, res, next) => {
         const preparedSections = await Promise.all(
             sections.map(async (section) => {
                 if (!section?.module || section?.permission === undefined || (typeof section?.permission !== "number")) {
-                    next(ApiError.validationFailed("Module and permission are required for each section"));
+                    return next(ApiError.validationFailed("Module and permission are required for each section"));
                 }
 
                 // Check if the module exists
                 const moduleDoc = await Module.findOne({ name : section.module });
                 if (!moduleDoc) {
-                    throw ApiError.dataNotFound(`${section.module} does not exist`);
+                    return next(ApiError.dataNotFound(`${section.module} does not exist`));
                 }
                 return {
                     module: moduleDoc._id,
