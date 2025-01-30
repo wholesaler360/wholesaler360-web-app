@@ -35,7 +35,7 @@ const addressSchema = new Schema({
         type: String,
         required: true
     },
-    postalCode: {
+    pincode: {
         type: String,
         required: true
     },

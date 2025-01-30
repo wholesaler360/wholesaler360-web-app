@@ -110,15 +110,15 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
     let skuCode = req.body?.skuCode; 
     if(!skuCode)
     {
-        return next(ApiError.validationFailed("Sku code is required"));
+      return next(ApiError.validationFailed("Sku code is required"));
     }
     skuCode = skuCode.trim().toLowerCase();
     const product = await Product.findOne({skuCode : skuCode});
     
     if(!product || product.isProductDeleted)
-      {
-        return next(ApiError.dataNotFound("Product does not exists or product is deleted"));
-      }
+    {
+      return next(ApiError.dataNotFound("Product does not exists or product is deleted"));
+    }
       
     // let  newSkuCode = req.body?.newSkuCode?.toLowerCase() || skuCode;
     let name = req.body?.name?.toLowerCase(); 
