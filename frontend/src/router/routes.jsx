@@ -4,6 +4,7 @@ import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
 import Products from "@/pages/Features/products";
 import AddProduct from "@/pages/Features/products/addProduct";
+import UpdateProduct from "@/pages/Features/products/updateProduct";
 import RolesAndPermissions from "@/pages/Features/roles and permissions/index.jsx";
 
 const authRoutes = [
@@ -28,8 +29,12 @@ const authRoutes = [
     element: <Products />,
   },
   {
-    path: "/products/add",
-    element: <AddProduct />
+    path: "/product/add",
+    element: <AddProduct />,
+  },
+  {
+    path: "/product/edit",
+    element: <UpdateProduct />,
   },
 ];
 

@@ -50,9 +50,7 @@ export function AddProductController({ children }) {
   const createProduct = async (formData) => {
     try {
       setIsLoading(true);
-      console.log("FormData contents:");
       for (let [key, value] of formData.entries()) {
-        console.log(key, value);
       }
       const response = await axiosPost(CreateProduct, formData, {
         headers: {

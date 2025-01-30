@@ -43,7 +43,7 @@ export function ProductsComponent() {
   }, [getProducts, refreshTrigger]);
 
   const handleAddProduct = () => {
-    navigate("/products/add");
+    navigate("/product/add");
   };
 
   // Move table initialization after data is loaded
