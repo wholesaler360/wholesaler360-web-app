@@ -192,6 +192,7 @@ const getTotalNoOfInvoice = async (customerId) => {
 
 const deleteCustomer = asyncHandler(async (req, res, next) => {
   console.log("-----------------Delete Customer-----------------");
+  console.log(req.body);
   const { mobileNo } = req.body;
   if (!mobileNo) {
     return next(ApiError.validationFailed("Mobile No is required"));
