@@ -6,14 +6,20 @@ import { Tax } from "./tax/tax-model.js";
 import { ApiError } from "../../utils/api-error-utils.js";
 import { ApiResponse } from "../../utils/api-Responnse-utils.js";
 import { asyncHandler } from "../../utils/asyncHandler-utils.js";
-import {uploadFile  , deleteFromCloudinary , deleteFromLocalPath} from "../../utils/cloudinary-utils.js";
+import {
+  uploadFile,
+  deleteFromCloudinary,
+  deleteFromLocalPath,
+} from "../../utils/cloudinary-utils.js";
 
 const createProduct = asyncHandler(async (req, res, next) => {
   console.log("-------------Creating Product-------------");
-  let { name, skuCode, categoryName, salePrice, alertQuantity, taxName } = req.body;
+  let { name, skuCode, categoryName, salePrice, alertQuantity, taxName } =
+    req.body;
 
   let discountType = req.body?.discountType === "rate" ? "rate" : "fixed";
-  let discountValue = req.body?.discountValue !== 0 ? req.body?.discountValue : 0;
+  let discountValue =
+    req.body?.discountValue !== 0 ? req.body?.discountValue : 0;
 
   if (
     [name, skuCode, categoryName, salePrice, alertQuantity, taxName].some(
@@ -33,12 +39,12 @@ const createProduct = asyncHandler(async (req, res, next) => {
   if (!productImgLocalPath) {
     return next(ApiError.validationFailed("Product image is required"));
   }
-  
+
   //    Validation part
   const product = await Product.findOne({
     skuCode: skuCode,
   });
-  
+
   try {
     if (product) {
       return next(ApiError.validationFailed("Product already exists"));
@@ -61,7 +67,9 @@ const createProduct = asyncHandler(async (req, res, next) => {
       );
     } else if (discountType === "fixed" && discountValue > salePrice) {
       return next(
-        ApiError.validationFailed("Discount value cannot be more than sale price")
+        ApiError.validationFailed(
+          "Discount value cannot be more than sale price"
+        )
       );
     }
 
@@ -70,9 +78,8 @@ const createProduct = asyncHandler(async (req, res, next) => {
       return next(ApiError.dataNotFound("Tax not found"));
     }
 
-
     const productImgUrl = await uploadFile(productImgLocalPath);
-    if(productImgUrl === null){
+    if (productImgUrl === null) {
       return next(ApiError.dataNotInserted("Product image not uploaded"));
     }
     console.log("Product Image URL: ", productImgUrl);
@@ -98,14 +105,13 @@ const createProduct = asyncHandler(async (req, res, next) => {
   } catch (error) {
     deleteFromCloudinary(productImgUrl);
     console.log(error);
-    return next(ApiError.dataNotInserted("Product not created"))
+    return next(ApiError.dataNotInserted("Product not created"));
   } finally {
-    if (productImgLocalPath) 
-        deleteFromLocalPath(productImgLocalPath);
+    if (productImgLocalPath) deleteFromLocalPath(productImgLocalPath);
   }
 });
 
-const updateProduct = asyncHandler(async (req , res , next)=>{
+const updateProduct = asyncHandler(async (req, res, next) => {
   console.log("-------------Updating Product-------------");
     let skuCode = req.body?.skuCode; 
     if(!skuCode)
@@ -135,10 +141,13 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
       );
     }
 
-    const category = await Category.findOne({name : categoryName})
-    if(!category){
-      return next(ApiError.dataNotFound("Category does not exists "));
-    }
+
+  if (!product || product.isProductDeleted) {
+    return next(
+      ApiError.dataNotFound("Product does not exists or product is deleted")
+    );
+  }
+
 
     const tax = await Tax.findOne({name : taxName});
     if(!tax){
@@ -156,28 +165,39 @@ const updateProduct = asyncHandler(async (req , res , next)=>{
       await product.save();
       console.log(product);
       res.status(200).json(ApiResponse.successUpdated(product, "Product updated successfully"));
+
     console.log("----------------Product Updated Successfully----------------");
-    } catch (error) {
-      if(error.code === 11000 ){
-        return next(ApiError.validationFailed("Duplicate key error -- Product  with the same skuCode already exists"));
-      }
-      console.log(error);
-      return next(ApiError.dataNotUpdated(error.message,error));
+  } catch (error) {
+    if (error.code === 11000) {
+      return next(
+        ApiError.validationFailed(
+          "Duplicate key error -- Product  with the same skuCode already exists"
+        )
+      );
     }
+    console.log(error);
+    return next(ApiError.dataNotUpdated(error.message, error));
+  }
 });
 
-const updateProductImage = asyncHandler(async (req , res , next)=>{
+const updateProductImage = asyncHandler(async (req, res, next) => {
   console.log("-------------Updating Product Image-------------");
-    let skuCode = req.body?.skuCode;
-    if(!skuCode.trim()){
-        return next(ApiError.validationFailed("Sku code is required"));
+  let skuCode = req.body?.skuCode;
+  if (!skuCode.trim()) {
+    return next(ApiError.validationFailed("Sku code is required"));
+  }
+  skuCode = skuCode.trim().toLowerCase();
+  console.log(req.body);
+  const productImgLocalPath = req.files?.productImg?.[0]?.path;
+  if (!productImgLocalPath) {
+    return next(ApiError.validationFailed("Product image is required"));
+  }
+  try {
+    const product = await Product.findOne({ skuCode: skuCode });
+    if (!product) {
+      return next(ApiError.dataNotFound("Product does not exists"));
     }
-    skuCode = skuCode.trim().toLowerCase();
-    
-    const productImgLocalPath = req.files?.productImg?.[0]?.path;
-    if(!productImgLocalPath){
-        return next(ApiError.validationFailed("Product image is required"));
-    }
+
     try {
       const product = await Product.findOne({skuCode : skuCode});
       if(!product){
@@ -205,8 +225,33 @@ const updateProductImage = asyncHandler(async (req , res , next)=>{
     }finally{
         if(productImgLocalPath)
           deleteFromLocalPath(productImgLocalPath);
-    }
 
+    }
+    console.log("Product Image URL: ", productImgUrl);
+
+    await deleteFromCloudinary(product.productImg);
+
+    product.productImg = productImgUrl;
+
+    await product.save();
+
+    res
+      .status(200)
+      .json(
+        ApiResponse.successUpdated(
+          product,
+          "Product image updated successfully"
+        )
+      );
+    console.log(
+      "----------------Product Image Updated Successfully----------------"
+    );
+  } catch (error) {
+    console.log(error);
+    return next(ApiError.dataNotUpdated("File not uploaded", error));
+  } finally {
+    if (productImgLocalPath) deleteFromLocalPath(productImgLocalPath);
+  }
 });
 
 const getStock = async (product_id) => {
@@ -215,16 +260,30 @@ const getStock = async (product_id) => {
 };
 
 const deleteProduct = asyncHandler(async (req, res, next) => {
-console.log("-------------Deleting Product-------------");
-    let { skuCode } = req.body;
-    if (!skuCode) {
-        return next(ApiError.validationFailed("Sku code is required"));
-    }
-    skuCode = skuCode.toLowerCase();
-    const product = await Product.findOne({ skuCode , isProductDeleted: false });
-    if (!product) {
-      return next(ApiError.dataNotFound("Product does not exists"));
-    }
+  console.log("-------------Deleting Product-------------");
+  let { skuCode } = req.body;
+  if (!skuCode) {
+    return next(ApiError.validationFailed("Sku code is required"));
+  }
+  skuCode = skuCode.toLowerCase();
+  const product = await Product.findOne({ skuCode, isProductDeleted: false });
+  if (!product) {
+    return next(ApiError.dataNotFound("Product does not exists"));
+  }
+
+  // const countOfStock = await getStock(product._id);
+
+  try {
+    product.isProductDeleted = true;
+    await product.save();
+    console.log(product);
+    res
+      .status(204)
+      .json(
+        ApiResponse.successDeleted(product, "Product deleted successfully")
+      );
+    console.log("----------------Product Deleted Successfully----------------");
+  } catch (error) {
 
     // const countOfStock = await getStock(product._id);
     
@@ -242,33 +301,38 @@ console.log("-------------Deleting Product-------------");
         res.status(204).json(ApiResponse.successDeleted(product, "Product deleted successfully"));
         console.log("----------------Product Deleted Successfully----------------");
     }catch(error){
+
     console.error(error);
-        return next(ApiError.dataNotDeleted(error.message, error));
-    }
+    return next(ApiError.dataNotDeleted(error.message, error));
+  }
 });
 
+// Change from GET to POST
 const getProduct = asyncHandler(async (req, res, next) => {
-  let { skuCode } = req.body;
+  let { skuCode } = req.body; // Now we can use req.body
+
   if (!skuCode) {
     return next(ApiError.validationFailed("Sku code is required"));
   }
 
   skuCode = skuCode.toLowerCase();
   try {
-  const product = await Product.findOne({ skuCode, isProductDeleted: false })
-    ?.populate({
-      path: "category",
-      select: "-_id -isCategoryDeleted -__v -createdAt -updatedAt",
-    })
-    .populate({
-      path: "taxRate",
-      select: "-_id -isTaxDeleted -__v -createdAt -updatedAt",
-    });
-  if (!product) {
-    return next(ApiError.dataNotFound("Product does not exists"));
-  }
+    const product = await Product.findOne({ skuCode, isProductDeleted: false })
+      ?.populate({
+        path: "category",
+        select: "-_id -isCategoryDeleted -__v -createdAt -updatedAt",
+      })
+      .populate({
+        path: "taxRate",
+        select: "-_id -isTaxDeleted -__v -createdAt -updatedAt",
+      });
+    if (!product) {
+      return next(ApiError.dataNotFound("Product does not exists"));
+    }
 
-  res.status(200).json(ApiResponse.successRead(product, "Product fetched successfully"));
+    res
+      .status(200)
+      .json(ApiResponse.successRead(product, "Product fetched successfully"));
   } catch (error) {
     return next(ApiError.dataNotFound(error.message, error));
   }
@@ -297,7 +361,7 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
     },
     {
       $addFields: {
-        productInfo : {
+        productInfo: {
           name: "$name",
           skuCode: "$skuCode",
           productImg: "$productImg",
@@ -307,14 +371,14 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
           discountValue: "$discountValue",
           category: { $arrayElemAt: ["$category.name", 0] },
           taxRate: { $arrayElemAt: ["$taxRate.percent", 0] },
-        }
-      }
+        },
+      },
     },
     {
       $group: {
         _id: null,
         product: { $push: "$productInfo" },
-      }
+      },
     },
     {
       $project: {
@@ -327,6 +391,7 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
     return next(ApiError.dataNotFound("No products Exists"));
   }
   res.status(200).json(ApiResponse.successRead(products, "Products fetched successfully"));
+
 });
 
 const fetchProductDropdown = asyncHandler(async (req, res, next) => {
@@ -388,3 +453,4 @@ const getDiscountTypes = asyncHandler(async (req, res, next) => {
 });
 
 export { createProduct, updateProduct ,updateProductImage, getProduct ,fetchAllProduct, getDiscountTypes ,fetchProductDropdown ,deleteProduct };
+

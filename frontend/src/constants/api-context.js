@@ -1,13 +1,12 @@
 import api from "@/lib/axiosInstance";
 
-const axiosGet = async (endpoint = null) => {
+const axiosGet = async (endpoint = null, data = "") => {
   try {
     // Validate endpoint
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
-
-    const response = await api.get(endpoint);
+    const response = await api.get(endpoint, data);
 
     return response.data;
   } catch (error) {
@@ -37,16 +36,25 @@ const axiosPost = async (endpoint = null, data = {}, config = {}) => {
       statusCode: error.response?.data?.statusCode,
       config: error.config,
     });
-    throw error;}
+    throw error;
+  }
 };
 
-const axiosPut = async (endpoint = null, data = {}) => {
+const axiosPut = async (endpoint = null, data = {}, config = {}) => {
   try {
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
 
-    const response = await api.put(endpoint, data);
+    const response = await api.put(endpoint, data, {
+      ...config,
+      headers: {
+        ...(data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : { "Content-Type": "application/json" }),
+        ...config.headers,
+      },
+    });
     return response;
   } catch (error) {
     console.error("PUT request error:", {
@@ -62,11 +70,13 @@ const axiosDelete = async (endpoint = null, data = {}) => {
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
-    const response = await api.delete(endpoint, data ); // Pass data in config object
+    const response = await api.delete(endpoint, data); // Pass data in config object
     return response;
   } catch (error) {
     console.error("DELETE request error:", {
-      message: error.message,      response: error.response,      config: error.config,
+      message: error.message,
+      response: error.response,
+      config: error.config,
     });
   }
 };

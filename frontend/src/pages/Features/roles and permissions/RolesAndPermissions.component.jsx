@@ -39,7 +39,7 @@ const addRoleSchema = z.object({
   roleName: z.string().min(2, {
     message: "Role name must be at least 2 characters.",
   }),
-})
+});
 
 function RolesAndPermissionsComponent() {
   const [data, setData] = useState([]); // Initialize with an empty array
@@ -94,7 +94,7 @@ function RolesAndPermissionsComponent() {
       globalFilter,
     },
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'includesString',
+    globalFilterFn: "includesString",
   });
 
   const onSubmitNewRole = async (value) => {
@@ -104,14 +104,21 @@ function RolesAndPermissionsComponent() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-4 py-1">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-2xl font-medium">Roles & Permissions</h2>
+    <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Roles and Permissions
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Manage roles and permissions for your users here.
+          </p>
+        </div>
         <div className="flex items-center ml-auto mr-2">
-        {!isLoading ? (<Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="h-10">
-                <PlusCircle className="mr-2 h-5 w-5"/> Add Role
+                <PlusCircle className="mr-2 h-5 w-5" /> Add Role
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -135,7 +142,6 @@ function RolesAndPermissionsComponent() {
                     name="roleName"
                     render={({ field }) => (
                       <FormItem>
-
                         <FormLabel>Role Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -150,11 +156,11 @@ function RolesAndPermissionsComponent() {
                 </form>
               </Form>
             </DialogContent>
-          </Dialog>) : <div></div>}
+          </Dialog>
         </div>
       </div>
-      {isLoading? (
-        <DataTableSkeleton 
+      {isLoading ? (
+        <DataTableSkeleton
           columnCount={5}
           rowCount={5}
           searchableColumnCount={1}
@@ -163,12 +169,14 @@ function RolesAndPermissionsComponent() {
           cellWidths={["200px", "150px", "150px", "150px", "100px"]}
         />
       ) : (
-        <DataTable table={table} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-  )}
+        <DataTable
+          table={table}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+        />
+      )}
     </div>
   );
 }
 
 export default RolesAndPermissionsComponent;
-
-
