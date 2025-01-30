@@ -18,8 +18,13 @@ import { ShimmerButton } from "../ui/shimmer-button";
 import { MagicalLoader } from "./MagicalLoader";
 import { set } from "react-hook-form";
 
-export function FileUpload({ onImageCropped, formData }) {
+export function FileUpload({
+  onImageCropped,
+  formData,
+  enableAIGeneration = false,
+}) {
   const [image, setImage] = useState(null);
+  const [croppedPreview, setCroppedPreview] = useState(null);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -27,6 +32,7 @@ export function FileUpload({ onImageCropped, formData }) {
   const inputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [cropped, SetCropped] = useState(null);
 
   const onCropComplete = (croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -85,6 +91,9 @@ export function FileUpload({ onImageCropped, formData }) {
   const handleSave = async () => {
     try {
       const croppedImage = await getCroppedImg();
+      // Create URL for preview
+      const croppedPreviewUrl = URL.createObjectURL(croppedImage);
+      setCroppedPreview(croppedPreviewUrl);
       onImageCropped(croppedImage);
       setIsDialogOpen(false);
     } catch (e) {
@@ -92,16 +101,18 @@ export function FileUpload({ onImageCropped, formData }) {
     }
   };
 
-  const handleCancel = async()=> {
+  const handleCancel = async () => {
     setIsDialogOpen(false);
     setImage(null);
+    setCroppedPreview(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-  }
+  };
 
   const handleRemoveImage = () => {
     setImage(null);
+    setCroppedPreview(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -195,6 +206,18 @@ export function FileUpload({ onImageCropped, formData }) {
         >
           {isGenerating ? (
             <MagicalLoader />
+          ) : croppedPreview || image ? (
+            // Show cropped preview when available, fallback to original image
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={croppedPreview || image}
+                alt="Preview"
+                className="max-h-[120px] object-contain rounded-lg"
+              />
+              <p className="text-xs text-muted-foreground">
+                Click to change image
+              </p>
+            </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <ImagePlus
@@ -237,45 +260,30 @@ export function FileUpload({ onImageCropped, formData }) {
             </Button>
           )}
 
-          {image ? <ShimmerButton
-            onClick={handleGenerateImage}
-            disabled={isGenerating}
-            className={cn("px-4 py-2", isGenerating && "opacity-80")}
-            shimmerColor="pink"
-          >
-            <div className="relative flex items-center gap-2">
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  <span>Generate Another Image</span>
-                </>
-              )}
-            </div>
-          </ShimmerButton> : <ShimmerButton
-            onClick={handleGenerateImage}
-            disabled={isGenerating}
-            className={cn("px-4 py-2", isGenerating && "opacity-80")}
-            shimmerColor="pink"
-          >
-            <div className="relative flex items-center gap-2">
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  <span>Generate Image</span>
-                </>
-              )}
-            </div>
-          </ShimmerButton>}
+          {enableAIGeneration && (
+            <ShimmerButton
+              onClick={handleGenerateImage}
+              disabled={isGenerating}
+              className={cn("px-4 py-2", isGenerating && "opacity-80")}
+              shimmerColor="pink"
+            >
+              <div className="relative flex items-center gap-2">
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    <span>
+                      {image ? "Generate Another Image" : "Generate Image"}
+                    </span>
+                  </>
+                )}
+              </div>
+            </ShimmerButton>
+          )}
         </div>
       </div>
 
