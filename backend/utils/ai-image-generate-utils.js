@@ -5,7 +5,7 @@ import { ApiError } from './api-error-utils.js';
 
 // Product prompts for generating images
 const productPrompts = [
-  `A high-quality image of a product {product} in the {category} category for the ecommerce`,
+  `A high-quality image of a product {product} in the {category} category for the ecommerce without text`,
 ];
 
 const generateAndSaveImage = asyncHandler(async (req, res, next) => {

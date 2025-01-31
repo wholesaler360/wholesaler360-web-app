@@ -33,15 +33,13 @@ const customerSchema = new mongoose.Schema({
         default: null
     },
     billingAddress: {
-        name : {
+        addressLine1 : {
             type: String,
             required: true,
             trim: true,
-            lowercase: true,
         },
-        address : {
+        addressLine2 : {
             type: String,
-            required: true,
             trim: true,
         },
         city : {
@@ -62,17 +60,14 @@ const customerSchema = new mongoose.Schema({
         },
     },
     shippingAddress: {
-        name : {
+        addressLine1 : {
             type: String,
             required: true,
             trim: true,
-            lowercase: true,
         },
-        address : {
+        addressLine2 : {
             type: String,
-            required: true,
             trim: true,
-            lowercase: true,
         },
         city : {
             type: String,
@@ -89,7 +84,6 @@ const customerSchema = new mongoose.Schema({
         pincode : {
             type: Number,
             required: true,
-            trim: true,
         },
     },
     bankDetails: {
@@ -112,7 +106,6 @@ const customerSchema = new mongoose.Schema({
         },
         bankName : {
             type: String,
-            required: true,
             trim: true,
             lowercase: true,
         },
