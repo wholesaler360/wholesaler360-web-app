@@ -281,31 +281,23 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 
     const oldAvatarUrl = vendor.imageUrl;
 
-    // Handle avatar upload
     let avatar;
-    if (req.files?.avatar?.[0]?.path) {
-        avatar = await uploadFile(req.files.avatar[0].path);
-    }
-    else {
-        return next(ApiError.validationFailed("Avatar is required"));
+    try{
+        avatar = await uploadFile(req.files?.avatar?.[0]?.path);
+    } catch (error) {
+        return next(ApiError.dataNotUpdated("Failed to update avatar", error));
     }
 
-    // Delete old avatar from cloudinary only if new avatar is uploaded
-    if (avatar) {
-        vendor.imageUrl = avatar;
-        
-        // If old avatar exists, delete it from cloudinary
-        if (oldAvatarUrl) {
-            deleteFromCloudinary(oldAvatarUrl);
-        }
-    }
-    else {
-        return next(ApiError.dataNotUpdated("Failed to update avatar"));
-    }
+    vendor.imageUrl = avatar;  
 
     try {
         const updatedVendor = await vendor.save();
         const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+
+        // If old avatar exists in cloudinary, delete it from cloudinary
+        if (oldAvatarUrl) {
+            deleteFromCloudinary(oldAvatarUrl);
+        }
 
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Avatar updated successfully")
