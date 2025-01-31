@@ -29,9 +29,9 @@ function CustomerController({ children }) {
 
   const getInitials = (name) => {
     return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
       .toUpperCase();
   };
 
@@ -43,16 +43,22 @@ function CustomerController({ children }) {
         <DataTableColumnHeader column={column} title="Customer" />
       ),
       cell: ({ row }) => (
-        <div className="flex items-center gap-3 cursor-pointer"
-             onClick={() => navigate(`/customer/${row.original.id}`)}>
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => navigate(`/customer/${row.original.id}`)}
+        >
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-primary/10 text-primary">
               {getInitials(row.original.name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-medium hover:text-primary">{row.original.name}</span>
-            <span className="text-xs text-muted-foreground">{row.original.email}</span>
+            <span className="font-medium hover:text-primary">
+              {row.original.name}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {row.original.email}
+            </span>
           </div>
         </div>
       ),
@@ -80,7 +86,11 @@ function CustomerController({ children }) {
         <DataTableColumnHeader column={column} title="Balance" />
       ),
       cell: ({ getValue }) => (
-        <span className={`font-medium ${getValue() > 0 ? 'text-red-600' : 'text-green-600'}`}>
+        <span
+          className={`font-medium ${
+            getValue() > 0 ? "text-red-600" : "text-green-600"
+          }`}
+        >
           ₹{getValue().toLocaleString("en-IN")}
         </span>
       ),
@@ -94,10 +104,10 @@ function CustomerController({ children }) {
         const date = new Date(getValue());
         return (
           <span className="text-muted-foreground text-sm">
-            {date.toLocaleDateString('en-US', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric'
+            {date.toLocaleDateString("en-US", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
             })}
           </span>
         );
@@ -109,17 +119,19 @@ function CustomerController({ children }) {
       header: "Actions",
       cell: ({ row }) => {
         const handleEdit = () => {
-          navigate(`/customer/edit/${row.original.id}`);
+          navigate(`/customer/edit/`, {
+            state: { mobileNo: row.original.mobileNo },
+          });
         };
 
         const handleDelete = async () => {
           try {
             const response = await axiosDelete(DeleteCustomer, {
-              data: { id: row.original.id },
+              data: { mobileNo: row.original.mobileNo },
             });
             if (response.success) {
               showNotification.success("Customer deleted successfully");
-              setRefreshTrigger(prev => prev + 1);
+              setRefreshTrigger((prev) => prev + 1);
             }
           } catch (error) {
             showNotification.error("Failed to delete customer");
@@ -140,8 +152,8 @@ function CustomerController({ children }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   className="h-8 w-8 p-0 hover:bg-slate-100"
                 >
@@ -153,7 +165,7 @@ function CustomerController({ children }) {
                 <DropdownMenuItem onClick={handleEdit}>
                   Edit Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                   onClick={handleDelete}
                 >
