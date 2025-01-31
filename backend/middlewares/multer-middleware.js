@@ -1,7 +1,7 @@
 import multer from 'multer'
 import fs from 'fs'
 import { ApiError } from "../utils/api-error-utils.js";
-
+import formatValidator from './formatValidation-middleware.js';
 // Ensure temp upload directory exists
 const uploadDir = './public/temp'
 if (!fs.existsSync(uploadDir)) {
@@ -27,12 +27,22 @@ const storage = multer.diskStorage({
         }
     }
 })
-  
+
 //   middleware upload used inorder to upload the file 
-export const upload = multer({
+const uploadMulter = multer({
   storage: storage,
-  error: function (error, req, res, next) {
-    console.error('Multer error:', error)
-    return next(new ApiError(500, "File upload failed"));
-  }
 })
+
+export const upload = (fields) => {
+    return (req, res, next) => {
+      const multerMiddleware = fields && fields.length > 0 ? uploadMulter.fields(fields) : uploadMulter.none();
+      multerMiddleware(req, res, (err) => {
+        if (err) {
+          console.error('Multer error:', err);
+          return next(new ApiError(500, "File upload failed"));
+        }
+        formatValidator(req, res, next);
+      });
+    };
+  };
+// export { upload }

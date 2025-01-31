@@ -41,8 +41,14 @@ app.use(cors({
 
 app.use(cookieParser());
 
-
-// app.use(formatValidator);
+app.use(async(req,res,next)=>{
+    if(req.headers['content-type']?.startsWith('multipart/form-data')){
+        console.log("inside the multipart form data");
+        return next();
+    }
+    console.log("inside the json data");
+    formatValidator(req,res,next);
+})
 
 app.use('/auth', authRouter);
 
@@ -50,6 +56,7 @@ app.use('/auth', authRouter);
 app.post('/createModule', createModule)
 
 app.use('/seed', seederRouter);
+
 // Use the authMiddleware for all routes
 app.use(authMiddleware);
 
@@ -59,7 +66,7 @@ app.use("/user", userRouter);
 
 app.use("/tax", taxRouter);
 app.use('/category', categoryRouter);
-app.get('/product', productRouter)
+app.use('/product', productRouter)
 
 app.use("/customer", customerRouter);
 

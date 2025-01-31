@@ -4,18 +4,18 @@ import { upload } from "../../middlewares/multer-middleware.js";
 const customerRouter = Router();
 
 customerRouter.route('/create').post(
-    upload.fields([{name : "avatar" , maxCount : 1}]),
+    upload([{name : "avatar" , maxCount : 1}]),
     createCustomer);
 
 customerRouter.route('/update').put(updateCustomer);
 
-customerRouter.route('/updateImg').put(upload.fields(
+customerRouter.route('/updateImg').put(upload(
     [{name : "avatar" , maxCount : 1}])
     ,updateCustomerAvatar);
 
 customerRouter.route('/delete').delete(deleteCustomer);
 
-customerRouter.route('/fetch').get(fetchCustomer);
+customerRouter.route('/fetch').post(fetchCustomer);
 
 customerRouter.route('/fetchAll').get(fetchAllCustomer);
 

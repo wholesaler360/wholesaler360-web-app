@@ -4,7 +4,7 @@ import {upload} from '../../middlewares/multer-middleware.js'
 
 const authRouter = Router();
 
-authRouter.route('/login').post(upload.none(), login);
+authRouter.route('/login').post(upload(), login);
 
 authRouter.route('/refreshAccessToken').get(refreshAccessToken);
 
