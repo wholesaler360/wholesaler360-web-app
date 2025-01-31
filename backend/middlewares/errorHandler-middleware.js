@@ -18,7 +18,7 @@ const errorHandler = (err, req, res, next) => {
         console.error(err.stack); // Log the stack trace for debugging
         return res.status(500).json({
             message: genericError.message,
-            stack: err.stack // Include the stack trace in the response
+            // stack: err.stack // Include the stack trace in the response
         });
     }
 };

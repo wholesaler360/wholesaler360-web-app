@@ -30,19 +30,21 @@ const createCustomer = asyncHandler(async(req,res,next) => {
         if(existingCustomer){
             return next(ApiError.valueAlreadyExists("Customer already exists either with same mobile no or email or gstin"));
         }
-            
+        
+        
         const billingAddress = req.body.billingAddress;
-        if(!billingAddress.name || !billingAddress.address || !billingAddress.city || !billingAddress.state || !billingAddress.pincode){
+        console.log(billingAddress);
+        if(!billingAddress.addressLine1  || !billingAddress.city || !billingAddress.state || !billingAddress.pincode){
             return next(ApiError.validationFailed("Billing Address is required"));
         }
             
         const shippingAddress = req.body.shippingAddress;
-            if(!shippingAddress.name || !shippingAddress.address || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode){
+            if(!shippingAddress.addressLine1  || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode){
                 return next(ApiError.validationFailed("Shipping Address is required"));
             }
             
         const bankDetails = req.body.bankDetails;
-            if(!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo || !bankDetails.bankName){
+            if(!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo){
                 return next(ApiError.validationFailed("Bank Details are required"));
             }
             
@@ -181,9 +183,6 @@ const updateCustomerAvatar = asyncHandler(async(req,res,next)=>{
      if(!mobileNo){
          return next(ApiError.validationFailed("Mobile No is required"));
      }
-     if(!customerImageLocalPath){
-         return next(ApiError.validationFailed("Avatar is required"));
-     }
      const customer = await Customer.findOne({mobileNo , isDeleted : false});
  
      if(!customer){
@@ -191,9 +190,6 @@ const updateCustomerAvatar = asyncHandler(async(req,res,next)=>{
      }
      const oldAvatar = customer.avatar;
     const avatar = await uploadFile(customerImageLocalPath);
-    if(!avatar){
-        return next(ApiError.dataNotUpdated("Error uploading image"));
-    }
     customer.avatar = avatar;
     await customer.save();
     await deleteFromCloudinary(oldAvatar);
