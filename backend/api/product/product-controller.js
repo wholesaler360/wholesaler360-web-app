@@ -153,6 +153,11 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     if(!tax){
       return next(ApiError.dataNotFound("Tax Does not exists"));
     }
+
+    const category = await Category.findOne({name : categoryName});
+    if(!category){
+        return next(ApiError.dataNotFound("Category Does not exists"));
+    }
     try {
       product.name = name;
       product.category = category._id;
@@ -193,12 +198,6 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
     return next(ApiError.validationFailed("Product image is required"));
   }
   try {
-    const product = await Product.findOne({ skuCode: skuCode });
-    if (!product) {
-      return next(ApiError.dataNotFound("Product does not exists"));
-    }
-
-    try {
       const product = await Product.findOne({skuCode : skuCode});
       if(!product){
         return next(ApiError.dataNotFound("Product does not exists"));
@@ -226,32 +225,7 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
         if(productImgLocalPath)
           deleteFromLocalPath(productImgLocalPath);
 
-    }
-    console.log("Product Image URL: ", productImgUrl);
-
-    await deleteFromCloudinary(product.productImg);
-
-    product.productImg = productImgUrl;
-
-    await product.save();
-
-    res
-      .status(200)
-      .json(
-        ApiResponse.successUpdated(
-          product,
-          "Product image updated successfully"
-        )
-      );
-    console.log(
-      "----------------Product Image Updated Successfully----------------"
-    );
-  } catch (error) {
-    console.log(error);
-    return next(ApiError.dataNotUpdated("File not uploaded", error));
-  } finally {
-    if (productImgLocalPath) deleteFromLocalPath(productImgLocalPath);
-  }
+    }   
 });
 
 const getStock = async (product_id) => {
