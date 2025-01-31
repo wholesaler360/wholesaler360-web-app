@@ -7,6 +7,7 @@ const taxSchema = new Schema(
       required: true,
       trim: true,
       index: true,
+      lowercase: true,
     },
     percent: {
       type: Number,

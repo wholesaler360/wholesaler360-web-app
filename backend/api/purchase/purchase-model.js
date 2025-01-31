@@ -63,7 +63,7 @@ const purchaseSchema = new Schema(
         type: String,
         enum: ['cash', 'cheque', 'upi', 'online', 'N/A'],
       },
-      note: {
+      description: {
         type: String,
       },
       isDeleted: {

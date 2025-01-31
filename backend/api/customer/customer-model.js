@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-aggregate-paginate-v2";
+
 const customerSchema = new mongoose.Schema({
     name:{
         type: String,
@@ -36,6 +37,7 @@ const customerSchema = new mongoose.Schema({
             type: String,
             required: true,
             trim: true,
+            lowercase: true,
         },
         address : {
             type: String,
@@ -88,7 +90,6 @@ const customerSchema = new mongoose.Schema({
             type: Number,
             required: true,
             trim: true,
-            lowercase: true,
         },
     },
     bankDetails: {
@@ -102,13 +103,12 @@ const customerSchema = new mongoose.Schema({
             type: String,
             required: true,
             trim: true,
-            lowercase: true,
+            uppercase: true,
         },
         accountNo : {
             type: String,
             required: true,
             trim: true,
-            lowercase: true,
         },
         bankName : {
             type: String,

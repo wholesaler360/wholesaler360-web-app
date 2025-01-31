@@ -3,18 +3,24 @@ import mongoose, { Schema } from "mongoose";
 const bankDetailsSchema = new Schema({
     bankName: {
         type: String,
-        required: true
+        trim: true,
+        lowercase: true,
+        required: true,
     },
     accountNumber: {
         type: String,
-        required: true
+        trim: true,
+        required: true,
     },
     ifsc: {
         type: String,
-        required: true
+        trim: true,
+        required: true,
     },
     branchName: {
-        type: String
+        type: String,
+        trim: true,
+        lowercase: true,
     }
 }, { _id: false });
 
@@ -22,18 +28,24 @@ const bankDetailsSchema = new Schema({
 const addressSchema = new Schema({
     addressLine1: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
     },
     addressLine2: {
-        type: String
+        type: String,
+        trim: true,
     },
     city: {
         type: String,
-        required: true
+        trim: true,
+        lowercase: true,
+        required: true,
     },
     state: {
         type: String,
-        required: true
+        trim: true,
+        lowercase: true,
+        required: true,
     },
     pincode: {
         type: String,
@@ -41,7 +53,9 @@ const addressSchema = new Schema({
     },
     country: {
         type: String,
-        required: true
+        trim: true,
+        lowercase: true,
+        required: true,
     }
 }, { _id: false });
 
@@ -55,21 +69,27 @@ const vendorSchema = new Schema(
         },
         name: {
             type: String,
+            trim: true,
+            lowercase: true,
             required: true,
-            trim: true
         },
         mobileNo: {
             type: String,
+            index: true,
+            trim: true,
             required: true,
-            index: true
         },
         email: {
             type: String,
+            index: true,
+            trim: true,
+            lowercase: true,
             required: true,
-            index: true
         },
         gstin: {
             type: String, 
+            trim: true,
+            uppercase: true,
         },
         address: {
             type: addressSchema,

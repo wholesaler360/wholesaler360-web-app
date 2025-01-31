@@ -1,4 +1,3 @@
-
 import express, { urlencoded } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -28,10 +27,10 @@ const app = express();
 app.use(express.json());
 
 app.use(urlencoded(
-            { 
-                extended: true,
-                limit: '16kb'
-            })
+        { 
+            extended: true,
+            limit: '16kb'
+        })
     );
     
 app.use(cors({
