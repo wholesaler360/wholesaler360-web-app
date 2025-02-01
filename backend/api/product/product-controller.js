@@ -279,8 +279,10 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     console.error(error);
     return next(ApiError.dataNotDeleted(error.message, error));
   }
+
 }
 });
+
 
 // Change from GET to POST
 const getProduct = asyncHandler(async (req, res, next) => {

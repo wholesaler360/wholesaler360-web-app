@@ -26,3 +26,11 @@ export const FetchAllTaxes = "/tax/getAllTax";
 export const GenerateImage = "/product/generateImage";
 export const UpdateProduct = "/product/updateProduct";
 export const UpdateProductImage = "product/updateProductImage";
+
+//Customer
+export const FetchAllCustomers = "/customer/fetchAll";
+export const FetchCustomer = "/customer/fetch";
+export const CreateCustomer = "/customer/create";
+export const UpdateCustomer = "/customer/update";
+export const UpdateCustomerImage = "/customer/updateImg";
+export const DeleteCustomer = "/customer/delete";

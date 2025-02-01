@@ -1,5 +1,8 @@
 import Login from "@/pages/authentication/Login";
 import Categories from "@/pages/Features/categories";
+import Customers from "@/pages/Features/customer";
+import AddCustomer from "@/pages/Features/customer/addCustomer";
+import UpdateCustomer from "@/pages/Features/customer/updateCustomer";
 import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
 import Products from "@/pages/Features/products";
@@ -35,6 +38,18 @@ const authRoutes = [
   {
     path: "/product/edit",
     element: <UpdateProduct />,
+  },
+  {
+    path: "/customers",
+    element: <Customers />,
+  },
+  {
+    path: "/customer/add",
+    element: <AddCustomer />,
+  },
+  {
+    path: "/customer/edit",
+    element: <UpdateCustomer />,
   },
 ];
 
