@@ -13,6 +13,7 @@ const createCustomer = asyncHandler(async (req, res, next) => {
   try {
     let { name, mobileNo, email } = req.body;
     let customerImageLocalPath = req.files?.avatar?.[0]?.path;
+    console.log(req.body);
 
     if (!name || !mobileNo || !email) {
       return next(

@@ -32,7 +32,8 @@ const customerSchema = z.object({
     accountNo: z.string().min(9, "Valid account number is required"),
     bankName: z.string().min(2, "Bank name is required"),
   }),
-  avatar: z.any()
+  avatar: z
+    .any()
     .optional()
     .refine(
       (file) => !file || (file instanceof Blob && file.size <= 5242880),
@@ -48,26 +49,30 @@ function AddCustomerControl({ children }) {
     try {
       setIsLoading(true);
       const formData = new FormData();
-      
-      // Append all text fields
-      Object.keys(data).forEach((key) => {
-        if (key !== 'avatar') {
-          if (typeof data[key] === 'object') {
-            formData.append(key, JSON.stringify(data[key]));
-          } else {
-            formData.append(key, data[key]);
-          }
-        }
-      });
+
+      // Handle avatar separately
+      const avatar = data.avatar;
+      delete data.avatar;
+
+      // Create request data with nested objects
+      const requestData = {
+        ...data,
+        billingAddress: { ...data.billingAddress },
+        shippingAddress: { ...data.shippingAddress },
+        bankDetails: { ...data.bankDetails }
+      };
+
+      // Append the main data as a single field
+      formData.append('data', JSON.stringify(requestData));
 
       // Append avatar if exists
-      if (data.avatar) {
-        formData.append('avatar', data.avatar);
+      if (avatar) {
+        formData.append("avatar", avatar);
       }
 
       const response = await axiosPost(CreateCustomer, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
