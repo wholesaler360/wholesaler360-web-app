@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import { Batch } from "../batch/batch-model.js";
 const inventorySchema = new Schema(
   {
     productId: {
@@ -7,11 +7,18 @@ const inventorySchema = new Schema(
       ref: "Product",
       required: true,
     },
-    batchIds: [
+    batches: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "Batch",
-        required: true,
+        batchNo: {
+          type: Number,
+          required: true,
+          unique: true,
+        },
+        batchId: {
+          type: Schema.Types.ObjectId,
+          ref: "Batch",
+          required: true,
+        },
       },
     ],
     totalQuantity: {
@@ -24,9 +31,9 @@ const inventorySchema = new Schema(
 
 inventorySchema.pre("save", async function (next) {
   try {
-    this.totalQuantity = this.batchIds.reduce((acc, batch) => {
-      return acc + batch.currentQuantity;
-    }, 0); 
+    const batchIds = this.batches.map(batch => batch.batchId);
+    const batches = await Batch.find({ _id: { $in: batchIds } }).select("currentQuantity");
+    this.totalQuantity = batches.reduce((acc, batch) => acc + batch.currentQuantity, 0);
     next();
   } catch (error) {
     next(error);

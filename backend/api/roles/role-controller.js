@@ -277,7 +277,7 @@ const fetchAllRole = asyncHandler(async (req, res, next) => {
   ]);
 
   if (roles?.length === 0) {
-    return next(ApiError.dataNotFound("No Role Found"));
+    return res.status(200).json(ApiResponse.successRead([], "No roles found"));
   }
 
   res

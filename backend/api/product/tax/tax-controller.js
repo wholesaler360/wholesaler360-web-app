@@ -118,7 +118,7 @@ const getAllTax = asyncHandler(async (req, res, next) => {
         ]);
 
         if(fetchTaxes.length <= 0) {
-            return next(ApiError.dataNotFound('No taxes found'));
+            return res.status(200).json(ApiResponse.successRead([], 'No taxes found'));
         }
         return res.status(200).json(ApiResponse.successRead(fetchTaxes[0], 'Taxes fetched successfully'));
 });

@@ -2,17 +2,9 @@ import mongoose, { Schema } from "mongoose";
 
 const batchSchema = new Schema(
   {
-    batchNumber: {
-      type: String,
-      required: true,
-    },
     purchaseId: {
       type: Schema.Types.ObjectId,
       ref: "Purchase",
-      required: true,
-    },
-    purchaseQuantity: {
-      type: Number,
       required: true,
     },
     currentQuantity: {
@@ -26,6 +18,7 @@ const batchSchema = new Schema(
     salePriceWithoutTax: {
       type: Number,
       required: true,
+      default: 0,
     },
     isSalePriceEntered: {
       type: Boolean,
