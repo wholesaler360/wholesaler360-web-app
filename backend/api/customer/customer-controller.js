@@ -387,7 +387,7 @@ const fetchAllCustomer = asyncHandler(async (req, res, next) => {
     },
   ]);
   if (customer.length === 0) {
-    return next(ApiError.dataNotFound("No customer found"));
+    return res.status(200).json(ApiResponse.successRead([], "No Customers found"));
   }
   res
     .status(200)
