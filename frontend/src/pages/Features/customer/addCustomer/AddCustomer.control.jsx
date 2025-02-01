@@ -14,14 +14,14 @@ const customerSchema = z.object({
   gstin: z.string().optional(),
   billingAddress: z.object({
     name: z.string().min(2, "Name is required"),
-    address: z.string().min(5, "Address is required"),
+    addressLine1: z.string().min(5, "Address is required"),
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
     pincode: z.string().min(6, "Valid pincode is required"),
   }),
   shippingAddress: z.object({
     name: z.string().min(2, "Name is required"),
-    address: z.string().min(5, "Address is required"),
+    addressLine1: z.string().min(5, "Address is required"),
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
     pincode: z.string().min(6, "Valid pincode is required"),
@@ -46,36 +46,24 @@ function AddCustomerControl({ children }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const createCustomer = async (data) => {
+    console.log(data);
     try {
       setIsLoading(true);
-      const formData = new FormData();
-
+  
+      // Prepare payload
+      const payload = { ...data };
+  
       // Handle avatar separately
       const avatar = data.avatar;
-      delete data.avatar;
-
-      // Create request data with nested objects
-      const requestData = {
-        ...data,
-        billingAddress: { ...data.billingAddress },
-        shippingAddress: { ...data.shippingAddress },
-        bankDetails: { ...data.bankDetails }
-      };
-
-      // Append the main data as a single field
-      formData.append('data', JSON.stringify(requestData));
-
-      // Append avatar if exists
-      if (avatar) {
-        formData.append("avatar", avatar);
-      }
-
-      const response = await axiosPost(CreateCustomer, formData, {
+      delete payload.avatar;
+  
+      // Make API request
+      const response = await axiosPost(CreateCustomer, payload, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
-
+  
       if (response.status === 201) {
         showNotification.success("Customer created successfully");
         navigate("/customers");
@@ -86,6 +74,8 @@ function AddCustomerControl({ children }) {
       setIsLoading(false);
     }
   };
+  
+  
 
   return (
     <AddCustomerContext.Provider

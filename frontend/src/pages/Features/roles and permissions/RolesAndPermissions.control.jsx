@@ -281,7 +281,8 @@ function RolesAndPermissionController({ children }) {
             };
 
             const response = await axiosPut(assignPermission, payload);
-            if (response.status === 201) {
+            console.log(response);
+            if (response.data.success) {
               showNotification.success("Permissions updated successfully");
             }
             setOpen(false);

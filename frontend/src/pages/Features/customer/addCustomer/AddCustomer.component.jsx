@@ -66,14 +66,14 @@ function AddCustomerComponent() {
       gstin: "",
       billingAddress: {
         name: "",
-        address: "",
+        addressLine1: "",
         city: "",
         state: "",
         pincode: "",
       },
       shippingAddress: {
         name: "",
-        address: "",
+        addressLine1: "",
         city: "",
         state: "",
         pincode: "",
@@ -159,72 +159,72 @@ function AddCustomerComponent() {
                     </div>
                     <Card className="border shadow-sm">
                       <CardContent className="p-4">
-                      <div className="grid gap-4 md:grid-cols-3">
-                      {/* Name, Mobile, Email, GSTIN fields */}
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Customer Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter customer name"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="mobileNo"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mobile Number</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter mobile number"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email Address</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter email address"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="gstin"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>GSTIN (Optional)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter GSTIN" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                        <div className="grid gap-4 md:grid-cols-3">
+                          {/* Name, Mobile, Email, GSTIN fields */}
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Customer Name</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter customer name"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="mobileNo"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Mobile Number</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter mobile number"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email Address</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter email address"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="gstin"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>GSTIN (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter GSTIN" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
                   </section>
 
                   {/* Addresses Section */}
@@ -264,7 +264,7 @@ function AddCustomerComponent() {
                             />
                             <FormField
                               control={form.control}
-                              name="billingAddress.address"
+                              name="billingAddress.addressLine1"
                               render={({ field }) => (
                                 <FormItem className="sm:col-span-2">
                                   <FormLabel>Street Address</FormLabel>
@@ -378,7 +378,7 @@ function AddCustomerComponent() {
                             />
                             <FormField
                               control={form.control}
-                              name="shippingAddress.address"
+                              name="shippingAddress.addressLine1"
                               render={({ field }) => (
                                 <FormItem className="sm:col-span-2">
                                   <FormLabel>Street Address</FormLabel>
