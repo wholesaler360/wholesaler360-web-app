@@ -31,16 +31,7 @@ const createCustomer = asyncHandler(async(req,res,next) => {
         }
 
 
-    const shippingAddress = req.body.shippingAddress;
-    if (
-      !shippingAddress.name ||
-      !shippingAddress.address ||
-      !shippingAddress.city ||
-      !shippingAddress.state ||
-      !shippingAddress.pincode
-    ) {
-      return next(ApiError.validationFailed("Shipping Address is required"));
-    }
+
 
 
         if(existingCustomer){
@@ -108,8 +99,8 @@ const createCustomer = asyncHandler(async(req,res,next) => {
             deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         }
 
-    }
   }
+
 });
 
 
