@@ -17,10 +17,11 @@ const bankDetailsSchema = new Schema({
         trim: true,
         required: true,
     },
-    branchName: {
+    accountHolderName: {
         type: String,
         trim: true,
         lowercase: true,
+        required: true,
     }
 }, { _id: false });
 
