@@ -33,7 +33,6 @@ const createCustomer = asyncHandler(async(req,res,next) => {
         
         
         const billingAddress = req.body.billingAddress;
-        console.log(billingAddress);
         if(!billingAddress.addressLine1  || !billingAddress.city || !billingAddress.state || !billingAddress.pincode){
             return next(ApiError.validationFailed("Billing Address is required"));
         }
@@ -42,11 +41,14 @@ const createCustomer = asyncHandler(async(req,res,next) => {
             if(!shippingAddress.addressLine1  || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode){
                 return next(ApiError.validationFailed("Shipping Address is required"));
             }
-            
+
+        console.log(billingAddress.pincode);
+        console.log(shippingAddress.pincode);
+        
         const bankDetails = req.body.bankDetails;
-            if(!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo){
-                return next(ApiError.validationFailed("Bank Details are required"));
-            }
+        if(!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo){
+            return next(ApiError.validationFailed("Bank Details are required"));
+        }
             
         const receiveableBalance = req.body.receiveableBalance;
             
@@ -72,18 +74,20 @@ const createCustomer = asyncHandler(async(req,res,next) => {
 
         try {
             const savedCustomer = await customer.save();
-            console.log(savedCustomer);
-            res.status(201).json(ApiResponse.successCreated(savedCustomer,"Customer created successfully"));
+            const {isDeleted, __v, updatedAt, createdAt, ...remaining} = savedCustomer.toObject();
+            res.status(201).json(ApiResponse.successCreated(remaining,"Customer created successfully"));
         } catch (error) {
             await deleteFromCloudinary(avatar);
             console.log(error);
             return next(ApiError.dataNotInserted(error.message,error));
         }
         console.log("-------------Customer Created Successfully-----------------");
+    
     } catch (error) {
         console.log(error);
         return next(ApiError.dataNotInserted(error.message,error));
-    } finally{
+    
+    } finally {
         if(req.files?.avatar?.[0]?.path){
             deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         }

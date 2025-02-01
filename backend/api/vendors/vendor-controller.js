@@ -9,7 +9,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     const {
         name, mobileNo, email, gstin, payableBalance, 
         addressLine1, addressLine2, city, state, pincode, 
-        country, branchName, ifsc, bankName, accountNumber 
+        country, accountHolderName, ifsc, bankName, accountNumber 
     } = req.body;
 
     // Check if all the required fields are present or not 
@@ -17,7 +17,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             name, mobileNo, email, 
             addressLine1, city, state, 
             pincode, country, bankName, 
-            ifsc, accountNumber
+            ifsc, accountNumber, accountHolderName
 
         ].some((field) => 
             // Apply trim only if field is a string
@@ -37,7 +37,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
     };
 
     const bankDetails = {
-        branchName,
+        accountHolderName,
         ifsc,
         bankName,
         accountNumber
@@ -84,9 +84,12 @@ const createVendor = asyncHandler(async(req, res, next)=>{
         const{isDeleted, __v, updatedAt, createdAt, ...remaining} = vendorCreated.toObject();
 
         return res.status(201).json(ApiResponse.successCreated(remaining, "Vendor created successfully"));
+    
     } catch (error) {
-        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.dataNotInserted("Vendor not created", error));
+    
+    } finally {
+        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
     }
 });
 
@@ -200,7 +203,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
         mobileNo, newMobileNo, 
         name, email, gstin, addressLine1, 
         addressLine2, city, state, pincode,
-        country, branchName, ifsc, bankName, accountNumber
+        country, accountHolderName, ifsc, bankName, accountNumber
     } = req.body;
 
     if (!mobileNo?.trim()) {
@@ -248,7 +251,7 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     vendor.address.state = state || vendor.address.state;
     vendor.address.pincode = pincode || vendor.address.pincode;
     vendor.address.country = country || vendor.address.country;
-    vendor.bankDetails.branchName = branchName || vendor.bankDetails.branchName;
+    vendor.bankDetails.accountHolderName = accountHolderName || vendor.bankDetails.accountHolderName;
     vendor.bankDetails.ifsc = ifsc || vendor.bankDetails.ifsc;
     vendor.bankDetails.bankName = bankName || vendor.bankDetails.bankName;
     vendor.bankDetails.accountNumber = accountNumber || vendor.bankDetails.accountNumber;
@@ -286,6 +289,9 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
         avatar = await uploadFile(req.files?.avatar?.[0]?.path);
     } catch (error) {
         return next(ApiError.dataNotUpdated("Failed to update avatar", error));
+    }
+    finally {
+        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
     }
 
     vendor.imageUrl = avatar;  

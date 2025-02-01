@@ -20,13 +20,13 @@ const universalValidationSchema = z.object({
     gstin: z.string().regex(gstinRegex, "Invalid GSTIN format").optional(),
     pincode: z.string().regex(pincodeRegex, "Invalid pincode").optional(),
 
-    // billingAddress: z.object({
-    //     pincode: z.string().regex(/^\d{6}$/, "Invalid billing pincode").optional(),
-    // }).optional(),
+    billingAddress: z.object({
+        pincode: z.string().regex(/^\d{6}$/, "Invalid billing pincode").optional(),
+    }).passthrough().optional(),
 
-    // shippingAddress: z.object({
-    //     pincode: z.string().regex(/^\d{6}$/, "Invalid shipping pincode").optional(),
-    //   }).optional(),
+    shippingAddress: z.object({
+        pincode: z.string().regex(/^\d{6}$/, "Invalid shipping pincode").optional(),
+    }).passthrough().optional(),
       
     email: z.string().email("Invalid email format").min(5, "Invalid email format").optional(),
 
