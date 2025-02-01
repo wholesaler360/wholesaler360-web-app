@@ -33,7 +33,7 @@ const uploadFile = async (localFilePath) => {
         return response.secure_url;
 
     } catch (error) {
-        console.error(`Error uploading file: ${error.message}`);
+        console.log(`Error uploading file: ${error.message}`);
         fs.unlinkSync(localFilePath)    // Delete file from local temp path
         return null;
     }

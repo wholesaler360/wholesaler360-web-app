@@ -8,16 +8,16 @@ import { uploadFile, deleteFromLocalPath, deleteFromCloudinary } from "../../uti
 const createVendor = asyncHandler(async(req, res, next)=>{
     const {
         name, mobileNo, email, gstin, payableBalance, 
-        addressLine1, addressLine2, city, state, postalCode, 
-        country, branchName, ifsc, bankName, accountNumber 
+        addressLine1, addressLine2, city, state, pincode, 
+        country, accountHolderName, ifsc, bankName, accountNumber 
     } = req.body;
 
     // Check if all the required fields are present or not 
     if ([
             name, mobileNo, email, 
             addressLine1, city, state, 
-            postalCode, country, bankName, 
-            ifsc, accountNumber
+            pincode, country, bankName, 
+            ifsc, accountNumber, accountHolderName
 
         ].some((field) => 
             // Apply trim only if field is a string
@@ -32,12 +32,12 @@ const createVendor = asyncHandler(async(req, res, next)=>{
         addressLine2,
         city,
         state,
-        postalCode,
+        pincode,
         country
     };
 
     const bankDetails = {
-        branchName,
+        accountHolderName,
         ifsc,
         bankName,
         accountNumber
@@ -84,9 +84,12 @@ const createVendor = asyncHandler(async(req, res, next)=>{
         const{isDeleted, __v, updatedAt, createdAt, ...remaining} = vendorCreated.toObject();
 
         return res.status(201).json(ApiResponse.successCreated(remaining, "Vendor created successfully"));
+    
     } catch (error) {
-        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.dataNotInserted("Vendor not created", error));
+    
+    } finally {
+        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
     }
 });
 
@@ -199,8 +202,8 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     const {
         mobileNo, newMobileNo, 
         name, email, gstin, addressLine1, 
-        addressLine2, city, state, postalCode,
-        country, branchName, ifsc, bankName, accountNumber
+        addressLine2, city, state, pincode,
+        country, accountHolderName, ifsc, bankName, accountNumber
     } = req.body;
 
     if (!mobileNo?.trim()) {
@@ -246,9 +249,9 @@ const updateVendor = asyncHandler(async(req, res, next) => {
     vendor.address.addressLine2 = addressLine2 || vendor.address.addressLine2;
     vendor.address.city = city || vendor.address.city;
     vendor.address.state = state || vendor.address.state;
-    vendor.address.postalCode = postalCode || vendor.address.postalCode;
+    vendor.address.pincode = pincode || vendor.address.pincode;
     vendor.address.country = country || vendor.address.country;
-    vendor.bankDetails.branchName = branchName || vendor.bankDetails.branchName;
+    vendor.bankDetails.accountHolderName = accountHolderName || vendor.bankDetails.accountHolderName;
     vendor.bankDetails.ifsc = ifsc || vendor.bankDetails.ifsc;
     vendor.bankDetails.bankName = bankName || vendor.bankDetails.bankName;
     vendor.bankDetails.accountNumber = accountNumber || vendor.bankDetails.accountNumber;
@@ -281,31 +284,26 @@ const updateAvatar = asyncHandler(async(req, res, next) => {
 
     const oldAvatarUrl = vendor.imageUrl;
 
-    // Handle avatar upload
     let avatar;
-    if (req.files?.avatar?.[0]?.path) {
-        avatar = await uploadFile(req.files.avatar[0].path);
+    try{
+        avatar = await uploadFile(req.files?.avatar?.[0]?.path);
+    } catch (error) {
+        return next(ApiError.dataNotUpdated("Failed to update avatar", error));
     }
-    else {
-        return next(ApiError.validationFailed("Avatar is required"));
+    finally {
+        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
     }
 
-    // Delete old avatar from cloudinary only if new avatar is uploaded
-    if (avatar) {
-        vendor.imageUrl = avatar;
-        
-        // If old avatar exists, delete it from cloudinary
-        if (oldAvatarUrl) {
-            deleteFromCloudinary(oldAvatarUrl);
-        }
-    }
-    else {
-        return next(ApiError.dataNotUpdated("Failed to update avatar"));
-    }
+    vendor.imageUrl = avatar;  
 
     try {
         const updatedVendor = await vendor.save();
         const {isDeleted, __v, updatedAt, createdAt, ...remaining} = updatedVendor.toObject();
+
+        // If old avatar exists in cloudinary, delete it from cloudinary
+        if (oldAvatarUrl) {
+            deleteFromCloudinary(oldAvatarUrl);
+        }
 
         return res.status(200).json(
             ApiResponse.successUpdated(remaining, "Avatar updated successfully")

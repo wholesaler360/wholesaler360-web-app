@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 
 const login = asyncHandler(async(req,res,next)=>{
     // take the values and validate it
-    const {mobileNo,password} = req.body;
+    const {mobileNo, password} = req.body;
 
     if ([mobileNo , password].some((field) => !field?.trim())) {
         return next(ApiError.validationFailed("Please provide all required fields"));

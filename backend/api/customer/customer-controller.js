@@ -7,50 +7,29 @@ import {
   deleteFromLocalPath,
 } from "../../utils/cloudinary-utils.js";
 import { asyncHandler } from "../../utils/asyncHandler-utils.js";
-import { Invoice } from "../invoice/invoice-model.js";
-const createCustomer = asyncHandler(async (req, res, next) => {
-  console.log("-----------------Create Customer-----------------");
-  try {
-    let { name, mobileNo, email } = req.body;
-    let customerImageLocalPath = req.files?.avatar?.[0]?.path;
-    console.log(req.body);
 
-    if (!name || !mobileNo || !email) {
-      return next(
-        ApiError.validationFailed("Name , Mobile No and Email are required")
-      );
-    }
+import {Invoice} from "../invoice/invoice-model.js"
 
-    const gstin = req.body.gstin;
+const createCustomer = asyncHandler(async(req,res,next) => {
+    console.log("-----------------Create Customer-----------------");  
+    try {
+        let {name , mobileNo , email} = req.body;
+        let customerImageLocalPath = req.files?.avatar?.[0]?.path;
 
-    const condition = [
-      { mobileNo, isDeleted: false },
-      { email, isDeleted: false },
-    ];
-    if (gstin) {
-      condition.push({ gstin, isDeleted: false });
-    }
+        if(!name || !mobileNo || !email){
+            return next(ApiError.validationFailed("Name , Mobile No and Email are required"));
+        }
+        
+        const gstin = req.body?.gstin.trim().toUpperCase() || null;
+            
+        const condition = [
+            {mobileNo, isDeleted: false},
+            {email, isDeleted: false}
+        ]
+        if(gstin){
+            condition.push({gstin , isDeleted : false});
+        }
 
-    const existingCustomer = await Customer.findOne({ $or: condition });
-
-    if (existingCustomer) {
-      return next(
-        ApiError.valueAlreadyExists(
-          "Customer already exists either with same mobile no or email or gstin"
-        )
-      );
-    }
-
-    const billingAddress = req.body.billingAddress;
-    if (
-      !billingAddress.name ||
-      !billingAddress.address ||
-      !billingAddress.city ||
-      !billingAddress.state ||
-      !billingAddress.pincode
-    ) {
-      return next(ApiError.validationFailed("Billing Address is required"));
-    }
 
     const shippingAddress = req.body.shippingAddress;
     if (
@@ -63,91 +42,178 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       return next(ApiError.validationFailed("Shipping Address is required"));
     }
 
-    const bankDetails = req.body.bankDetails;
-    if (
-      !bankDetails.accountName ||
-      !bankDetails.ifscCode ||
-      !bankDetails.accountNo ||
-      !bankDetails.bankName
-    ) {
-      return next(ApiError.validationFailed("Bank Details are required"));
-    }
 
-    const receiveableBalance = req.body.receiveableBalance;
+        if(existingCustomer){
+            return next(ApiError.valueAlreadyExists("Customer already exists either with same mobile no or email or gstin"));
+        }
+        
+        
+        const billingAddress = req.body.billingAddress;
+        if(!billingAddress.addressLine1  || !billingAddress.city || !billingAddress.state || !billingAddress.pincode){
+            return next(ApiError.validationFailed("Billing Address is required"));
+        }
+            
+        const shippingAddress = req.body.shippingAddress;
+            if(!shippingAddress.addressLine1  || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode){
+                return next(ApiError.validationFailed("Shipping Address is required"));
+            }
 
-    let avatar = await uploadFile(customerImageLocalPath);
-    if (customerImageLocalPath) {
-      if (!avatar) {
-        return next(ApiError.dataNotInserted("Error uploading image"));
-      }
-    }
+        console.log(billingAddress.pincode);
+        console.log(shippingAddress.pincode);
+        
+        const bankDetails = req.body.bankDetails;
+        if(!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo){
+            return next(ApiError.validationFailed("Bank Details are required"));
+        }
+            
+        const receiveableBalance = req.body.receiveableBalance;
+            
+        let avatar = await uploadFile(customerImageLocalPath);;
+            if(customerImageLocalPath){
+                if(!avatar){
+                    return next(ApiError.dataNotInserted("Error uploading image"));
+                }   
+            }
+                
+        const customer = new Customer({
+                name,
+                mobileNo,
+                email,
+                gstin,
+                avatar,
+                billingAddress,
+                shippingAddress,
+                bankDetails,
+                receiveableBalance,
+                createdBy : req.fetchedUser._id
+            });
 
-    const customer = new Customer({
-      name,
-      mobileNo,
-      email,
-      gstin,
-      avatar,
-      billingAddress,
-      shippingAddress,
-      bankDetails,
-      receiveableBalance,
-      createdBy: req.fetchedUser._id,
-    });
-
-    try {
-      const savedCustomer = await customer.save();
-      console.log(savedCustomer);
-      res
-        .status(201)
-        .json(
-          ApiResponse.successCreated(
-            savedCustomer,
-            "Customer created successfully"
-          )
-        );
+        try {
+            const savedCustomer = await customer.save();
+            const {isDeleted, __v, updatedAt, createdAt, ...remaining} = savedCustomer.toObject();
+            res.status(201).json(ApiResponse.successCreated(remaining,"Customer created successfully"));
+        } catch (error) {
+            await deleteFromCloudinary(avatar);
+            console.log(error);
+            return next(ApiError.dataNotInserted(error.message,error));
+        }
+        console.log("-------------Customer Created Successfully-----------------");
+    
     } catch (error) {
-      await deleteFromCloudinary(avatar);
-      console.log(error);
-      return next(ApiError.dataNotInserted(error.message, error));
-    }
-    console.log("-------------Customer Created Successfully-----------------");
-  } catch (error) {
-    console.log(error);
-    return next(ApiError.dataNotInserted(error.message, error));
-  } finally {
-    if (req.files?.avatar?.[0]?.path) {
-      deleteFromLocalPath(req.files?.avatar?.[0]?.path);
+        console.log(error);
+        return next(ApiError.dataNotInserted(error.message,error));
+    
+    } finally {
+        if(req.files?.avatar?.[0]?.path){
+            deleteFromLocalPath(req.files?.avatar?.[0]?.path);
+        }
+
     }
   }
 });
 
-const updateCustomer = asyncHandler(async (req, res, next) => {});
 
-const updateCustomerAvatar = asyncHandler(async (req, res, next) => {
-  console.log("-----------------Update Customer Avatar-----------------");
-  let { mobileNo } = req.body;
-  mobileNo = mobileNo.trim();
-  const customerImageLocalPath = req.files?.avatar?.[0]?.path;
+
+const updateCustomer = asyncHandler(async (req, res, next) => {
+  console.log("-----------------Update Customer-----------------");
+  let name = req.body?.name?.trim().toLowerCase();
+  let mobileNo = req.body?.mobileNo;
+  let newMobileNo = req.body?.newMobileNo || mobileNo;
+  let email = req.body?.email;
+  let gstin = req.body?.gstin.trim().toUpperCase() || null;
+  console.log("Old MobileNo. ", mobileNo, "   New Mobile No. ", newMobileNo);
+
+  if (!name||!mobileNo || !email) {
+    return next(ApiError.validationFailed("Name ,Mobile No and email are required"));
+  }
+
+  const customer = await Customer.findOne({ mobileNo, isDeleted: false });
+  if (!customer) {
+    return next(ApiError.dataNotFound("Customer not found or customer is deleted"));
+  }
+
+  // Check for existing customers with the new mobile number, email, or gstin
+  const conditions = [];
+  if (mobileNo !== newMobileNo) {
+    conditions.push({ mobileNo: newMobileNo, isDeleted: false });
+  }
+  if (customer.email !== email) {
+    conditions.push({ email, isDeleted: false });
+  }
+  if (customer.gstin !== gstin && gstin) {
+    conditions.push({ gstin, isDeleted: false });
+  }
+
+  if (conditions.length > 0) {
+    const existingCustomer = await Customer.findOne({ $or: conditions });
+    if (existingCustomer) {
+      return next(ApiError.valueAlreadyExists("Customer already exists with the same mobile number, email, or GSTIN"));
+    }
+  }
+
+  const billingAddress = req.body.billingAddress;
+  if (!billingAddress.name || !billingAddress.address || !billingAddress.city || !billingAddress.state || !billingAddress.pincode) {
+    return next(ApiError.validationFailed("Billing Address is required"));
+  }
+  const shippingAddress = req.body.shippingAddress;
+  if (!shippingAddress.name || !shippingAddress.address || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
+    return next(ApiError.validationFailed("Shipping Address is required"));
+  }
+  const bankDetails = req.body.bankDetails;
+  if (!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo || !bankDetails.bankName) {
+    return next(ApiError.validationFailed("Bank Details are required"));
+  }
+
+  // Update customer fields
   try {
-    if (!mobileNo) {
-      return next(ApiError.validationFailed("Mobile No is required"));
-    }
-    if (!customerImageLocalPath) {
-      return next(ApiError.validationFailed("Avatar is required"));
-    }
-    const customer = await Customer.findOne({ mobileNo, isDeleted: false });
+    customer.name = name;
+    customer.mobileNo = newMobileNo;
+    customer.email = email;
+    customer.gstin = gstin;
+    customer.billingAddress = billingAddress;
+    customer.shippingAddress = shippingAddress;
+    customer.bankDetails = bankDetails;
+  
+    await customer.save();
+    const {__v , createdAt , updatedAt , isDeleted , ...rest} = customer.toObject();
+        const orderedCustomer = {
+            name: rest.name,
+            mobileNo: rest.mobileNo,
+            email: rest.email,
+            gstin: rest.gstin,
+            avatar: rest.avatar,
+            billingAddress: rest.billingAddress,
+            shippingAddress: rest.shippingAddress,
+            bankDetails: rest.bankDetails,
+            receiveableBalance: rest.receiveableBalance,
+            createdBy: rest.createdBy
+        };
+    console.log(orderedCustomer);
+  
+    res.status(200).json(ApiResponse.successUpdated(orderedCustomer, "Customer updated successfully"));
+  } catch (error) {
+    console.log(error);
+    return next(ApiError.dataNotUpdated(error.message, error));
+}
+});
 
-    if (!customer) {
-      return next(
-        ApiError.dataNotFound("Customer not found or customer is deleted")
-      );
-    }
-    const oldAvatar = customer.avatar;
+const updateCustomerAvatar = asyncHandler(async(req,res,next)=>{
+    console.log("-----------------Update Customer Avatar-----------------");
+    let {mobileNo} = req.body;
+    mobileNo = mobileNo.trim();
+    const customerImageLocalPath = req.files?.avatar?.[0]?.path;
+   try {
+     if(!mobileNo){
+         return next(ApiError.validationFailed("Mobile No is required"));
+     }
+     const customer = await Customer.findOne({mobileNo , isDeleted : false});
+ 
+     if(!customer){
+         return next(ApiError.dataNotFound("Customer not found or customer is deleted"));
+     }
+     const oldAvatar = customer.avatar;
     const avatar = await uploadFile(customerImageLocalPath);
-    if (!avatar) {
-      return next(ApiError.dataNotUpdated("Error uploading image"));
-    }
+
     customer.avatar = avatar;
     await customer.save();
     await deleteFromCloudinary(oldAvatar);

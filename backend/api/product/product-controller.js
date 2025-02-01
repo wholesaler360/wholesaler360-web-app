@@ -116,15 +116,15 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     let skuCode = req.body?.skuCode; 
     if(!skuCode)
     {
-        return next(ApiError.validationFailed("Sku code is required"));
+      return next(ApiError.validationFailed("Sku code is required"));
     }
     skuCode = skuCode.trim().toLowerCase();
     const product = await Product.findOne({skuCode : skuCode});
     
     if(!product || product.isProductDeleted)
-      {
-        return next(ApiError.dataNotFound("Product does not exists or product is deleted"));
-      }
+    {
+      return next(ApiError.dataNotFound("Product does not exists or product is deleted"));
+    }
       
     // let  newSkuCode = req.body?.newSkuCode?.toLowerCase() || skuCode;
     let name = req.body?.name?.toLowerCase(); 
@@ -152,6 +152,11 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     const tax = await Tax.findOne({name : taxName});
     if(!tax){
       return next(ApiError.dataNotFound("Tax Does not exists"));
+    }
+
+    const category = await Category.findOne({name : categoryName});
+    if(!category){
+        return next(ApiError.dataNotFound("Category Does not exists"));
     }
     try {
       product.name = name;
@@ -193,12 +198,6 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
     return next(ApiError.validationFailed("Product image is required"));
   }
   try {
-    const product = await Product.findOne({ skuCode: skuCode });
-    if (!product) {
-      return next(ApiError.dataNotFound("Product does not exists"));
-    }
-
-    try {
       const product = await Product.findOne({skuCode : skuCode});
       if(!product){
         return next(ApiError.dataNotFound("Product does not exists"));
@@ -226,32 +225,7 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
         if(productImgLocalPath)
           deleteFromLocalPath(productImgLocalPath);
 
-    }
-    console.log("Product Image URL: ", productImgUrl);
-
-    await deleteFromCloudinary(product.productImg);
-
-    product.productImg = productImgUrl;
-
-    await product.save();
-
-    res
-      .status(200)
-      .json(
-        ApiResponse.successUpdated(
-          product,
-          "Product image updated successfully"
-        )
-      );
-    console.log(
-      "----------------Product Image Updated Successfully----------------"
-    );
-  } catch (error) {
-    console.log(error);
-    return next(ApiError.dataNotUpdated("File not uploaded", error));
-  } finally {
-    if (productImgLocalPath) deleteFromLocalPath(productImgLocalPath);
-  }
+    }   
 });
 
 const getStock = async (product_id) => {
@@ -305,7 +279,10 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     console.error(error);
     return next(ApiError.dataNotDeleted(error.message, error));
   }
-  }});
+
+}
+});
+
 
 // Change from GET to POST
 const getProduct = asyncHandler(async (req, res, next) => {
@@ -387,9 +364,53 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
-  res
-    .status(200)
-    .json(ApiResponse.successRead(products, "Products fetched successfully"));
+  if(products.length === 0){
+    return next(ApiError.dataNotFound("No products Exists"));
+  }
+  res.status(200).json(ApiResponse.successRead(products, "Products fetched successfully"));
+
+});
+
+const fetchProductDropdown = asyncHandler(async (req, res, next) => {
+  const products = await Product.aggregate([
+    {
+      $match: { isProductDeleted: false },
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    {
+      $addFields: {
+        productInfo : {
+          id : "$_id",
+          name: "$name",
+          skuCode: "$skuCode",
+          category: { $arrayElemAt: ["$category.name", 0] },
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        product: { $push: "$productInfo" },
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        product: 1,
+      },
+    },
+  ]);
+  if(products.length === 0){
+    return next(ApiError.dataNotFound("No products Exists"));
+  }
+  res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));
 });
 
 const getDiscountTypes = asyncHandler(async (req, res, next) => {
@@ -408,12 +429,5 @@ const getDiscountTypes = asyncHandler(async (req, res, next) => {
   }
 });
 
-export {
-  createProduct,
-  updateProduct,
-  updateProductImage,
-  getProduct,
-  fetchAllProduct,
-  getDiscountTypes,
-  deleteProduct,
-};
+export { createProduct, updateProduct ,updateProductImage, getProduct ,fetchAllProduct, getDiscountTypes ,fetchProductDropdown ,deleteProduct };
+

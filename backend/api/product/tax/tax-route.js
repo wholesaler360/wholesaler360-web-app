@@ -9,7 +9,7 @@ taxRouter.route('/updateTaxPercent').put(updateTaxPercent);
 
 taxRouter.route('/deleteTax').delete(deleteTax);
 
-taxRouter.route('/getTax').get(getTax);
+taxRouter.route('/getTax').post(getTax);
 
 taxRouter.route('/getAllTax').get(getAllTax);
 
