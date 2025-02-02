@@ -13,15 +13,15 @@ const customerSchema = z.object({
   email: z.string().email("Invalid email address"),
   gstin: z.string().optional(),
   billingAddress: z.object({
-    name: z.string().min(2, "Name is required"),
     addressLine1: z.string().min(5, "Address is required"),
+    addressLine2: z.string().optional(),
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
     pincode: z.string().min(6, "Valid pincode is required"),
   }),
   shippingAddress: z.object({
-    name: z.string().min(2, "Name is required"),
     addressLine1: z.string().min(5, "Address is required"),
+    addressLine2: z.string().optional(),
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
     pincode: z.string().min(6, "Valid pincode is required"),

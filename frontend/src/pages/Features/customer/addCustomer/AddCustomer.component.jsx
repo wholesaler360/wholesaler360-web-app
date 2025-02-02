@@ -65,15 +65,15 @@ function AddCustomerComponent() {
       email: "",
       gstin: "",
       billingAddress: {
-        name: "",
         addressLine1: "",
+        addressLine2: "",
         city: "",
         state: "",
         pincode: "",
       },
       shippingAddress: {
-        name: "",
         addressLine1: "",
+        addressLine2: "",
         city: "",
         state: "",
         pincode: "",
@@ -248,13 +248,13 @@ function AddCustomerComponent() {
                             {/* Billing address fields */}
                             <FormField
                               control={form.control}
-                              name="billingAddress.name"
+                              name="billingAddress.addressLine1"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Contact Name</FormLabel>
+                                  <FormLabel>Address Line 1</FormLabel>
                                   <FormControl>
                                     <Input
-                                      placeholder="Enter contact name"
+                                      placeholder="Enter address line 1"
                                       {...field}
                                     />
                                   </FormControl>
@@ -264,13 +264,15 @@ function AddCustomerComponent() {
                             />
                             <FormField
                               control={form.control}
-                              name="billingAddress.addressLine1"
+                              name="billingAddress.addressLine2"
                               render={({ field }) => (
                                 <FormItem className="sm:col-span-2">
-                                  <FormLabel>Street Address</FormLabel>
+                                  <FormLabel>
+                                    Address Line 2 (Optional)
+                                  </FormLabel>
                                   <FormControl>
                                     <Input
-                                      placeholder="Enter street address"
+                                      placeholder="Enter address line 2"
                                       {...field}
                                     />
                                   </FormControl>
@@ -362,13 +364,13 @@ function AddCustomerComponent() {
                             {/* Shipping address fields */}
                             <FormField
                               control={form.control}
-                              name="shippingAddress.name"
+                              name="shippingAddress.addressLine1"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Contact Name</FormLabel>
+                                  <FormLabel>Address Line 1</FormLabel>
                                   <FormControl>
                                     <Input
-                                      placeholder="Enter contact name"
+                                      placeholder="Enter address line 1"
                                       {...field}
                                     />
                                   </FormControl>
@@ -378,13 +380,15 @@ function AddCustomerComponent() {
                             />
                             <FormField
                               control={form.control}
-                              name="shippingAddress.addressLine1"
+                              name="shippingAddress.addressLine2"
                               render={({ field }) => (
                                 <FormItem className="sm:col-span-2">
-                                  <FormLabel>Street Address</FormLabel>
+                                  <FormLabel>
+                                    Address Line 2 (Optional)
+                                  </FormLabel>
                                   <FormControl>
                                     <Input
-                                      placeholder="Enter street address"
+                                      placeholder="Enter address line 2"
                                       {...field}
                                     />
                                   </FormControl>

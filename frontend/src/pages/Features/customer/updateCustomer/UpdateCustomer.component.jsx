@@ -275,44 +275,48 @@ function UpdateCustomerComponent() {
                       <CardContent className="p-4 space-y-4">
                         <h4 className="font-medium">Billing Address</h4>
                         {/* Billing Address Fields */}
-                        {["name", "address", "city", "state", "pincode"].map(
-                          (field) => (
-                            <FormField
-                              key={field}
-                              control={form.control}
-                              name={`billingAddress.${field}`}
-                              render={({ field: fieldProps }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    {field.charAt(0).toUpperCase() +
-                                      field.slice(1)}
-                                  </FormLabel>
-                                  <FormControl>
-                                    {field === "state" ? (
-                                      <select
-                                        {...fieldProps}
-                                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                      >
-                                        <option value="">Select State</option>
-                                        {statesList.map((state) => (
-                                          <option key={state} value={state}>
-                                            {state}
-                                          </option>
-                                        ))}
-                                      </select>
-                                    ) : (
-                                      <Input
-                                        placeholder={`Enter ${field}`}
-                                        {...fieldProps}
-                                      />
-                                    )}
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          )
-                        )}
+                        {[
+                          "addressLine1",
+                          "addressLine2",
+                          "city",
+                          "state",
+                          "pincode",
+                        ].map((field) => (
+                          <FormField
+                            key={field}
+                            control={form.control}
+                            name={`billingAddress.${field}`}
+                            render={({ field: fieldProps }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {field.charAt(0).toUpperCase() +
+                                    field.slice(1)}
+                                </FormLabel>
+                                <FormControl>
+                                  {field === "state" ? (
+                                    <select
+                                      {...fieldProps}
+                                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                                    >
+                                      <option value="">Select State</option>
+                                      {statesList.map((state) => (
+                                        <option key={state} value={state}>
+                                          {state}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <Input
+                                      placeholder={`Enter ${field}`}
+                                      {...fieldProps}
+                                    />
+                                  )}
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ))}
                       </CardContent>
                     </Card>
 
@@ -335,44 +339,48 @@ function UpdateCustomerComponent() {
                           </Button>
                         </div>
                         {/* Shipping Address Fields */}
-                        {["name", "address", "city", "state", "pincode"].map(
-                          (field) => (
-                            <FormField
-                              key={field}
-                              control={form.control}
-                              name={`shippingAddress.${field}`}
-                              render={({ field: fieldProps }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    {field.charAt(0).toUpperCase() +
-                                      field.slice(1)}
-                                  </FormLabel>
-                                  <FormControl>
-                                    {field === "state" ? (
-                                      <select
-                                        {...fieldProps}
-                                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                      >
-                                        <option value="">Select State</option>
-                                        {statesList.map((state) => (
-                                          <option key={state} value={state}>
-                                            {state}
-                                          </option>
-                                        ))}
-                                      </select>
-                                    ) : (
-                                      <Input
-                                        placeholder={`Enter ${field}`}
-                                        {...fieldProps}
-                                      />
-                                    )}
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          )
-                        )}
+                        {[
+                          "addressLine1",
+                          "addressLine2",
+                          "city",
+                          "state",
+                          "pincode",
+                        ].map((field) => (
+                          <FormField
+                            key={field}
+                            control={form.control}
+                            name={`shippingAddress.${field}`}
+                            render={({ field: fieldProps }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {field.charAt(0).toUpperCase() +
+                                    field.slice(1)}
+                                </FormLabel>
+                                <FormControl>
+                                  {field === "state" ? (
+                                    <select
+                                      {...fieldProps}
+                                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                                    >
+                                      <option value="">Select State</option>
+                                      {statesList.map((state) => (
+                                        <option key={state} value={state}>
+                                          {state}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <Input
+                                      placeholder={`Enter ${field}`}
+                                      {...fieldProps}
+                                    />
+                                  )}
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ))}
                       </CardContent>
                     </Card>
                   </div>
@@ -456,11 +464,17 @@ function UpdateCustomerComponent() {
                       Current Image
                     </Label>
                     <div className="mt-2 aspect-square w-full max-w-md overflow-hidden rounded-lg border">
-                      <img
-                        src={customerData?.avatar}
-                        alt="Current avatar"
-                        className="h-full w-full object-cover"
-                      />
+                      {customerData?.avatar ? (
+                        <img
+                          src={customerData.avatar}
+                          alt="Customer"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                          No image set
+                        </div>
+                      )}
                     </div>
                   </div>
 
