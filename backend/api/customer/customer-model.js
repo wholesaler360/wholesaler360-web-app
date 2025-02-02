@@ -55,7 +55,7 @@ const customerSchema = new mongoose.Schema({
             lowercase: true,
         },
         pincode : {
-            type: Number,
+            type: String,
             required: true,
         },
     },

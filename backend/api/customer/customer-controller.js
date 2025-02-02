@@ -32,8 +32,7 @@ const createCustomer = asyncHandler(async(req,res,next) => {
 
 
 
-
-
+        const existingCustomer = await Customer.findOne({$or : condition})
         if(existingCustomer){
             return next(ApiError.valueAlreadyExists("Customer already exists either with same mobile no or email or gstin"));
         }
@@ -103,8 +102,6 @@ const createCustomer = asyncHandler(async(req,res,next) => {
 
 });
 
-
-
 const updateCustomer = asyncHandler(async (req, res, next) => {
   console.log("-----------------Update Customer-----------------");
   let name = req.body?.name?.trim().toLowerCase();
@@ -143,11 +140,11 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
   }
 
   const billingAddress = req.body.billingAddress;
-  if (!billingAddress.name || !billingAddress.address || !billingAddress.city || !billingAddress.state || !billingAddress.pincode) {
+  if (!billingAddress.addressLine1  || !billingAddress.city || !billingAddress.state || !billingAddress.pincode) {
     return next(ApiError.validationFailed("Billing Address is required"));
   }
   const shippingAddress = req.body.shippingAddress;
-  if (!shippingAddress.name || !shippingAddress.address || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
+  if (!shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
     return next(ApiError.validationFailed("Shipping Address is required"));
   }
   const bankDetails = req.body.bankDetails;
