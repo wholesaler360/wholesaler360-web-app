@@ -17,7 +17,8 @@ const universalValidationSchema = z.object({
     // Number formats
     mobileNo: z.string().regex(mobileRegex, "Invalid mobile number").optional(),
     newMobileNo: z.string().regex(mobileRegex, "Invalid mobile number").optional(),
-    gstin: z.string().regex(gstinRegex, "Invalid GSTIN format").optional(),
+    gstin: z.string().regex(gstinRegex, "Invalid GSTIN format").optional().or(z.literal(null))
+    .or(z.literal("")),
     pincode: z.string().regex(pincodeRegex, "Invalid pincode").optional(),
 
     billingAddress: z.object({

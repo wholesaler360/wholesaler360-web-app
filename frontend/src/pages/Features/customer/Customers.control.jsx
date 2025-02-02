@@ -3,7 +3,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { axiosGet, axiosDelete } from "@/constants/api-context";
 import { FetchAllCustomers, DeleteCustomer } from "@/constants/apiEndPoints";
 import { MoreHorizontal, FileText } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -47,11 +47,17 @@ function CustomerController({ children }) {
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate(`/customer/${row.original.id}`)}
         >
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {getInitials(row.original.name)}
-            </AvatarFallback>
-          </Avatar>
+          {row.original.avatar ? (
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={row.original.avatar} alt={row.original.name} />
+            </Avatar>
+          ) : (
+            <Avatar className="h-9 w-9">
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {getInitials(row.original.name)}
+              </AvatarFallback>
+            </Avatar>
+          )}
           <div className="flex flex-col">
             <span className="font-medium hover:text-primary">
               {row.original.name}

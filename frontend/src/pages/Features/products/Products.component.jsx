@@ -27,12 +27,12 @@ export function ProductsComponent() {
       try {
         setIsLoading(true);
         const response = await getProducts();
-        
+
         // Handle different response structures
-        const productsData = response?.value[0].product ;
-        
+        const productsData = response?.value[0]?.product;
         setData(productsData);
       } catch (error) {
+        console.log(error);
         showNotification.error("Failed to fetch products");
         setData([]); // Ensure data is always an array
       } finally {
@@ -60,7 +60,6 @@ export function ProductsComponent() {
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
   });
-
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
