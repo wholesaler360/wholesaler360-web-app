@@ -49,21 +49,17 @@ function AddCustomerControl({ children }) {
     console.log(data);
     try {
       setIsLoading(true);
-  
+
       // Prepare payload
       const payload = { ...data };
-  
-      // Handle avatar separately
-      const avatar = data.avatar;
-      delete payload.avatar;
-  
+
       // Make API request
       const response = await axiosPost(CreateCustomer, payload, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
-  
+
       if (response.status === 201) {
         showNotification.success("Customer created successfully");
         navigate("/customers");
@@ -74,8 +70,6 @@ function AddCustomerControl({ children }) {
       setIsLoading(false);
     }
   };
-  
-  
 
   return (
     <AddCustomerContext.Provider
