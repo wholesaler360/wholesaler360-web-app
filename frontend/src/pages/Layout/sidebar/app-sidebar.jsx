@@ -55,7 +55,7 @@ const data = {
     },
     {
       title: "Vendors",
-      url: "#",
+      url: "/vendors",
       icon: UserRound,
       isActive: false,
     },

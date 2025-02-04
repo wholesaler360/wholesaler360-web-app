@@ -1,5 +1,6 @@
+import React from "react";
 import { useContext, useEffect, useState } from "react";
-import { CustomerContext } from "./Customers.control";
+import { VendorContext } from "./Vendor.control";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { DataTable } from "@/components/datatable/DataTable";
@@ -14,32 +15,32 @@ import {
 import { showNotification } from "@/core/toaster/toast";
 import { useNavigate } from "react-router-dom";
 
-function CustomerComponent() {
+function VendorComponent() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
-  const { getCustomers, columns, refreshTrigger } = useContext(CustomerContext);
+  const { getVendors, columns, refreshTrigger } = useContext(VendorContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await getCustomers();
+        const response = await getVendors();
         if (response.success) {
           setData(response.value);
         } else {
           throw new Error(response.message);
         }
       } catch (error) {
-        showNotification.error(error.message || "Failed to fetch customers");
+        showNotification.error(error.message || "Failed to fetch vendors");
         setData([]);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [getCustomers, refreshTrigger]);
+  }, [getVendors, refreshTrigger]);
 
   const table = useReactTable({
     data,
@@ -57,30 +58,27 @@ function CustomerComponent() {
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Vendors</h2>
           <p className="text-sm text-muted-foreground">
-            Manage your customers and their invoices here.
+            Manage your vendors and their ledgers here.
           </p>
         </div>
-        <Button
-          className="h-10"
-          onClick={() => navigate("/customer/add")}
-        >
+        <Button className="h-10" onClick={() => navigate("/vendor/add")}>
           <PlusCircle className="mr-2 h-5 w-5" />
-          Add Customer
+          Add Vendor
         </Button>
       </div>
 
       {isLoading ? (
         <DataTableSkeleton
-          columnCount={5}
+          columnCount={4}
           rowCount={5}
           searchableColumnCount={1}
           filterableColumnCount={0}
           showViewOptions={true}
         />
       ) : (
-        <div className="rounded-md border">
+        <div className="relative">
           <DataTable
             table={table}
             globalFilter={globalFilter}
@@ -92,4 +90,4 @@ function CustomerComponent() {
   );
 }
 
-export default CustomerComponent;
+export default VendorComponent;
