@@ -18,6 +18,7 @@ import seederRouter from "./utils/seeder-utils.js";
 import { vendorRouter } from "./api/vendors/vendor-route.js";
 import { ledgerRouter } from "./api/ledger/ledger-route.js";
 import { inventoryRouter } from "./api/inventory/inventory-route.js";
+import { purchaseRouter } from "./api/purchase/purchase-route.js";
 
 // TODO : Validation like email, mobile number etc..,
 
@@ -72,6 +73,8 @@ app.use("/customer", customerRouter);
 
 app.use('/vendor', vendorRouter);
 app.use('/ledger', ledgerRouter);
+
+app.use('/purchase', purchaseRouter);
 
 
 // catch all undefined routes for authenticated users
