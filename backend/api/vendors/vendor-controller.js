@@ -24,7 +24,7 @@ const createVendor = asyncHandler(async(req, res, next)=>{
             typeof field === "string" ? !field.trim() : !field
         )  
     ) {
-        return next(ApiError.validationFailed("Please provide all required fields"));
+        return next(ApiError.validationFailed("Please provide all the required fields"));
     }
 
     const address = {

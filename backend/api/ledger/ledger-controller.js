@@ -10,7 +10,6 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 const createLedgerService = async (data, fetchedUser) => {
     const { vendorId, amount, transactionType, paymentMode, description } = data;
 
-    console.log(vendorId, amount, transactionType, paymentMode, description);
     if ([
         vendorId, amount, transactionType
 
@@ -90,9 +89,9 @@ const createLedgerService = async (data, fetchedUser) => {
 
 
 // --------------------- Controller functions ---------------------- \\
-const createLedger = asyncHandler(async(reqOrData, res, next)=>{
-    console.log(reqOrData.fetchedUser);
-    const result = await createLedgerService(reqOrData.body, reqOrData.fetchedUser);
+const createLedger = asyncHandler(async(req, res, next)=>{
+    console.log(req.fetchedUser);
+    const result = await createLedgerService(req.body, req.fetchedUser);
 
     if (result.success) {
         return res.status(201).json(ApiResponse.successCreated(result.data, result.message));

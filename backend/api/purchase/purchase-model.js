@@ -6,11 +6,11 @@ const purchaseSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            lowercase: true,
+            uppercase: true,
             index: true,
             unique: true,
         },
-        date: {
+        purchaseDate: {
             type: Date,
             required: true,
         },
@@ -29,7 +29,7 @@ const purchaseSchema = new Schema(
                 type: Number,
                 required: true,
             },
-            price: {
+            unitPrice: {
                 type: Number,
                 required: true,
             },
@@ -62,6 +62,11 @@ const purchaseSchema = new Schema(
         paymentMode: {
             type: String,
             enum: ['cash', 'cheque', 'upi', 'online', 'N/A'],
+        },
+        initialPayment: {
+            type: Number,
+            required: true,
+            default: 0,
         },
         description: {
             type: String,
