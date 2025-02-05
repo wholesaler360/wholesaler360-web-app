@@ -58,7 +58,7 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
         const purchaseRef = purchaseCreated._id;
 
         InventoryData = { products, purchaseRef };
-        const inventoryResult = await addInventoryService(InventoryData, req.fetchedUser, session);
+        const inventoryResult = await addInventoryService(InventoryData, session);
         
         if (!(inventoryResult.success)) {
             await session.abortTransaction();
