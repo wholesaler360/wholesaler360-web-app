@@ -34,9 +34,8 @@ const addInventoryService = async (purchaseData, session) => {
     if (
       element.id &&
       element.quantity > 0 &&
-      element.price > 0 &&
-      element.taxRate >= 0 &&
-      element.taxRate <= 100
+      element.unitPrice > 0 &&
+      ( element.taxRate >= 0 && element.taxRate <= 100 )
     ) {
       productIds.push(element.id);
     } else {
@@ -51,9 +50,10 @@ const addInventoryService = async (purchaseData, session) => {
 
   try {
     const fetchedProducts = await Product.find(
-      { _id: { $in: productIds }, isProductDeleted: false },
-      { _id: 1, salePrice: 1 }
+      { _id: { $in: productIds }, isProductDeleted: false }
     ).session(session);
+
+    console.log(fetchedProducts);
 
     if (fetchedProducts.length !== productArray.length) {
       return {
@@ -67,12 +67,12 @@ const addInventoryService = async (purchaseData, session) => {
     const batches = productArray.map((element) => ({
       purchaseId: purchaseData.purchaseRef,
       currentQuantity: element.quantity,
-      purchasePrice: element.price,
+      purchasePrice: element.unitPrice,
       salePriceWithoutTax: fetchedProducts.find(
-        (product) => product._id === element.id
+        (product) => product._id.toString() === element.id.toString()
       ).salePrice,
     }));
-
+    console.log(batches);
     const createdBatches = await Batch.insertMany(batches, { session });
 
     const inventoryUpdates = createdBatches.map(async (batch, index) => {
@@ -81,11 +81,13 @@ const addInventoryService = async (purchaseData, session) => {
       let inventoryOfProduct = await Inventory.findOne({
         productId: element.id,
       }).session(session);
+      
       if (!inventoryOfProduct) {
-        inventoryOfProduct = await Inventory.create(
+        const [createdDoc] = await Inventory.create(
           [{ productId: element.id, batches: [], totalQuantity: 0 }],
           { session }
         );
+        inventoryOfProduct = createdDoc;
       }
 
       const batchNo =

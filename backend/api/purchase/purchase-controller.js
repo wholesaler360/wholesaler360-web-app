@@ -7,7 +7,7 @@ import { addInventoryService } from "../inventory/inventory-controller.js";
 import { createLedgerService } from "../ledger/ledger-controller.js";
 
 
-export const createPurchase = asyncHandler(async (req, res, next) => {
+const createPurchase = asyncHandler(async (req, res, next) => {
     const { 
         purchaseDate, vendorId, products, transactionType, 
         paymentMode, initialPayment, description 
@@ -47,6 +47,7 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
             paymentMode: paymentMode === "debit"? paymentMode : "N/A",
             initialPayment : transactionType === "debit" ? initialPayment : 0,
             description,
+            createdBy: req.fetchedUser._id,
         });
         
         const purchaseCreated = await purchase.save({ session });
@@ -101,3 +102,5 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
     }
 
 });
+
+export { createPurchase };
