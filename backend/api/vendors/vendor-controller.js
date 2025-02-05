@@ -187,7 +187,7 @@ const deleteVendor = asyncHandler(async(req, res, next) => {
         await vendor.save();
         deleteFromCloudinary(imgUrl);
 
-        return res.status(200).json(
+        return res.status(204).json(
             ApiResponse.successDeleted("Vendor deleted successfully")
         );
     } catch (error) {
