@@ -7,15 +7,15 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 
 
 // --------------------- Service functions ---------------------- \\
-const createLedgerService = async (data, fetchedUser) => {
+const createLedgerService = async (data, fetchedUser, session) => {
     const { vendorId, amount, transactionType, paymentMode, description } = data;
 
     if ([
-        vendorId, amount, transactionType
+            vendorId, amount, transactionType
 
-    ].some((field) => 
-        typeof field === "string" ? !field.trim() : !field
-    )  
+        ].some((field) => 
+            typeof field === "string" ? !field.trim() : !field
+        )  
     ) {
         return {success: false, errorType: "validationFailed", message: "Please provide all required fields", data: null};
     }
@@ -24,15 +24,10 @@ const createLedgerService = async (data, fetchedUser) => {
         return { success: false, errorType: "validationFailed", message: "Invalid payment mode", data: null };
     }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try{
         const vendor = await Vendor.findById(vendorId).session(session);
 
         if (!vendor || vendor.isDeleted) {
-            await session.abortTransaction();
-            session.endSession();
             return { success: false, errorType: "dataNotFound", message: "Vendor not found", data: null };
         }
 
@@ -44,14 +39,10 @@ const createLedgerService = async (data, fetchedUser) => {
         } else if (transactionType === "debit") {
             payableBalance = vendor.payableBalance - amount;
         } else {
-            await session.abortTransaction();
-            session.endSession();
             return { success: false, errorType: "validationFailed", message: "Invalid transaction type", data: null };
         }
 
         if (payableBalance < 0) {
-            await session.abortTransaction();
-            session.endSession();
             return { success: false, errorType: "validationFailed", message: "You are paying more than payable balance", data: null };
         }
 
@@ -74,14 +65,9 @@ const createLedgerService = async (data, fetchedUser) => {
 
         const {isDeleted, _id, updatedAt, __v, ...remaining} = ledgerEntry[0].toObject();
 
-        await session.commitTransaction();
-        session.endSession();
-
         return { success: true, errorType: null, message: "Ledger created successfully", data: remaining };
     }
     catch (error) {
-        await session.abortTransaction();
-        session.endSession();
         console.log(error);
         return { success: false, errorType: "dataNotInserted", message: "Failed to create ledger", data: null };
     }
@@ -91,11 +77,19 @@ const createLedgerService = async (data, fetchedUser) => {
 // --------------------- Controller functions ---------------------- \\
 const createLedger = asyncHandler(async(req, res, next)=>{
     console.log(req.fetchedUser);
-    const result = await createLedgerService(req.body, req.fetchedUser);
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    const result = await createLedgerService(req.body, req.fetchedUser, session);
 
     if (result.success) {
+        await session.commitTransaction();
+        session.endSession();
         return res.status(201).json(ApiResponse.successCreated(result.data, result.message));
     } else {
+        await session.abortTransaction();
+        session.endSession();
         return next(ApiError[result.errorType](result.message));
     }
 });
