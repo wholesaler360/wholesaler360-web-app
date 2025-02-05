@@ -39,3 +39,4 @@ export const DeleteCustomer = "/customer/delete";
 export const FetchAllVendors = "/vendor/fetchAll";
 export const FetchVendor = "/vendor/fetch";
 export const DeleteVendor = "/vendor/delete";
+export const CreateVendor = "/vendor/create";
