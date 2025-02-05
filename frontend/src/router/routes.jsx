@@ -1,11 +1,15 @@
 import Login from "@/pages/authentication/Login";
 import Categories from "@/pages/Features/categories";
+import Customers from "@/pages/Features/customer";
+import AddCustomer from "@/pages/Features/customer/addCustomer";
+import UpdateCustomer from "@/pages/Features/customer/updateCustomer";
 import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
 import Products from "@/pages/Features/products";
 import AddProduct from "@/pages/Features/products/addProduct";
 import UpdateProduct from "@/pages/Features/products/updateProduct";
 import RolesAndPermissions from "@/pages/Features/roles and permissions/index.jsx";
+import Vendors from "@/pages/Features/vendor";
 
 const authRoutes = [
   {
@@ -35,6 +39,22 @@ const authRoutes = [
   {
     path: "/product/edit",
     element: <UpdateProduct />,
+  },
+  {
+    path: "/customers",
+    element: <Customers />,
+  },
+  {
+    path: "/customer/add",
+    element: <AddCustomer />,
+  },
+  {
+    path: "/customer/edit",
+    element: <UpdateCustomer />,
+  },
+  {
+    path: "/vendors",
+    element: <Vendors />,
   },
 ];
 

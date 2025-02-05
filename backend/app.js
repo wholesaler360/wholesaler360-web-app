@@ -17,7 +17,7 @@ import formatValidator from "./middlewares/formatValidation-middleware.js";
 import seederRouter from "./utils/seeder-utils.js";
 import { vendorRouter } from "./api/vendors/vendor-route.js";
 import { ledgerRouter } from "./api/ledger/ledger-route.js";
-
+import { inventoryRouter } from "./api/inventory/inventory-route.js";
 
 // TODO : Validation like email, mobile number etc..,
 
@@ -66,6 +66,7 @@ app.use("/user", userRouter);
 app.use("/tax", taxRouter);
 app.use('/category', categoryRouter);
 app.use('/product', productRouter)
+app.use('/inventory', inventoryRouter);
 
 app.use("/customer", customerRouter);
 

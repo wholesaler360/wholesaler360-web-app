@@ -70,7 +70,7 @@ const axiosDelete = async (endpoint = null, data = {}) => {
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
-    const response = await api.delete(endpoint, data); // Pass data in config object
+    const response = await api.delete(endpoint, data); 
     return response;
   } catch (error) {
     console.error("DELETE request error:", {

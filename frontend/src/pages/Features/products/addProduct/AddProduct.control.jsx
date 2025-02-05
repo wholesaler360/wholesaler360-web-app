@@ -1,7 +1,11 @@
 import { createContext, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosGet, axiosPost } from "@/constants/api-context";
-import { CreateProduct, FetchAllCategories, FetchAllTaxes } from "@/constants/apiEndPoints";
+import {
+  CreateProduct,
+  FetchAllCategories,
+  FetchAllTaxes,
+} from "@/constants/apiEndPoints";
 import { showNotification } from "@/core/toaster/toast";
 import * as z from "zod";
 
@@ -14,7 +18,8 @@ const productSchema = z.object({
   salePrice: z.number().min(0, "Price must be greater than 0"),
   alertQuantity: z.number().min(0, "Alert quantity must be greater than 0"),
   taxName: z.string().min(1, "Please select a tax option"),
-  productImg: z.any()
+  productImg: z
+    .any()
     .refine((file) => file instanceof Blob, "Please upload an image")
     .refine((file) => file.size <= 5242880, "Image must be less than 5MB"),
 });
@@ -30,9 +35,19 @@ export function AddProductController({ children }) {
       const response = await axiosGet(FetchAllCategories);
       if (response.success) {
         setCategories(response.value.categories);
+      } else {
+        throw new Error(response || "Failed to fetch categories");
       }
     } catch (error) {
-      showNotification.error("Failed to fetch categories");
+      if (response.statusCode === 404) {
+        navigate("/products");
+        showNotification.error(
+          "No categories found. Please add a category first"
+        );
+      } else {
+        navigate("/products");
+        showNotification.error("Failed to fetch categories");
+      }
     }
   }, []);
 
@@ -54,7 +69,7 @@ export function AddProductController({ children }) {
       }
       const response = await axiosPost(CreateProduct, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       if (response.status === 201) {

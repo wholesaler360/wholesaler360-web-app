@@ -99,4 +99,5 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
         console.log(`Error creating purchase: ${error}`);
         return next(ApiError.dataNotInserted("Failed to create purchase"));
     }
+
 });

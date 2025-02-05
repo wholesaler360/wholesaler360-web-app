@@ -279,8 +279,10 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     console.error(error);
     return next(ApiError.dataNotDeleted(error.message, error));
   }
+
 }
 });
+
 
 // Change from GET to POST
 const getProduct = asyncHandler(async (req, res, next) => {
@@ -363,7 +365,7 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
     },
   ]);
   if(products.length === 0){
-    return next(ApiError.dataNotFound("No products Exists"));
+    return res.status(200).json(ApiResponse.successRead([], "No products Exists"));
   }
   res.status(200).json(ApiResponse.successRead(products, "Products fetched successfully"));
 

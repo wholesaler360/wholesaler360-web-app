@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { ProductsContext } from "./Products.control";
+import { CustomerContext } from "./Customers.control";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-
 import { DataTable } from "@/components/datatable/DataTable";
 import { DataTableSkeleton } from "@/components/datatable/DataTableSkeleton";
 import {
@@ -13,50 +12,43 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { showNotification } from "@/core/toaster/toast";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export function ProductsComponent() {
+function CustomerComponent() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
-  const { getProducts, columns, refreshTrigger } = useContext(ProductsContext);
-  const navigate = useNavigate(); // Fixed casing
+  const { getCustomers, columns, refreshTrigger } = useContext(CustomerContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await getProducts();
-
-        // Handle different response structures
-        const productsData = response?.value[0]?.product;
-        setData(productsData);
+        const response = await getCustomers();
+        if (response.success) {
+          setData(response.value);
+        } else {
+          throw new Error(response.message);
+        }
       } catch (error) {
-        console.log(error);
-        showNotification.error("Failed to fetch products");
-        setData([]); // Ensure data is always an array
+        showNotification.error(error.message || "Failed to fetch customers");
+        setData([]);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [getProducts, refreshTrigger]);
+  }, [getCustomers, refreshTrigger]);
 
-  const handleAddProduct = () => {
-    navigate("/product/add");
-  };
-
-  // Move table initialization after data is loaded
   const table = useReactTable({
-    data: Array.isArray(data) ? data : [], // Ensure data is always an array
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      globalFilter,
-    },
+    state: { globalFilter },
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
   });
@@ -65,30 +57,24 @@ export function ProductsComponent() {
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
           <p className="text-sm text-muted-foreground">
-            Manage your product inventory and details here.
+            Manage your customers and their invoices here.
           </p>
         </div>
-        <Button
-          className="h-10"
-          onClick={() => {
-            handleAddProduct();
-          }}
-        >
+        <Button className="h-10" onClick={() => navigate("/customer/add")}>
           <PlusCircle className="mr-2 h-5 w-5" />
-          Add Product
+          Add Customer
         </Button>
       </div>
 
       {isLoading ? (
         <DataTableSkeleton
-          columnCount={7}
+          columnCount={5}
           rowCount={5}
           searchableColumnCount={1}
           filterableColumnCount={0}
           showViewOptions={true}
-          className="p-4"
         />
       ) : (
         <div className="relative">
@@ -102,3 +88,5 @@ export function ProductsComponent() {
     </div>
   );
 }
+
+export default CustomerComponent;
