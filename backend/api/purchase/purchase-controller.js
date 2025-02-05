@@ -33,7 +33,7 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
 
     try {
         // Create a unique purchase number
-        const purchaseNo = `PUR-${purchaseDateObj.getFullYear()}/${}`;
+        // const purchaseNo = `PUR-${purchaseDateObj.getFullYear()}/${}`;
 
         // create below not created variables
         const purchase = new Purchase({
