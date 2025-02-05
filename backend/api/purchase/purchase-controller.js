@@ -4,6 +4,7 @@ import { ApiError } from "../../utils/api-error-utils.js";
 import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 import { Purchase } from "./purchase-model.js";
 import { addInventoryService } from "../inventory/inventory-controller.js";
+import { createLedgerService } from "../ledger/ledger-controller.js";
 
 
 export const createPurchase = asyncHandler(async (req, res, next) => {
@@ -32,10 +33,11 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
     session.startTransaction();
 
     try {
-        // Create a unique purchase number
+        // Generate a unique purchase number
         // const purchaseNo = `PUR-${purchaseDateObj.getFullYear()}/${}`;
+        const purchaseNo = `PUR-2025/1`;
 
-        // create below not created variables
+        // Create the purchase
         const purchase = new Purchase({
             purchaseNo,
             purchaseDate: purchaseDateObj,
@@ -55,9 +57,8 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
             return next(ApiError.dataNotInserted("Failed to create purchase"));
         }
 
-        const purchaseRef = purchaseCreated._id;
-
-        InventoryData = { products, purchaseRef };
+        // Add inventory for the products
+        const InventoryData = { products, purchaseRef: purchaseCreated._id };
         const inventoryResult = await addInventoryService(InventoryData, session);
         
         if (!(inventoryResult.success)) {
@@ -65,6 +66,32 @@ export const createPurchase = asyncHandler(async (req, res, next) => {
             session.endSession();
             return next(ApiError[inventoryResult.errorType](inventoryResult.message));
         }
+
+        // Create the credit entry in the ledger
+        const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit" };
+        const ledgerResultCredit = await createLedgerService(ledgerDataCredit, session);
+        
+        if (!(ledgerResultCredit.success)) {  
+            await session.abortTransaction();
+            session.endSession();
+            return next(ApiError[ledgerResultCredit.errorType](ledgerResultCredit.message));
+        }
+
+        // create debit entry in the ledger only if transaction type is debit
+        if(transactionType === "debit") {
+            const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode };
+            const ledgerResultDebit = await createLedgerService(ledgerDataDebit, session);
+            
+            if (!(ledgerResultDebit.success)) {
+                await session.abortTransaction();
+                session.endSession();
+                return next(ApiError[ledgerResultDebit.errorType](ledgerResultDebit.message));
+            }
+        }
+    
+        await session.commitTransaction();
+        session.endSession();
+        return res.status(201).json(ApiResponse.successCreated(purchaseCreated, "Purchase created successfully"));
     }
     catch (error) {
         await session.abortTransaction();
