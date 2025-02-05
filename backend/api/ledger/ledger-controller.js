@@ -115,4 +115,4 @@ const showLedger = asyncHandler (async(req, res, next) => {
     return res.status(200).json(ApiResponse.successRead(ledger, "Ledger fetched successfully"));
 });
 
-export { createLedger, showLedger};
+export { createLedgerService, createLedger, showLedger};
