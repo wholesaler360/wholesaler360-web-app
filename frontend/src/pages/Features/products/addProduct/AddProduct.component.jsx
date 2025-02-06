@@ -202,7 +202,7 @@ function AddProductComponent() {
                       name="salePrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Sale Price</FormLabel>
+                          <FormLabel>Default Sale Price</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-2.5 text-gray-500">
