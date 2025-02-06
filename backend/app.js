@@ -19,7 +19,7 @@ import { vendorRouter } from "./api/vendors/vendor-route.js";
 import { ledgerRouter } from "./api/ledger/ledger-route.js";
 import { inventoryRouter } from "./api/inventory/inventory-route.js";
 import { purchaseRouter } from "./api/purchase/purchase-route.js";
-
+import { batchRouter } from "./api/batch/batch-route.js";
 // TODO : Validation like email, mobile number etc..,
 
 
@@ -68,6 +68,7 @@ app.use("/tax", taxRouter);
 app.use('/category', categoryRouter);
 app.use('/product', productRouter)
 app.use('/inventory', inventoryRouter);
+app.use('/batch',batchRouter)
 
 app.use("/customer", customerRouter);
 

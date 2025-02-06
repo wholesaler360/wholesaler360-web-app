@@ -10,6 +10,7 @@ import { ApiResponse } from "../../utils/api-Responnse-utils.js";
 // --------------------- Add Purchase Stock Service function---------------------- \\
 const addInventoryService = async (purchaseData, session) => {
   console.log("--------------Internal Inventory Operation--------------");
+  // It Confirms that purchase reaches here
   if (!purchaseData) {
     return {
       success: false,
@@ -19,6 +20,7 @@ const addInventoryService = async (purchaseData, session) => {
     };
   }
 
+  // It takes out the product array from the purchase Data and validate it
   const productArray = purchaseData?.products;
   if (!productArray || productArray.length === 0) {
     return {
@@ -28,7 +30,10 @@ const addInventoryService = async (purchaseData, session) => {
       data: null,
     };
   }
+  console.log("Product Array:\n",productArray);
 
+  // It takes out the product Ids from the product array 
+  // and validate all fields /O(no. of products in purchase)\
   const productIds = [];
   for (const element of productArray) {
     if (
@@ -47,13 +52,16 @@ const addInventoryService = async (purchaseData, session) => {
       };
     }
   }
-
+  console.log("Product Ids:\n",productIds);
+  
   try {
+    // fetches all the product in array with one query from the database 
+    // and validate it if all products exists /O(all products)\
     const fetchedProducts = await Product.find(
       { _id: { $in: productIds }, isProductDeleted: false }
     ).session(session);
 
-    console.log(fetchedProducts);
+    console.log("Fetched PRoduct:\n",fetchedProducts);
 
     if (fetchedProducts.length !== productArray.length) {
       return {
@@ -64,18 +72,24 @@ const addInventoryService = async (purchaseData, session) => {
       };
     }
 
+    // Create batches of all the products and insert it in the database
+    // O(no. of products in purchase)
     const batches = productArray.map((element) => ({
       purchaseId: purchaseData.purchaseRef,
       currentQuantity: element.quantity,
-      purchasePrice: element.unitPrice,
+      purchasePrice: parseFloat(
+        (((element.unitPrice*element.quantity)*(1 + element.taxRate/100))/element.quantity)
+        .toFixed(2)),
       salePriceWithoutTax: fetchedProducts.find(
         (product) => product._id.toString() === element.id.toString()
       ).salePrice,
     }));
-    console.log(batches);
+    console.log("Batches : ",batches);
+    // // O(no. of products in purchase)
     const createdBatches = await Batch.insertMany(batches, { session });
 
     const inventoryUpdates = createdBatches.map(async (batch, index) => {
+      //Index just iterate overall the element of product array
       const element = productArray[index];
       
       let inventoryOfProduct = await Inventory.findOne({
@@ -83,24 +97,24 @@ const addInventoryService = async (purchaseData, session) => {
       }).session(session);
       
       if (!inventoryOfProduct) {
-        const [createdDoc] = await Inventory.create(
+        const createdDoc = await Inventory.create(
           [{ productId: element.id, batches: [], totalQuantity: 0 }],
           { session }
         );
-        inventoryOfProduct = createdDoc;
+        inventoryOfProduct = createdDoc[0];
       }
 
       const batchNo =
         inventoryOfProduct.batches.length > 0
           ? inventoryOfProduct.batches[inventoryOfProduct.batches.length - 1]
               .batchNo + 1 : 1;
-
+      console.log("Batch No : ",batchNo);
       inventoryOfProduct.batches.push({ batchNo, batch: batch._id });
       inventoryOfProduct.totalQuantity += element.quantity;
       return inventoryOfProduct.save({ session });
     });
 
-    await Promise.all(inventoryUpdates);
+    const createdStock = await Promise.all(inventoryUpdates);
     console.log("--------------Internal Inventory Operation End--------------");
     return {
       success: true,
@@ -110,7 +124,7 @@ const addInventoryService = async (purchaseData, session) => {
     };
 
   } catch (error) {
-    console.log(error);
+    console.log("Error in Internal Inventory Operation: ",error);
     return {
       success: false,
       errorType: "dataNotInserted",
@@ -163,5 +177,7 @@ const fetchInventory = asyncHandler(async (req, res, next) => {
   }
   res.status(200).json(ApiResponse.successRead(inventory, "Inventory fetched successfully"));
 });
+
+
 
 export { addInventoryService, fetchInventory };

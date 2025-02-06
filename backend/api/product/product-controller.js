@@ -229,8 +229,9 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
 });
 
 const getStock = async (product_id) => {
-  const count = await Inventory.countDocuments({ product: product_id });
-  return count;
+  product_id = product_id.toString();
+  const product = await Inventory.findOne({productId : product_id})
+  return product.totalQuantity;
 };
 
 const deleteProduct = asyncHandler(async (req, res, next) => {
@@ -245,25 +246,11 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     return next(ApiError.dataNotFound("Product does not exists"));
   }
 
-  // const countOfStock = await getStock(product._id);
+  const countOfStock = await getStock(product._id);
 
-  try {
-    product.isProductDeleted = true;
-    await product.save();
-    console.log(product);
-    res
-      .status(204)
-      .json(
-        ApiResponse.successDeleted(product, "Product deleted successfully")
-      );
-    console.log("----------------Product Deleted Successfully----------------");
-  } catch (error) {
-
-    // const countOfStock = await getStock(product._id);
-    
-    // if(countOfStock > 0){
-    //   return next(ApiError.validationFailed("Cannot delete product, stock exists"));
-    // }
+    if(countOfStock > 0){
+      return next(ApiError.validationFailed("Cannot delete product, stock exists"));
+    }
     
     try{
         product.isProductDeleted = true;
@@ -279,8 +266,6 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     console.error(error);
     return next(ApiError.dataNotDeleted(error.message, error));
   }
-
-}
 });
 
 

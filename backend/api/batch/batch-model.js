@@ -17,7 +17,6 @@ const batchSchema = new Schema(
     },
     salePriceWithoutTax: {
       type: Number,
-      required: true,
     },
     isSalePriceEntered: {
       type: Boolean,
