@@ -12,7 +12,7 @@ const inventorySchema = new Schema(
         batchNo: {
           type: Number,
           required: true,
-          unique: true,
+          // Remove unique constraint from here
         },
         batch: {
           type: Schema.Types.ObjectId,
@@ -29,5 +29,7 @@ const inventorySchema = new Schema(
   { timestamps: true }
 );
 
+// Add unique constraint for batchNo within the same product
+inventorySchema.index({ productId: 1, "batches.batchNo": 1 }, { unique: true });
 
 export const Inventory = mongoose.model("Inventory", inventorySchema);

@@ -35,7 +35,7 @@ const createPurchase = asyncHandler(async (req, res, next) => {
     try {
         // Generate a unique purchase number
         // const purchaseNo = `PUR-${purchaseDateObj.getFullYear()}/${}`;
-        const purchaseNo = `PUR-2025/1`;
+        const purchaseNo = `PUR-2025/4`;
 
         // Create the purchase
         const purchase = new Purchase({
@@ -68,27 +68,29 @@ const createPurchase = asyncHandler(async (req, res, next) => {
             return next(ApiError[inventoryResult.errorType](inventoryResult.message));
         }
 
-        // Create the credit entry in the ledger
-        const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit" };
-        const ledgerResultCredit = await createLedgerService(ledgerDataCredit, session);
+        // commented to test the inventory
         
-        if (!(ledgerResultCredit.success)) {  
-            await session.abortTransaction();
-            session.endSession();
-            return next(ApiError[ledgerResultCredit.errorType](ledgerResultCredit.message));
-        }
+        // Create the credit entry in the ledger
+        // const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit" };
+        // const ledgerResultCredit = await createLedgerService(ledgerDataCredit, session);
+        
+        // if (!(ledgerResultCredit.success)) {  
+        //     await session.abortTransaction();
+        //     session.endSession();
+        //     return next(ApiError[ledgerResultCredit.errorType](ledgerResultCredit.message));
+        // }
 
-        // create debit entry in the ledger only if transaction type is debit
-        if(transactionType === "debit") {
-            const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode };
-            const ledgerResultDebit = await createLedgerService(ledgerDataDebit, session);
+        // // create debit entry in the ledger only if transaction type is debit
+        // if(transactionType === "debit") {
+        //     const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode };
+        //     const ledgerResultDebit = await createLedgerService(ledgerDataDebit, session);
             
-            if (!(ledgerResultDebit.success)) {
-                await session.abortTransaction();
-                session.endSession();
-                return next(ApiError[ledgerResultDebit.errorType](ledgerResultDebit.message));
-            }
-        }
+        //     if (!(ledgerResultDebit.success)) {
+        //         await session.abortTransaction();
+        //         session.endSession();
+        //         return next(ApiError[ledgerResultDebit.errorType](ledgerResultDebit.message));
+        //     }
+        // }
     
         await session.commitTransaction();
         session.endSession();
@@ -98,6 +100,9 @@ const createPurchase = asyncHandler(async (req, res, next) => {
         await session.abortTransaction();
         session.endSession();
         console.log(`Error creating purchase: ${error}`);
+        if(error.code === 11000) {
+            return next(ApiError.dataNotInserted("Duplicate purchase number"));
+        }
         return next(ApiError.dataNotInserted("Failed to create purchase"));
     }
 

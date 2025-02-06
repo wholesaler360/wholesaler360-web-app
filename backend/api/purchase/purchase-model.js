@@ -88,12 +88,12 @@ const purchaseSchema = new Schema(
 // Middleware to calculate taxAmount and amount for each product
 purchaseSchema.pre('save', function (next) {
     this.products.forEach(product => {
-        product.taxAmount = (product.price * product.quantity) * product.taxRate / 100;
-        product.amount = (product.price * product.quantity) + product.taxAmount;
+        product.taxAmount = parseFloat(((product.unitPrice * product.quantity) * product.taxRate / 100).toFixed(2));
+        product.amount = parseFloat(((product.unitPrice * product.quantity) + product.taxAmount).toFixed(2));
     });
   
-    this.totalTax = this.products.reduce((acc, product) => acc + product.taxAmount, 0);
-    this.totalAmount = this.products.reduce((acc, product) => acc + product.amount, 0);
+    this.totalTax = parseFloat(this.products.reduce((acc, product) => acc + product.taxAmount, 0).toFixed(2));
+    this.totalAmount = parseFloat(this.products.reduce((acc, product) => acc + product.amount, 0).toFixed(2));
   
     next();
 });
