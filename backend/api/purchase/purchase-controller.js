@@ -13,17 +13,7 @@ const createPurchase = asyncHandler(async (req, res, next) => {
         paymentMode, initialPayment, description 
     } = req.body;
 
-    const today = new Date();
     const purchaseDateObj = new Date(purchaseDate);
-
-    // Ensure requirement of Purchase date and validate it 
-    if (!purchaseDate || isNaN(purchaseDateObj.getTime())) {
-        return next(ApiError.validationFailed("Please provide purchase date"));
-    }
-
-    if (purchaseDateObj > today) {
-        return next(ApiError.validationFailed("Purchase date cannot be in the future"));
-    }
 
     if (transactionType === "debit" && initialPayment <1) {
         return next(ApiError.validationFailed("Initial payment should be greater than 0"));
@@ -94,7 +84,10 @@ const createPurchase = asyncHandler(async (req, res, next) => {
     
         await session.commitTransaction();
         session.endSession();
-        return res.status(201).json(ApiResponse.successCreated(purchaseCreated, "Purchase created successfully"));
+
+        // Filter out unwanted fields
+        const{isDeleted, __v, ...remaining} = purchaseCreated.toObject();
+        return res.status(201).json(ApiResponse.successCreated(remaining, "Purchase created successfully"));
     }
     catch (error) {
         await session.abortTransaction();

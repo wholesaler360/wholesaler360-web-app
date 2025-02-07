@@ -8,10 +8,10 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 
 // --------------------- Service functions ---------------------- \\
 const createLedgerService = async (data, fetchedUser, session) => {
-    const { vendorId, amount, transactionType, paymentMode, description } = data;
+    const { vendorId, amount, transactionType, paymentMode, date, description } = data;
 
     if ([
-            vendorId, amount, transactionType
+            vendorId, amount, transactionType, date
 
         ].some((field) => 
             typeof field === "string" ? !field.trim() : !field
@@ -20,6 +20,18 @@ const createLedgerService = async (data, fetchedUser, session) => {
         return {success: false, errorType: "validationFailed", message: "Please provide all required fields", data: null};
     }
 
+    const today = new Date();
+          
+    // Ensure requirement of date and validate it 
+    if (!date || isNaN(date.getTime())) {
+        return { success: false, errorType: "validationFailed", message: "Please provide the date", data: null };
+    }
+    
+    if (date > today) {
+        return { success: false, errorType: "validationFailed", message: "Date cannot be in the future", data: null };
+    }
+
+    
     if (transactionType === "debit" && !["cash", "cheque", "upi", "online"].includes(paymentMode)) {
         return { success: false, errorType: "validationFailed", message: "Invalid payment mode", data: null };
     }
@@ -54,6 +66,7 @@ const createLedgerService = async (data, fetchedUser, session) => {
             {
                 createdBy: fetchedUser._id,
                 vendorId,
+                date,
                 amount,
                 transactionType,
                 paymentMode: transactionType === "debit" ? paymentMode : "N/A",
@@ -77,20 +90,32 @@ const createLedgerService = async (data, fetchedUser, session) => {
 // --------------------- Controller functions ---------------------- \\
 const createLedger = asyncHandler(async(req, res, next)=>{
     console.log(req.fetchedUser);
+    try{
+        const purchaseDateObj = new Date(req.body.date);
+        req.body.date = purchaseDateObj;    
+        
+        const session = await mongoose.startSession();
+        session.startTransaction();
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
+        const result = await createLedgerService(req.body, req.fetchedUser, session);
 
-    const result = await createLedgerService(req.body, req.fetchedUser, session);
-
-    if (result.success) {
-        await session.commitTransaction();
-        session.endSession();
-        return res.status(201).json(ApiResponse.successCreated(result.data, result.message));
-    } else {
-        await session.abortTransaction();
-        session.endSession();
-        return next(ApiError[result.errorType](result.message));
+        if (result.success) {
+            await session.commitTransaction();
+            session.endSession();
+            return res.status(201).json(ApiResponse.successCreated(result.data, result.message));
+        } else {
+            await session.abortTransaction();
+            session.endSession();
+            return next(ApiError[result.errorType](result.message));
+        }
+    }
+    catch(error){
+        if ( session ){
+            await session.abortTransaction();
+            session.endSession();
+        }
+        console.log("Create Ledger Error: " + error);
+        return next(new ApiError(400, "Failed to create ledger"));
     }
 });
 
