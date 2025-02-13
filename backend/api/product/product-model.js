@@ -23,6 +23,7 @@ const productSchema = new Schema(
       ref: "Category",
       required: true,
     },
+    // Default sale price to be set by the user
     salePrice: {
       type: Number,
       required: true,

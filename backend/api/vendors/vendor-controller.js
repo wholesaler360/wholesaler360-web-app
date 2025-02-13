@@ -48,7 +48,7 @@ const createVendor = asyncHandler(async (req, res, next) => {
     )
   ) {
     return next(
-      ApiError.validationFailed("Please provide all required fields")
+      ApiError.validationFailed("Please provide all the required fields")
     );
   }
 
@@ -139,7 +139,6 @@ const fetchAllVendors = asyncHandler(async (req, res, next) => {
     {
       __v: 0,
       updatedAt: 0,
-      createdAt: 0,
       isDeleted: 0,
     }
   );
@@ -237,7 +236,7 @@ const deleteVendor = asyncHandler(async (req, res, next) => {
     deleteFromCloudinary(imgUrl);
 
     return res
-      .status(200)
+      .status(204)
       .json(ApiResponse.successDeleted("Vendor deleted successfully"));
   } catch (error) {
     return next(new ApiError(500, error.message));

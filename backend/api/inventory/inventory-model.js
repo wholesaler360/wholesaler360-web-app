@@ -12,9 +12,9 @@ const inventorySchema = new Schema(
         batchNo: {
           type: Number,
           required: true,
-          unique: true,
+          // Remove unique constraint from here
         },
-        batchId: {
+        batch: {
           type: Schema.Types.ObjectId,
           ref: "Batch",
           required: true,
@@ -29,15 +29,7 @@ const inventorySchema = new Schema(
   { timestamps: true }
 );
 
-inventorySchema.pre("save", async function (next) {
-  try {
-    const batchIds = this.batches.map(batch => batch.batchId);
-    const batches = await Batch.find({ _id: { $in: batchIds } }).select("currentQuantity");
-    this.totalQuantity = batches.reduce((acc, batch) => acc + batch.currentQuantity, 0);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// Add unique constraint for batchNo within the same product
+inventorySchema.index({ productId: 1, "batches.batchNo": 1 }, { unique: true });
 
 export const Inventory = mongoose.model("Inventory", inventorySchema);
