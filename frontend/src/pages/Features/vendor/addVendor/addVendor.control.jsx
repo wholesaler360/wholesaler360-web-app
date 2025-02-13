@@ -37,11 +37,25 @@ function AddVendorControl({ children }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const createVendor = async (data) => {
+    console.log(data);
     try {
       setIsLoading(true);
-      const response = await axiosPost(CreateVendor, data);
 
-      if (response.success) {
+      // Prepare payload
+      const payload = { ...data };
+
+      // Handle avatar separately
+      const avatar = data.avatar;
+      delete payload.avatar;
+
+      // Make API request
+      const response = await axiosPost(CreateVendor, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 201) {
         showNotification.success("Vendor created successfully");
         navigate("/vendors");
       }

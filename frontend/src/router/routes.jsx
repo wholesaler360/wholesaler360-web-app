@@ -11,6 +11,7 @@ import UpdateProduct from "@/pages/Features/products/updateProduct";
 import RolesAndPermissions from "@/pages/Features/roles and permissions/index.jsx";
 import Vendors from "@/pages/Features/vendor";
 import AddVendor from "@/pages/Features/vendor/addVendor";
+import UpdateVendor from "@/pages/Features/vendor/updateVendor";
 
 const authRoutes = [
   {
@@ -60,6 +61,10 @@ const authRoutes = [
   {
     path: "/vendor/add",
     element: <AddVendor />,
+  },
+  {
+    path: "/vendor/edit",
+    element: <UpdateVendor />,
   },
 ];
 
