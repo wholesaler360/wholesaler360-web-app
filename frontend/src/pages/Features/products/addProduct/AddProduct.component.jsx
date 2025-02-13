@@ -296,6 +296,7 @@ function AddProductComponent() {
                               productName: form.watch("name"),
                               categoryName: form.watch("categoryName"),
                             }}
+                            enableAIGeneration="true"
                           />
                         </FormControl>
                         <FormMessage />

@@ -21,11 +21,38 @@ import { FileUpload } from "@/components/custom/FileUpload";
 
 const statesList = [
   "Andhra Pradesh",
-  // ...existing states list...
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
 ];
 
 function AddVendorComponent() {
-  const { vendorSchema, isLoading, createVendor } = useContext(AddVendorContext);
+  const { vendorSchema, isLoading, createVendor } =
+    useContext(AddVendorContext);
   const navigate = useNavigate();
 
   const form = useForm({
@@ -80,7 +107,10 @@ function AddVendorComponent() {
         <Card className="border-none shadow-md">
           <CardContent className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
                 {/* Image Upload Section */}
                 <div className="flex justify-start mb-8">
                   <FormField
@@ -114,7 +144,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Vendor Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter vendor name" {...field} />
+                                <Input
+                                  placeholder="Enter vendor name"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -127,7 +160,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Mobile Number</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter mobile number" {...field} />
+                                <Input
+                                  placeholder="Enter mobile number"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -140,7 +176,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Email Address</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter email address" {...field} />
+                                <Input
+                                  placeholder="Enter email address"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -176,7 +215,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Address Line 1</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter address line 1" {...field} />
+                                <Input
+                                  placeholder="Enter address line 1"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -189,7 +231,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Address Line 2 (Optional)</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter address line 2" {...field} />
+                                <Input
+                                  placeholder="Enter address line 2"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -274,7 +319,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Account Holder Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter account holder name" {...field} />
+                                <Input
+                                  placeholder="Enter account holder name"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -287,7 +335,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Bank Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter bank name" {...field} />
+                                <Input
+                                  placeholder="Enter bank name"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -300,7 +351,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>Account Number</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter account number" {...field} />
+                                <Input
+                                  placeholder="Enter account number"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -313,7 +367,10 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>IFSC Code</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter IFSC code" {...field} />
+                                <Input
+                                  placeholder="Enter IFSC code"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -336,7 +393,10 @@ function AddVendorComponent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className={cn("min-w-[120px]", isLoading && "animate-pulse")}
+                    className={cn(
+                      "min-w-[120px]",
+                      isLoading && "animate-pulse"
+                    )}
                   >
                     {isLoading ? "Creating..." : "Create Vendor"}
                   </Button>

@@ -88,8 +88,13 @@ function AddCustomerComponent() {
     },
   });
 
-  const onSubmit = (data) => {
-    createCustomer(data);
+  const onSubmit = async (data) => {
+    try {
+      console.log("Form submitted:", data);
+      await createCustomer(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
   };
 
   return (
@@ -550,14 +555,7 @@ function AddCustomerComponent() {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className={cn(
-                      "min-w-[120px]",
-                      isLoading && "animate-pulse"
-                    )}
-                  >
+                  <Button type="submit" className="min-w-[120px]">
                     {isLoading ? "Creating..." : "Create Customer"}
                   </Button>
                 </div>
