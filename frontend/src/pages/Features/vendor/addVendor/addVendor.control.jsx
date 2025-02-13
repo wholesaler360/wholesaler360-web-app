@@ -40,7 +40,7 @@ function AddVendorControl({ children }) {
     try {
       setIsLoading(true);
       const response = await axiosPost(CreateVendor, data);
-      
+
       if (response.success) {
         showNotification.success("Vendor created successfully");
         navigate("/vendors");
