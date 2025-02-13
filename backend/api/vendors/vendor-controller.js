@@ -98,6 +98,7 @@ const createVendor = asyncHandler(async (req, res, next) => {
 
   let avatar;
   // Handle avatar upload
+  console.log("Avatar path");
   console.log(req.files?.avatar?.[0]?.path);
   if (req.files?.avatar?.[0]?.path) {
     avatar = await uploadFile(req.files.avatar[0].path);
