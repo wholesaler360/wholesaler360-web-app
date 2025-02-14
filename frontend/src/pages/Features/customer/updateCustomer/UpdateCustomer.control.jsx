@@ -17,8 +17,12 @@ const customerSchema = z.object({
   mobileNo: z.string().min(10, "Mobile number must be 10 digits"),
   newMobileNo: z.string().min(10, "Mobile number must be 10 digits"),
   email: z.string().email("Invalid email address"),
-  gstin: z.string().regex(gstinRegex, "Invalid GSTIN format").optional().or(z.literal(null))
-  .or(z.literal("")),
+  gstin: z
+    .string()
+    .regex(gstinRegex, "Invalid GSTIN format")
+    .optional()
+    .or(z.literal(null))
+    .or(z.literal("")),
   billingAddress: z.object({
     addressLine1: z.string().min(5, "Address is required"),
     addressLine2: z.string().optional(),
@@ -64,8 +68,13 @@ function UpdateCustomerController({ children }) {
     try {
       setIsLoading(true);
       const response = await axiosPut(UpdateCustomer, data);
-      showNotification.success("Customer updated successfully");
-      navigate("/customers");
+      console.log(response);
+      if (response?.data?.success) {
+        showNotification.success("Customer updated successfully");
+        navigate("/customers");
+      } else {
+        showNotification.error(response.message || "Failed to update customer");
+      }
       return response;
     } catch (error) {
       showNotification.error(error.message || "Failed to update customer");
@@ -80,7 +89,7 @@ function UpdateCustomerController({ children }) {
       setIsLoading(true);
       const response = await axiosPut(UpdateCustomerImage, formData);
 
-      if (response.status === 200) {
+      if (response.success) {
         showNotification.success("Customer image updated successfully");
         return { success: true, data: response.data };
       }

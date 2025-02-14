@@ -41,17 +41,10 @@ function AddVendorControl({ children }) {
     try {
       setIsLoading(true);
 
-      // Prepare payload
-      const payload = { ...data };
-
-      // Handle avatar separately
-      const avatar = data.avatar;
-      delete payload.avatar;
-
       // Make API request
-      const response = await axiosPost(CreateVendor, payload, {
+      const response = await axiosPost(CreateVendor, data, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
 
