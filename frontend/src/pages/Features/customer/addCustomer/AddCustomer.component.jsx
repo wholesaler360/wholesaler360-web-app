@@ -90,10 +90,31 @@ function AddCustomerComponent() {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Form submitted:", data);
-      await createCustomer(data);
+      console.log("Starting form submission...");
+      if (!data) {
+        console.error("Form data is empty");
+        return;
+      }
+      console.log("Form data:", data);
+
+      if (!createCustomer) {
+        console.error("createCustomer function is not defined");
+        return;
+      }
+
+      const result = await createCustomer(data);
+      console.log("Submission result:", result);
+
+      // If successful, navigate to customers list
+      if (result) {
+        navigate("/customers");
+      }
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("Form submission error details:", {
+        message: error.message,
+        stack: error.stack,
+        data: error.response?.data,
+      });
     }
   };
 
@@ -555,7 +576,11 @@ function AddCustomerComponent() {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="min-w-[120px]">
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="min-w-[120px]"
+                  >
                     {isLoading ? "Creating..." : "Create Customer"}
                   </Button>
                 </div>
