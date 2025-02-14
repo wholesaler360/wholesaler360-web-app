@@ -47,9 +47,12 @@ function VendorController({ children }) {
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate(`/vendor/${row.original.id}`)}
         >
-          {row.original.avatar ? (
+          {row.original.imageUrl ? (
             <Avatar className="h-9 w-9">
-              <AvatarImage src={row.original.avatar} alt={row.original.name} />
+              <AvatarImage
+                src={row.original.imageUrl}
+                alt={row.original.name}
+              />
             </Avatar>
           ) : (
             <Avatar className="h-9 w-9">
@@ -124,7 +127,7 @@ function VendorController({ children }) {
             const response = await axiosDelete(DeleteVendor, {
               data: { mobileNo: row.original.mobileNo },
             });
-            if (response.success) {
+            if (response.status === 204) {
               showNotification.success("Vendor deleted successfully");
               setRefreshTrigger((prev) => prev + 1);
             }
