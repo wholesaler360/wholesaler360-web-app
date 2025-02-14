@@ -127,16 +127,20 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
   let mobileNo = req.body?.mobileNo;
   let newMobileNo = req.body?.newMobileNo || mobileNo;
   let email = req.body?.email;
-  let gstin = req.body?.gstin.trim().toUpperCase() || null;
+  let gstin = req.body?.gstin?.trim().toUpperCase() || null;
   console.log("Old MobileNo. ", mobileNo, "   New Mobile No. ", newMobileNo);
 
-  if (!name||!mobileNo || !email) {
-    return next(ApiError.validationFailed("Name ,Mobile No and email are required"));
+  if (!name || !mobileNo || !email) {
+    return next(
+      ApiError.validationFailed("Name ,Mobile No and email are required")
+    );
   }
 
   const customer = await Customer.findOne({ mobileNo, isDeleted: false });
   if (!customer) {
-    return next(ApiError.dataNotFound("Customer not found or customer is deleted"));
+    return next(
+      ApiError.dataNotFound("Customer not found or customer is deleted")
+    );
   }
 
   // Check for existing customers with the new mobile number, email, or gstin
@@ -154,20 +158,39 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
   if (conditions.length > 0) {
     const existingCustomer = await Customer.findOne({ $or: conditions });
     if (existingCustomer) {
-      return next(ApiError.valueAlreadyExists("Customer already exists with the same mobile number, email, or GSTIN"));
+      return next(
+        ApiError.valueAlreadyExists(
+          "Customer already exists with the same mobile number, email, or GSTIN"
+        )
+      );
     }
   }
 
   const billingAddress = req.body.billingAddress;
-  if (!billingAddress.addressLine1  || !billingAddress.city || !billingAddress.state || !billingAddress.pincode) {
+  if (
+    !billingAddress.addressLine1 ||
+    !billingAddress.city ||
+    !billingAddress.state ||
+    !billingAddress.pincode
+  ) {
     return next(ApiError.validationFailed("Billing Address is required"));
   }
   const shippingAddress = req.body.shippingAddress;
-  if (!shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
+  if (
+    !shippingAddress.addressLine1 ||
+    !shippingAddress.city ||
+    !shippingAddress.state ||
+    !shippingAddress.pincode
+  ) {
     return next(ApiError.validationFailed("Shipping Address is required"));
   }
   const bankDetails = req.body.bankDetails;
-  if (!bankDetails.accountName || !bankDetails.ifscCode || !bankDetails.accountNo || !bankDetails.bankName) {
+  if (
+    !bankDetails.accountName ||
+    !bankDetails.ifscCode ||
+    !bankDetails.accountNo ||
+    !bankDetails.bankName
+  ) {
     return next(ApiError.validationFailed("Bank Details are required"));
   }
 
@@ -180,28 +203,36 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
     customer.billingAddress = billingAddress;
     customer.shippingAddress = shippingAddress;
     customer.bankDetails = bankDetails;
-  
+
     await customer.save();
-    const {__v , createdAt , updatedAt , isDeleted , ...rest} = customer.toObject();
-        const orderedCustomer = {
-            name: rest.name,
-            mobileNo: rest.mobileNo,
-            email: rest.email,
-            gstin: rest.gstin,
-            avatar: rest.avatar,
-            billingAddress: rest.billingAddress,
-            shippingAddress: rest.shippingAddress,
-            bankDetails: rest.bankDetails,
-            receiveableBalance: rest.receiveableBalance,
-            createdBy: rest.createdBy
-        };
+    const { __v, createdAt, updatedAt, isDeleted, ...rest } =
+      customer.toObject();
+    const orderedCustomer = {
+      name: rest.name,
+      mobileNo: rest.mobileNo,
+      email: rest.email,
+      gstin: rest.gstin,
+      avatar: rest.avatar,
+      billingAddress: rest.billingAddress,
+      shippingAddress: rest.shippingAddress,
+      bankDetails: rest.bankDetails,
+      receiveableBalance: rest.receiveableBalance,
+      createdBy: rest.createdBy,
+    };
     console.log(orderedCustomer);
-  
-    res.status(200).json(ApiResponse.successUpdated(orderedCustomer, "Customer updated successfully"));
+
+    res
+      .status(200)
+      .json(
+        ApiResponse.successUpdated(
+          orderedCustomer,
+          "Customer updated successfully"
+        )
+      );
   } catch (error) {
     console.log(error);
     return next(ApiError.dataNotUpdated(error.message, error));
-}
+  }
 });
 
 const updateCustomerAvatar = asyncHandler(async (req, res, next) => {
