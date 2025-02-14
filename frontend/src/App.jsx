@@ -3,19 +3,20 @@ import { createContext, useEffect, useState } from "react";
 import AppContainer from "./AppContainer";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/theme-context";
+import { AuthProvider } from "@/context/auth-context";
 
 export const AuthContext = createContext(null);
 
-function App() {  
+function App() {
   return (
     <>
       <BrowserRouter basename="/">
-        <ThemeProvider>
-          <AuthContext.Provider value={{}}>
+        <AuthProvider>
+          <ThemeProvider>
             <Toaster position="top-right" />
             <AppContainer />
-          </AuthContext.Provider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </BrowserRouter>
     </>
   );

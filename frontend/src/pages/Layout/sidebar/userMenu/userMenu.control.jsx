@@ -1,5 +1,5 @@
 import { axiosPost } from "@/constants/api-context";
-import { clearAccessToken } from "@/lib/authUtils";
+import { clearAccessToken, clearAuthData } from "@/lib/authUtils";
 import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createContext } from "react";
@@ -16,6 +16,7 @@ const UserMenuController = ({ children }) => {
     const response = await axiosPost(LogoutApi);
     if (response?.status === 200) {
       clearAccessToken();
+      clearAuthData();
       navigate("/login");
       showNotification.success("Logged out successfully");
     } else {
