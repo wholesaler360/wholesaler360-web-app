@@ -5,6 +5,7 @@ import AddCustomer from "@/pages/Features/customer/addCustomer";
 import UpdateCustomer from "@/pages/Features/customer/updateCustomer";
 import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
 import Demo from "@/pages/Features/Demo";
+import Stock from "@/pages/Features/stock";
 import Products from "@/pages/Features/products";
 import AddProduct from "@/pages/Features/products/addProduct";
 import UpdateProduct from "@/pages/Features/products/updateProduct";
@@ -65,6 +66,10 @@ const authRoutes = [
   {
     path: "/vendor/edit",
     element: <UpdateVendor />,
+  },
+  {
+    path: "/stock",
+    element: <Stock />,
   },
 ];
 

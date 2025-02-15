@@ -42,3 +42,6 @@ export const DeleteVendor = "/vendor/delete";
 export const CreateVendor = "/vendor/create";
 export const UpdateVendorAvatar = "/vendor/updateAvatar";
 export const UpdateVendor = "/vendor/update";
+
+// Inventory
+export const FetchAllInventories = "/inventory/fetch";

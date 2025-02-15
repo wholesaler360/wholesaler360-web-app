@@ -69,7 +69,7 @@ const data = {
         },
         {
           title: "Stock",
-          url: "#",
+          url: "/stock",
         },
       ],
     },
