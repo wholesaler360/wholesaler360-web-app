@@ -135,7 +135,7 @@ function CustomerController({ children }) {
             const response = await axiosDelete(DeleteCustomer, {
               data: { mobileNo: row.original.mobileNo },
             });
-            if (response.success) {
+            if (response.status === 204) {
               showNotification.success("Customer deleted successfully");
               setRefreshTrigger((prev) => prev + 1);
             }
