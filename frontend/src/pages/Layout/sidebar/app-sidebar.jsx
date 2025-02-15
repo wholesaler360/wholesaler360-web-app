@@ -42,12 +42,6 @@ const data = {
       isActive: true,
     },
     {
-      title: "Demo",
-      url: "/demo",
-      icon: Command,
-      isActive: false,
-    },
-    {
       title: "Customers",
       url: "/customers",
       icon: UsersRound,
@@ -75,7 +69,7 @@ const data = {
         },
         {
           title: "Stock",
-          url: "#",
+          url: "/stock",
         },
       ],
     },

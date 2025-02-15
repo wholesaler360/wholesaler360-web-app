@@ -1,18 +1,18 @@
 import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosPost } from "@/constants/api-context";
-import { setAccessToken } from "@/lib/authUtils";
+import { setAuthData } from "@/lib/authUtils";
 import { showNotification } from "@/core/toaster/toast";
 import { LoginApi } from "@/constants/apiEndPoints";
+import { useAuth } from "@/context/auth-context";
 
-// Create the LoginContext with default values
 const LoginContext = createContext({
   submitLoginForm: async (data) => {},
 });
 
-// LoginController component to provide context
 function LoginController({ children }) {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const submitLoginForm = async (data) => {
     try {
@@ -22,18 +22,21 @@ function LoginController({ children }) {
       };
 
       const response = await axiosPost(LoginApi, formData);
-      if (response?.status === 200) {
-        setAccessToken(response.data.value.accessToken);
-        navigate("/"); // Redirect to home page
+
+      if (response?.status === 200 && response?.data?.success) {
+        // Store auth data in localStorage
+        setAuthData(response.data);
+
+        // Update auth context
+        setUser(response.data.value.user);
+
+        showNotification.success(response.data.message || "Login successful");
+        navigate("/");
       } else {
-        if (response?.data?.message) {
-          showNotification.error(response?.data?.message);
-        } else {
-          showNotification.error("Login Failed");
-        }
+        showNotification.error(response?.data?.message || "Login failed");
       }
     } catch (error) {
-      showNotification.error("Login Failed");
+      showNotification.error(error?.response?.data?.message || "Login failed");
       console.error("Login failed:", error);
     }
   };
