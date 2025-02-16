@@ -1,6 +1,7 @@
 import { Module } from "../api/sections/module-model.js";
 import { Role } from "../api/roles/role-model.js";
 import { User } from "../api/users/user-model.js";
+import { CompanyDetails } from "../api/settings/company-settings/company-settings-model.js";
 import { asyncHandler } from "./asyncHandler-utils.js";
 import Router from "express";
 import { ApiResponse } from "./api-Responnse-utils.js";
@@ -100,11 +101,56 @@ const createUserSuperAdmin = asyncHandler(async (req,res,next) => {
     }
 });
 
+
+const setCompanyDetails = asyncHandler(async (req,res,next) => {
+    const {
+        name,
+        mobileNo,
+        addressLine1,
+        city,
+        state,
+        pincode,
+        country,
+    } = req.body;
+
+    const address = {
+        addressLine1,
+        city,
+        state,
+        pincode,
+        country,
+    };
+
+    const companyDetails = new CompanyDetails({
+        name,
+        mobileNo,
+        address
+    });
+
+    try {
+        const savedCompanyDetails = await companyDetails.save();
+
+        const { isDeleted, __v, ...remaining } = savedCompanyDetails.toObject();
+
+        return res
+            .status(201)
+            .json(
+                ApiResponse.successCreated(remaining, "Company details have been set successfully")
+            );
+            
+    } catch (error) {
+        console.log(`Error setting company details: ${error}`);
+        return next(ApiError.dataNotInserted("Error setting company details", error));
+    }
+});
+
+
 // Create a super admin user
 const seederRouter = Router();
 seederRouter.post("/save-modules", saveAllModules);
 seederRouter.post("/create-super-admin-role", createSuperAdminRole);
 seederRouter.post("/create-super-admin-user", createUserSuperAdmin);
+seederRouter.post("/set-company-details", setCompanyDetails);
 
 export default seederRouter;
 
