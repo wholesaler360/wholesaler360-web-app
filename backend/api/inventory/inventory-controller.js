@@ -58,7 +58,8 @@ const addInventoryService = async (purchaseData, session) => {
     // fetches all the product in array with one query from the database 
     // and validate it if all products exists /O(all products)\
     const fetchedProducts = await Product.find(
-      { _id: { $in: productIds }, isProductDeleted: false }
+      { _id: { $in: productIds }, isProductDeleted: false },
+      { _id : 1 ,salePrice: 1 }
     ).session(session);
 
     console.log("Fetched PRoduct:\n",fetchedProducts);
@@ -148,13 +149,21 @@ const fetchInventory = asyncHandler(async (req, res, next) => {
       },
     },
     {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    {
       $addFields: {
         productInfo: {
           id: "$_id",
           name: "$name",
           skuCode: "$skuCode",
           productImg: "$productImg",
-          category: "$category",
+          category: { $arrayElemAt: ["$category.name", 0] },
           totalQuantity: {
             $cond: {
               if: { $gt: [{ $size: "$inventory" }, 0] },
@@ -166,16 +175,22 @@ const fetchInventory = asyncHandler(async (req, res, next) => {
       }
     },
     {
+      $group:{
+        _id: null,
+        product: { $push: "$productInfo" }
+      }
+    },
+    {
       $project: {
         _id: 0,
-        productInfo: 1
+        product: 1
       }
     }
   ]);
   if(inventory.length === 0) {
     return res.status(200).json(ApiResponse.successRead("No Products exists"));
   }
-  res.status(200).json(ApiResponse.successRead(inventory, "Inventory fetched successfully"));
+  res.status(200).json(ApiResponse.successRead(inventory[0], "Inventory fetched successfully"));
 });
 
 
