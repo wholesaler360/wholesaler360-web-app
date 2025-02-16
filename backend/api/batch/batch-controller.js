@@ -42,6 +42,11 @@ const fetchAllBatch = asyncHandler(async (req, res, next) => {
         $unwind: "$batch"
       },
       {
+        $match :{
+          "batch.isDeleted" : false
+        }
+      },
+      {
         $lookup: {
           from: "purchases",
           localField: "batch.purchaseId",
@@ -61,12 +66,21 @@ const fetchAllBatch = asyncHandler(async (req, res, next) => {
         }
       },
       {
+        $lookup : {
+          from : "users",
+          localField : "purchase.createdBy",
+          foreignField : "_id",
+          as : "user"
+        }
+      },
+      {
         $group: {
           _id: "$productId",
           productName: { $first: { $arrayElemAt: ["$product.name", 0] } },
           skuCode: { $first: { $arrayElemAt: ["$product.skuCode", 0] } },
           batches: {
             $push: {
+              batchId: "$batch._id",
               batchNo: "$batches.batchNo",
               purchasePrice: "$batch.purchasePrice",
               salePriceWithoutTax: "$batch.salePriceWithoutTax",
@@ -74,7 +88,7 @@ const fetchAllBatch = asyncHandler(async (req, res, next) => {
               purchaseNo : "$purchase.purchaseNo",
               purchaseDate : "$purchase.purchaseDate",
               vendorName : { $arrayElemAt : ["$vendor.name", 0] },
-              isDeleted: "$batch.isDeleted"
+              createdBy : { $arrayElemAt : ["$user.name", 0] }
             }
           }
         }
@@ -99,17 +113,41 @@ const fetchAllBatch = asyncHandler(async (req, res, next) => {
   }
 });
 
-// const changeSellingPrice = asyncHandler(async(req,res,next)=>{
-//     const { productId, batchNo, sellingPrice } = req.body;
-//     if(!productId || !batchNo || !sellingPrice){
-//       return next(ApiError.validationFailed("Please provide productId, batchNo and sellingPrice"));
-//     }
+const changeSellingPrice = asyncHandler(async(req,res,next)=>{
+    const {batchId ,sellingPrice } = req.body;
+    if(!batchId || sellingPrice==null || sellingPrice==undefined){
+      return next(ApiError.validationFailed("Please provide batchId and sellingPrice"));
+    }
 
-//     try {
-//     const inventory = await Inventory.findOne({ productId });
-//     if(!inventory){
-//         return next(ApiError.dataNotFound("No inventory found"));
-//     }
+    if(sellingPrice <= 0){
+      return res.status(200).json(ApiResponse.successRead(null,"Selling price cannot be negative or zero"));
+    }
 
-// });
-export { fetchAllBatch };
+    try {
+    const batch = await Batch.findOne({ _id: batchId , isDeleted : false});
+    if(!batch){
+        return next(ApiError.dataNotFound("Batch does not exists or deleted"));
+    }
+    if(batch.purchasePrice > sellingPrice){
+      return res.status(200).json(ApiResponse.successRead(null,"Selling price cannot be less than purchase price"));
+    }
+    batch.salePriceWithoutTax = sellingPrice;
+    batch.isSalePriceEntered = true;
+    await batch.save();
+    const {purchaseId , _id , isDeleted, __v, createdAt, updatedAt, ...remainingBatch} = batch.toObject();
+    res.status(200).json(ApiResponse.successUpdated(remainingBatch,"Selling price updated successfully"));
+    
+  } catch (error) {
+    return next(ApiError.dataNotFound("Failed to update selling price"));
+  }
+
+});
+
+const stockAdd = asyncHandler(async(req,res,next)=>{
+  const {skuCode, purchasePrice, salePriceWithoutTax, purchaseDate} = req.body;
+});
+
+const stockOut = asyncHandler(async(req,res,next)=>{
+
+});
+export { fetchAllBatch , changeSellingPrice};
