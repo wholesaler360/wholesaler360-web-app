@@ -230,8 +230,8 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
 
 const getStock = async (product_id) => {
   product_id = product_id.toString();
-  const product = await Inventory.findOne({productId : product_id})
-  return product.totalQuantity;
+  const count = await Inventory.findOne({productId : product_id}).select("totalQuantity -_id");
+  return count.totalQuantity;
 };
 
 const deleteProduct = asyncHandler(async (req, res, next) => {

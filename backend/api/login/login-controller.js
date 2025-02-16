@@ -14,7 +14,7 @@ const login = asyncHandler(async(req,res,next)=>{
     }
     
     // Checks if the user already exists
-    const user = await User.findOne({mobileNo : mobileNo});
+    const user = await User.findOne({mobileNo : mobileNo}).populate({path : "role" ,select : "name -_id"});
     console.log(user);
     if(!user || user.isUserDeleted)
     {
