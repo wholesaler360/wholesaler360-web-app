@@ -12,6 +12,10 @@ const ledgerSchema = new Schema(
             ref: "Vendor",
             required: true
         },
+        date: {
+            type: Date,
+            required: true,
+        },
         amount: {
             type: Number,
             required: true
