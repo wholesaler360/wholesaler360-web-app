@@ -11,6 +11,7 @@ const incrementTrackerService = async (trackerName, date, session) => {
 
         if (!yearExist) {
             updatedTracker = await DataTracker.create([{ year: year, tracker: { [trackerName]: 1 } }], { session });
+            updatedTracker = updatedTracker[0];
             
         } else {
             yearExist.tracker[trackerName] += 1;
@@ -21,7 +22,7 @@ const incrementTrackerService = async (trackerName, date, session) => {
             return { success: false, errorType: "dataNotUpdated", message: "incrementTrackerService: Data not updated", data: null };
         }
 
-        const data = { year: updatedTracker[0].year, [trackerName]: updatedTracker[0].tracker[trackerName] };
+        const data = { year: updatedTracker.year, [trackerName]: updatedTracker.tracker[trackerName] };
 
         return { success: true, errorType: null, message: "incrementTrackerService: Data updated successfully", data: data };
 

@@ -9,7 +9,7 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 // --------------------- Service functions ---------------------- \\
 const createLedgerService = async (data, fetchedUser, session) => {
     const { vendorId, amount, transactionType, paymentMode, date, description } = data;
-
+    
     if ([
             vendorId, amount, transactionType, date
 
