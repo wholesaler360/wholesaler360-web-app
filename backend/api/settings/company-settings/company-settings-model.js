@@ -133,35 +133,6 @@ const companySignaturesSchema = new Schema(
 );
 
 
-const companyEmailSettingsSchema = new Schema(
-    {
-        email: {
-            type: String,
-            trim: true,
-            lowercase: true,
-            required: true,
-        },
-        credential: {
-            type: String,
-            trim: true,
-            required: true,
-        },
-        smtpHost: {
-            type: String,
-            trim: true,
-            required: true,
-        },
-        smtpPort: {
-            type: String,
-            trim: true,
-            required: true,
-        }
-    },
-    { timestamps: true }
-);
-
-
 export const CompanyDetails = mongoose.model("CompanyDetails", companyDetailsSchema);
 export const CompanyBankDetails = mongoose.model("CompanyBankDetails", companyBankDetailsSchema);
 export const CompanySignatures = mongoose.model("CompanySignatures", companySignaturesSchema);
-export const CompanyEmailSettings = mongoose.model("CompanyEmailSettings", companyEmailSettingsSchema);

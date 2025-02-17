@@ -7,6 +7,7 @@ accountSettingsRouter.route('/changePassword').put(changePassword);
 accountSettingsRouter.route('/update').put(editProfile);
 accountSettingsRouter.route('/fetch').get(fetchDetails);
 accountSettingsRouter.route('/changeAvatar').put(
-    upload([{name : 'avatar', maxCount : 1}])
-    ,changeAvatar);
+    upload([{name : 'avatar', maxCount : 1}]),
+    changeAvatar
+);
 export { accountSettingsRouter }
