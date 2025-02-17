@@ -1,7 +1,12 @@
-import { RefreshTokenApi } from "@/constants/apiEndPoints";
-import { ACCESS_TOKEN_KEY, USER_DATA_KEY } from "@/constants/globalConstants";
+import { RefreshTokenApi, FetchRolePermission } from "@/constants/apiEndPoints";
+import {
+  ACCESS_TOKEN_KEY,
+  USER_DATA_KEY,
+  USER_PERMISSIONS_KEY,
+} from "@/constants/globalConstants";
 import { jwtDecode } from "jwt-decode";
 import { axiosGet, axiosPost } from "@/constants/api-context";
+import { getPermissionsFromNumber } from "./roleUtils";
 
 export const getAccessToken = () => {
   try {
@@ -58,9 +63,37 @@ export const refreshAccessToken = async () => {
   }
 };
 
-export const setAuthData = (authResponse) => {
+const fetchAndProcessPermissions = async (roleName) => {
   try {
-    if (!authResponse?.value?.accessToken) {
+    const response = await axiosPost(FetchRolePermission, { name: roleName});
+    console.log(response)
+    if (!response.data.success) throw new Error("Failed to fetch role permissions");
+
+    const processedPermissions = {};
+    response.data.value.sections.forEach(({ module, permission }) => {
+      processedPermissions[module.name] = getPermissionsFromNumber(permission);
+    });
+
+    return processedPermissions;
+  } catch (error) {
+    console.error("Error processing permissions:", error.message);
+    return null;
+  }
+};
+
+export const getStoredPermissions = () => {
+  try {
+    const permissionsStr = localStorage.getItem(USER_PERMISSIONS_KEY);
+    return permissionsStr ? JSON.parse(permissionsStr) : null;
+  } catch (error) {
+    console.error("Error getting stored permissions:", error.message);
+    return null;
+  }
+};
+
+export const setAuthData = async (authResponse) => {
+  try {
+    if (!authResponse?.value?.accessToken || !authResponse?.value?.user) {
       throw new Error("Invalid auth response");
     }
 
@@ -73,6 +106,12 @@ export const setAuthData = (authResponse) => {
       lastLoginAt: new Date().toISOString(),
     };
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+
+    // Fetch and store permissions
+    const permissions = await fetchAndProcessPermissions(userData.role.name);
+    if (permissions) {
+      localStorage.setItem(USER_PERMISSIONS_KEY, JSON.stringify(permissions));
+    }
 
     return true;
   } catch (error) {
@@ -95,6 +134,7 @@ export const clearAuthData = () => {
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USER_DATA_KEY);
+    localStorage.removeItem(USER_PERMISSIONS_KEY);
     return true;
   } catch (error) {
     console.error("Error clearing auth data:", error.message);
