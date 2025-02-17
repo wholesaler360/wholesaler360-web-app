@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { clearAccessToken, clearAuthData, getAccessToken } from "@/lib/authUtils";
+import { Navigate } from "react-router-dom";
+import {
+  clearAccessToken,
+  clearAuthData,
+  getAccessToken,
+} from "@/lib/authUtils";
 import { showNotification } from "@/core/toaster/toast";
 import { usePermission } from "@/hooks/usePermission";
-import { authRoutes } from "./routes";
 
-function AuthenticatedRoutes({ children }) {
+function AuthenticatedRoutes({ children, permission }) {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const { hasReadPermission } = usePermission();
-  const location = useLocation();
 
   useEffect(() => {
     const validateToken = async () => {
@@ -21,18 +23,15 @@ function AuthenticatedRoutes({ children }) {
           return;
         }
 
-        // Find the current route configuration
-        const currentRoute = authRoutes.find(route => route.path === location.pathname);
-        
-        // Check permission if route requires it
-        if (currentRoute?.permission) {
-          if (!hasReadPermission(currentRoute.permission)) {
-            showNotification.error("You don't have permission to access this module");
-            clearAccessToken();
-            clearAuthData();
-            setIsAuthenticated(false);
-            return;
-          }
+        // Check permission if required
+        if (permission && !hasReadPermission(permission)) {
+          showNotification.error(
+            "You don't have permission to access this module"
+          );
+          clearAccessToken();
+          clearAuthData();
+          setIsAuthenticated(false);
+          return;
         }
 
         setIsAuthenticated(true);
@@ -45,7 +44,7 @@ function AuthenticatedRoutes({ children }) {
     };
 
     validateToken();
-  }, [location.pathname, hasReadPermission]);
+  }, [permission, hasReadPermission]);
 
   if (isLoading) {
     return <div>Loading...</div>;
