@@ -21,6 +21,8 @@ import { inventoryRouter } from "./api/inventory/inventory-route.js";
 import { purchaseRouter } from "./api/purchase/purchase-route.js";
 import { batchRouter } from "./api/batch/batch-route.js";
 import { accountSettingsRouter } from "./api/settings/account-settings/account-settings-route.js";
+import { companySettingsRouter } from "./api/settings/company-settings/company-settings-route.js";
+
 // TODO : Validation like email, mobile number etc..,
 
 
@@ -79,6 +81,9 @@ app.use('/ledger', ledgerRouter);
 app.use('/purchase', purchaseRouter);
 
 app.use('/account-settings', accountSettingsRouter);
+app.use('/company-settings', companySettingsRouter);
+
+
 // catch all undefined routes for authenticated users
 app.use('*', (req, res, next) => {
     return next(new ApiError(404, 'Route not found'));
