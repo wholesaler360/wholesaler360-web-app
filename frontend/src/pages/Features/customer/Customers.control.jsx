@@ -151,6 +151,8 @@ function CustomerController({ children }) {
               effect="ringHover"
               size="sm"
               onClick={() => navigate(`/invoice/new/${row.original.id}`)}
+              permissionModule="invoice"
+              permissionAction="write"
             >
               <FileText className="h-4 w-4" />
               New Invoice
@@ -168,12 +170,18 @@ function CustomerController({ children }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem onClick={handleEdit}>
+                <DropdownMenuItem
+                  onClick={handleEdit}
+                  permissionModule="customer"
+                  permissionAction="update"
+                >
                   Edit Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                   onClick={handleDelete}
+                  permissionModule="customer"
+                  permissionAction="delete"
                 >
                   Delete Profile
                 </DropdownMenuItem>
