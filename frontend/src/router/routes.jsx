@@ -4,7 +4,6 @@ import Customers from "@/pages/Features/customer";
 import AddCustomer from "@/pages/Features/customer/addCustomer";
 import UpdateCustomer from "@/pages/Features/customer/updateCustomer";
 import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
-import Demo from "@/pages/Features/Demo";
 import Stock from "@/pages/Features/stock";
 import Products from "@/pages/Features/products";
 import AddProduct from "@/pages/Features/products/addProduct";
@@ -18,58 +17,67 @@ const authRoutes = [
   {
     path: "/",
     element: <Dashboard />,
-  },
-  {
-    path: "/demo",
-    element: <Demo />,
+    permission: "dashboard", // Dashboard permission
   },
   {
     path: "/roles-and-permissions",
     element: <RolesAndPermissions />,
+    permission: "role",
   },
   {
     path: "/categories",
     element: <Categories />,
+    permission: "category",
   },
   {
     path: "/products",
     element: <Products />,
+    permission: "product",
   },
   {
     path: "/product/add",
     element: <AddProduct />,
+    permission: "product",
   },
   {
     path: "/product/edit",
     element: <UpdateProduct />,
+    permission: "product",
   },
   {
     path: "/customers",
     element: <Customers />,
+    permission: "customer",
   },
   {
     path: "/customer/add",
     element: <AddCustomer />,
+    permission: "customer",
   },
   {
     path: "/customer/edit",
     element: <UpdateCustomer />,
+    permission: "customer",
   },
   {
     path: "/vendors",
     element: <Vendors />,
+    permission: "vendor",
   },
   {
     path: "/vendor/add",
     element: <AddVendor />,
+    permission: "vendor",
   },
   {
     path: "/vendor/edit",
     element: <UpdateVendor />,
+    permission: "vendor",
   },
   {
     path: "/stock",
     element: <Stock />,
+    permission: "inventory",
   },
 ];
 
