@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { usePermission } from "@/hooks/usePermission";
 
 import { NavItems } from "./navItems/NavItems";
 import { NavItems2 } from "./navItems2/NavItems2";
@@ -40,18 +41,21 @@ const data = {
       url: "/",
       icon: Command,
       isActive: true,
+      permission: "dashboard",
     },
     {
       title: "Customers",
       url: "/customers",
       icon: UsersRound,
       isActive: false,
+      permission: "customer",
     },
     {
       title: "Vendors",
       url: "/vendors",
       icon: UserRound,
       isActive: false,
+      permission: "vendor",
     },
     {
       title: "Inventory",
@@ -62,14 +66,17 @@ const data = {
         {
           title: "Products",
           url: "/products",
+          permission: "product",
         },
         {
           title: "Categories",
           url: "/categories",
+          permission: "category",
         },
         {
           title: "Stock",
           url: "/stock",
+          permission: "inventory",
         },
       ],
     },
@@ -81,15 +88,18 @@ const data = {
       items: [
         {
           title: "Quotation",
-          url: "#",
+          url: "/quotation",
+          permission: "quotation",
         },
         {
           title: "Invoice",
           url: "#",
+          permission: "invoice",
         },
         {
           title: "Sales Return",
           url: "#",
+          permission: "sales_return",
         },
       ],
     },
@@ -103,10 +113,12 @@ const data = {
         {
           title: "Purchase Invoice",
           url: "#",
+          permission: "purchase",
         },
         {
           title: "Purchase Return",
           url: "#",
+          permission: "purchase_return",
         },
       ],
     },
@@ -119,14 +131,17 @@ const data = {
         {
           title: "Sales",
           url: "#",
+          permission: "sales_report",
         },
         {
           title: "Purchase",
           url: "#",
+          permission: "purchase_report",
         },
         {
           title: "Inventory",
           url: "#",
+          permission: "inventory_report",
         },
       ],
     },
@@ -139,10 +154,12 @@ const data = {
         {
           title: "Expenses",
           url: "#",
+          permission: "expense",
         },
         {
           title: "Payments",
           url: "#",
+          permission: "payment",
         },
       ],
     },
@@ -171,10 +188,31 @@ const data = {
 export function AppSidebar({ ...props }) {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { hasReadPermission } = usePermission();
 
-  // Deep clone and update the navigation items with active states
+  // Simplified filterNavItems function using the permission property
+  const filterNavItems = (items) => {
+    return items.filter((item) => {
+      if (item.items) {
+        const filteredSubItems = item.items.filter((subItem) =>
+          hasReadPermission(subItem.permission)
+        );
+
+        if (filteredSubItems.length > 0) {
+          item.items = filteredSubItems;
+          return true;
+        }
+        return false;
+      }
+
+      return !item.permission || hasReadPermission(item.permission);
+    });
+  };
+
+  // Deep clone and update the navigation items with active states and permissions
   const navItems = React.useMemo(() => {
-    return data.NavItems.map((item) => ({
+    const filteredItems = filterNavItems(data.NavItems);
+    return filteredItems.map((item) => ({
       ...item,
       isActive:
         item.url === currentPath ||
