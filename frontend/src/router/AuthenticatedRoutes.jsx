@@ -1,31 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import {
   clearAccessToken,
+  clearAuthData,
   getAccessToken,
-  isAccessTokenExpired,
-  refreshAccessToken,
 } from "@/lib/authUtils";
 import { showNotification } from "@/core/toaster/toast";
+import { usePermission } from "@/hooks/usePermission";
 
-function AuthenticatedRoutes({ children }) {
+function AuthenticatedRoutes({ children, permission }) {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const { hasReadPermission } = usePermission();
 
   useEffect(() => {
     const validateToken = async () => {
       try {
         const authToken = getAccessToken();
-        
         if (!authToken) {
           setIsAuthenticated(false);
           showNotification.error("Please login to continue");
           return;
         }
 
+        // Check permission if required
+        if (permission && !hasReadPermission(permission)) {
+          showNotification.error(
+            "You don't have permission to access this module"
+          );
+          clearAccessToken();
+          clearAuthData();
+          setIsAuthenticated(false);
+          return;
+        }
+
         setIsAuthenticated(true);
       } catch (e) {
-        clearAccessToken();
         setIsAuthenticated(false);
         showNotification.error("Something went wrong. Please login again.");
       } finally {
@@ -34,7 +44,7 @@ function AuthenticatedRoutes({ children }) {
     };
 
     validateToken();
-  }, []);
+  }, [permission, hasReadPermission]);
 
   if (isLoading) {
     return <div>Loading...</div>;

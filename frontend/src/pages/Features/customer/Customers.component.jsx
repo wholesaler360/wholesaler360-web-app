@@ -62,7 +62,12 @@ function CustomerComponent() {
             Manage your customers and their invoices here.
           </p>
         </div>
-        <Button className="h-10" onClick={() => navigate("/customer/add")}>
+        <Button
+          className="h-10"
+          onClick={() => navigate("/customer/add")}
+          permissionModule="customer"
+          permissionAction="write"
+        >
           <PlusCircle className="mr-2 h-5 w-5" />
           Add Customer
         </Button>

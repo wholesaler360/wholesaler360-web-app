@@ -22,7 +22,9 @@ function AppContainer() {
               key={id}
               path={route?.path}
               element={
-                <AuthenticatedRoutes>{route?.element}</AuthenticatedRoutes>
+                <AuthenticatedRoutes permission={route?.permission}>
+                  {route?.element}
+                </AuthenticatedRoutes>
               }
             />
           ))}

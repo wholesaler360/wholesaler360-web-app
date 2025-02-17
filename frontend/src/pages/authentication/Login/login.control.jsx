@@ -25,7 +25,7 @@ function LoginController({ children }) {
 
       if (response?.status === 200 && response?.data?.success) {
         // Store auth data in localStorage
-        setAuthData(response.data);
+        await setAuthData(response.data);
 
         // Update auth context
         setUser(response.data.value.user);
