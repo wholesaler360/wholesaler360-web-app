@@ -20,7 +20,7 @@ const appEmailSettingsSchema = new Schema(
             required: true,
         },
         smtpPort: {
-            type: String,
+            type: Number,
             trim: true,
             required: true,
         }
