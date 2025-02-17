@@ -3,7 +3,9 @@ import {User} from '../users/user-model.js';
 import { ApiError } from '../../utils/api-error-utils.js';
 import { ApiResponse } from '../../utils/api-Responnse-utils.js';
 import { asyncHandler } from '../../utils/asyncHandler-utils.js';
+import  sendMail  from '../../utils/mail-sender-utils.js';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 const login = asyncHandler(async(req,res,next)=>{
     // take the values and validate it
@@ -14,7 +16,9 @@ const login = asyncHandler(async(req,res,next)=>{
     }
     
     // Checks if the user already exists
-    const user = await User.findOne({mobileNo : mobileNo}).populate({path : "role" ,select : "name -_id"});
+    const user = await User.findOne({mobileNo : mobileNo}).
+    populate({path : "role" ,select : "name -_id"})
+    .select("-otp -otpExpiration ");
     console.log(user);
     if(!user || user.isUserDeleted)
     {
@@ -26,7 +30,7 @@ const login = asyncHandler(async(req,res,next)=>{
 
     if(!isPasswordMatched)
     {
-        return next(ApiError.validationFailed("Invalid Credentials"));
+        return next(ApiError.validationFailed("Invalid mobileNo or Password"));
     }
 
     // Generate access token and refresh token
@@ -150,4 +154,68 @@ const logout = asyncHandler(async(req,res,next)=>{
     }
 });
 
-export {login , refreshAccessToken , logout};
+const forgotPassword = asyncHandler(async(req,res,next)=>{
+    const {mobileNo} = req.body;
+    if(!mobileNo){
+        return next(ApiError.validationFailed("Please provide the mobile number"));
+    }
+    const user = await User.findOne({mobileNo : mobileNo , isUserDeleted : false});
+    if(!user)
+    {
+        return next(ApiError.dataNotFound("User not found"));
+    }
+    if(!user.email){
+        return next(ApiError.dataNotFound("User does not have email address contact admin to reset the password"));
+    }
+    // Send the email to the user
+    const otp = Math.random().toString().slice(-6);
+    const otpExpiration = Date.now() + 10 * 60 * 1000;
+    const to = user.email;
+    const subject = "Password Reset Request";
+    const text = "please donot share the otp with unknown person"+otp;
+    const html = "<h3>OTP to reset the password is : " + otp + "</h3>";
+
+    try {
+        await sendMail(to,subject,text,html);
+        user.otp = otp;
+        user.otpExpiration = otpExpiration;
+        await user.save();
+        res.status(201).json(ApiResponse.successCreated(null,"OTP sent successfully"));
+    } catch (error) {
+        console.log("ujas");
+        return next(ApiError.mailNotSent(error.message));
+    }
+});
+
+const validateOtpAndChangePassword = asyncHandler(async (req, res, next) => {
+    const { mobileNo, otp , newPassword } = req.body;
+    if (!mobileNo || !otp || !newPassword) {
+      return next(ApiError.validationFailed("Please provide the mobile number and OTP and new password"));
+    }
+    
+    const user = await User.findOne({ mobileNo: mobileNo , isUserDeleted : false});
+    if (!user) {
+      return next(ApiError.dataNotFound("User not found"));
+    }
+
+    // Validate OTP
+    if(user.otpExpiration < Date.now()){
+        return next(ApiError.validationFailed("OTP expired"));
+    }
+    if (user.otp !== otp) {
+      return next(ApiError.validationFailed("Invalid OTP"));
+    }
+  
+    try{
+        user.password = newPassword;
+        user.otp = null;
+        user.otpExpiration = null;
+        await user.save();
+        res.status(200).json(ApiResponse.successRead({ message: "Password changed successfully" }));
+    }
+    catch (error) {
+      return next(ApiError.dataNotUpdated("Unable to update the password "));
+    }
+});
+
+export {login , refreshAccessToken , logout , forgotPassword, validateOtpAndChangePassword };

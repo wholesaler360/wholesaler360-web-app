@@ -13,15 +13,40 @@ const all_Modules = [
     "user",
     "role",
     "customer",
-    "company_setting","app_setting","profile_setting"
+    "company-settings","app-settings","account-settings"
     ,"inventory","product","tax","category","batch"
-    ,"invoice","sales_return","quotation",
+    ,"invoice","sales-return","quotation",
     "vendor","ledger",
     "purchase","purchase_return",
-    "sales_report","purchase_report","invetory_report","expense","payment",
-    "customer_portal"
+    "sales-report","purchase-report","inventory-report","expense","payment",
+    "customer-portal"
 ];
-
+const updateExistingModulesName = asyncHandler(async (req,res,next) => {
+    const updateArray = [
+        {oldName : "company_setting", newName : "company-settings"},
+        {oldName : "app_setting", newName : "app-settings"},
+        {oldName : "profile_setting", newName : "account-settings"},
+        {oldName : "sales_return", newName : "sales-return"},
+        {oldName : "purchase_return", newName : "purchase-return"},
+        {oldName : "customer_portal", newName : "customer-portal"},
+        {oldName : "sales_report", newName : "sales-report"},
+        {oldName : "purchase_report", newName : "purchase-report"},
+        {oldName : "invetory_report", newName : "inventory-report"},
+    ]
+    try {
+        for (const element of updateArray) {
+            const module = await Module.findOne({ name: element.oldName });
+            if(module) {
+                module.name = element.newName;
+                await module.save();
+            }
+        }
+        res.status(200).json(ApiResponse.successUpdated("All modules updated successfully"));
+    } catch (error) {
+        console.log("Error while updating modules:", error);
+        return next(ApiError.dataNotUpdated("Failed to update the data"))
+    }
+});
 const saveAllModules = asyncHandler (async(req,res,next) => {
     // Finding all the existing modules and storing them in a set
         const allExistingModules = await Module.find();
@@ -150,6 +175,7 @@ const seederRouter = Router();
 seederRouter.post("/save-modules", saveAllModules);
 seederRouter.post("/create-super-admin-role", createSuperAdminRole);
 seederRouter.post("/create-super-admin-user", createUserSuperAdmin);
+seederRouter.post("/update-modules", updateExistingModulesName);
 seederRouter.post("/set-company-details", setCompanyDetails);
 
 export default seederRouter;

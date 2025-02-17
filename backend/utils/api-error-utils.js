@@ -111,6 +111,10 @@ class ApiError extends Error {
     static imageNotGenerated(message="image not generated",errors = []) {
         return new ApiError(417,message,errors)
     }
+
+    static mailNotSent(message = "mail not sent", data = null) {
+        return new ApiError(400, message, data);
+    }
 }
 
 export { ApiError };
