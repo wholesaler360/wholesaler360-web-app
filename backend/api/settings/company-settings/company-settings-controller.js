@@ -64,9 +64,9 @@ const addCompanyDetails = asyncHandler(async (req, res, next) => {
       companyDetails[0].address = address;
       companyDetails[0].termsAndConditions = termsAndConditions;
       
-      const savedCompanyDetails = await companyDetails.save();
+      const savedCompanyDetails = await companyDetails[0].save();
   
-      const { isDeleted, __v, ...remaining } = savedCompanyDetails.toObject();
+      const { isDeleted, __v, _id, ...remaining } = savedCompanyDetails.toObject();
   
       return res
         .status(201)
@@ -79,3 +79,8 @@ const addCompanyDetails = asyncHandler(async (req, res, next) => {
       return next(ApiError.dataNotInserted("Failed to update company details", error));
     } 
 });
+
+// TODO: view company details, add company logo, add favicon
+
+
+export { addCompanyDetails };
