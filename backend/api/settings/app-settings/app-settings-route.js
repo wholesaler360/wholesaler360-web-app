@@ -4,4 +4,7 @@ import { fetchAppEmailSettings, updateAppEmailSettings } from './app-settings-co
 const appSettingsRouter = Router();
 
 
-appSettingsRouter.get('/fetch', fetchAppEmailSettings);
+appSettingsRouter.get('/emailSettings/fetch', fetchAppEmailSettings);
+appSettingsRouter.put('/emailSettings/update', updateAppEmailSettings);
+
+export { appSettingsRouter };
