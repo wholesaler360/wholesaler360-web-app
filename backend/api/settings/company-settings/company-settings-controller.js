@@ -102,7 +102,7 @@ const updateCompanyDetails = asyncHandler(async (req, res, next) => {
     const { isDeleted, __v, _id, ...remaining } = savedCompanyDetails.toObject();
 
     return res
-      .status(201)
+      .status(200)
       .json(
         ApiResponse.successUpdated(remaining, "Company details updated successfully")
       );
@@ -124,7 +124,7 @@ const fetchCompanyDetails = asyncHandler(async (req, res, next) => {
     const { isDeleted, __v, _id, ...remaining } = companyDetails[0].toObject();
 
     return res
-      .status(201)
+      .status(200)
       .json(
         ApiResponse.successRead(remaining, "Company details fetched successfully")
       );
@@ -234,7 +234,7 @@ const updateCompanyBankDetails = asyncHandler(async (req, res, next) => {
     const { isDeleted, __v, _id, ...remaining } = savedCompanyBankDetails.toObject();
 
     return res
-      .status(201)
+      .status(200)
       .json(
         ApiResponse.successUpdated(remaining, "Company's Bank details updated successfully")
       );
@@ -339,7 +339,7 @@ const deleteCompanySignature = asyncHandler(async (req, res, next) => {
     const { __v, _id, ...remaining } = deletedSignature.toObject();
 
     return res
-      .status(200)
+      .status(204)
       .json(
         ApiResponse.successDeleted(remaining, "Signature deleted successfully")
       );
