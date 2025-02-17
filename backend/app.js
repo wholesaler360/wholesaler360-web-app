@@ -20,6 +20,7 @@ import { ledgerRouter } from "./api/ledger/ledger-route.js";
 import { inventoryRouter } from "./api/inventory/inventory-route.js";
 import { purchaseRouter } from "./api/purchase/purchase-route.js";
 import { batchRouter } from "./api/batch/batch-route.js";
+import { companySettingsRouter } from "./api/settings/company-settings/company-settings-route.js";
 // TODO : Validation like email, mobile number etc..,
 
 
@@ -76,6 +77,8 @@ app.use('/vendor', vendorRouter);
 app.use('/ledger', ledgerRouter);
 
 app.use('/purchase', purchaseRouter);
+
+app.use('/company-settings', companySettingsRouter);
 
 
 // catch all undefined routes for authenticated users

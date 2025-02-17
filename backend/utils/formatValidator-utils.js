@@ -6,6 +6,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
 const mobileRegex = /^[6-9]\d{9}$/;
 const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 const pincodeRegex = /^[1-9][0-9]{5}$/;
+const upiId = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z0-9]{2,64}$/;
 
 
 const universalValidationSchema = z.object({
@@ -13,6 +14,9 @@ const universalValidationSchema = z.object({
     password: z.string().regex(passwordRegex, "Password must be 8+ characters with uppercase, lowercase, number & symbol.").optional(),
     newPassword: z.string().regex(passwordRegex, "Password must be 8+ characters with uppercase, lowercase, number & symbol.").optional(),
     confirmPassword: z.string().optional(),
+
+    // UPI ID
+    upiId: z.string().regex(upiId, "Invalid UPI ID").optional(),
 
     // Number formats
     mobileNo: z.string().regex(mobileRegex, "Invalid mobile number").optional(),
