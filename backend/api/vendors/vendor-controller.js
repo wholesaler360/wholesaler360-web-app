@@ -391,6 +391,7 @@ const updateAvatar = asyncHandler(async (req, res, next) => {
         ApiResponse.successUpdated(remaining, "Avatar updated successfully")
       );
   } catch (error) {
+    deleteFromLocalPath(req.files?.avatar?.[0]?.path);
     return next(ApiError.dataNotUpdated("Failed to update avatar", error));
   }
 });
