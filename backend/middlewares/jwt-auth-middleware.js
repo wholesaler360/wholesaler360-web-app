@@ -10,7 +10,6 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader ? authHeader.split(' ')[1] : null;
     const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken);
     console.log("---------------------------------MIDDLEWARE-----------------------------");
     console.log("\nAccess Token received:", accessToken, "\n");
     
@@ -18,9 +17,9 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     {
         return next(ApiError.validationFailed("Please provide the tokens"));
     }
-    // if(!refreshToken){
-    //     return next(ApiError.validationFailed("Please provide the refresh tokens or Login again"));
-    // }
+    if(!refreshToken){
+        return next(ApiError.validationFailed("Please provide the refresh tokens or Login again"));
+    }
 
     let decodedAccessToken;
 
@@ -36,7 +35,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
             try{
                 const options = {
                     httpOnly:true,
-                    secure : process.env.NODE_ENV === "production",
+                    secure : true,
                     sameSite : 'none'
                 }
                 res.clearCookie('refreshToken',options);
@@ -77,9 +76,9 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
         if (!user || user?.isUserDeleted) {
             return next(ApiError.dataNotFound("User not found"));
         }
-        // if(user.refreshToken !== refreshToken){
-        //     return next(ApiError.unauthorizedAccess("Password is changed or you donot have access login Again"));
-        // }
+        if(user.refreshToken !== refreshToken){
+            return next(ApiError.unauthorizedAccess("Password is changed or you donot have access login Again"));
+        }
         
         console.log("Checking for the user permissions");
         console.log(requestType, " ", requestModule);

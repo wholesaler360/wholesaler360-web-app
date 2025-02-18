@@ -48,7 +48,7 @@ const login = asyncHandler(async(req,res,next)=>{
 
     const options = {
         httpOnly: true,
-        secure : process.env.NODE_ENV === 'production',
+        secure : true,
         sameSite : 'none'
     }
     const { password : $password, refreshToken: $userRefreshToken, ...sanitizedUser } = user.toObject();
@@ -81,7 +81,7 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
             await user.save();
             const options = {
                 httpOnly:true,
-                secure : process.env.NODE_ENV === "production",
+                secure : true,
                 sameSite : 'none'
               }
             res.clearCookie('refreshToken',options);
@@ -95,19 +95,12 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         console.log("----------------------------------------------------------------------");
         
         const { password, refreshToken: userRefreshToken, ...sanitizedUser } = user.toObject();
-
-        const options = {
-            httpOnly: true,
-            secure : process.env.NODE_ENV === 'production',
-            sameSite : 'none'
-        }
-        
         console.log("----------------------------------------------------------------------");
         res.status(200).json(ApiResponse.successRead({user : sanitizedUser ,newAccessToken},"Token Refreshed Successfully"));
     } catch (error) {
         const options = {
             httpOnly:true,
-            secure : process.env.NODE_ENV === "production",
+            secure : true,
             sameSite : 'none'
         }
         res.clearCookie('refreshToken',options);
@@ -152,7 +145,7 @@ const logout = asyncHandler(async(req,res,next)=>{
 
             const options = {
               httpOnly:true,
-              secure : process.env.NODE_ENV === "production",
+              secure : true,
               sameSite : 'none'
             }
             console.log("------------------------------------------------------------------------");
@@ -224,7 +217,7 @@ const validateOtpAndChangePassword = asyncHandler(async (req, res, next) => {
         await user.save();
         const options = {
             httpOnly:true,
-            secure : process.env.NODE_ENV === "production",
+            secure : true,
             sameSite : 'none'
           }
         res.clearCookie('refreshToken',options);
