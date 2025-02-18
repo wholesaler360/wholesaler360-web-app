@@ -101,8 +101,8 @@ function ProductsController({ children }) {
       header: "Actions",
       cell: ({ row }) => {
         const handleEdit = () => {
-          navigate("/product/edit", { 
-            state: { productSkuCode: row.original.skuCode }
+          navigate("/product/edit", {
+            state: { productSkuCode: row.original.skuCode },
           });
         };
 
@@ -129,6 +129,8 @@ function ProductsController({ children }) {
               size="icon"
               className="text-blue-600 hover:text-blue-600 hover:bg-blue-50 "
               onClick={handleEdit}
+              permissionModule="product"
+              permissionAction="update"
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -139,6 +141,8 @@ function ProductsController({ children }) {
                   variant="ghost"
                   size="icon"
                   className="text-red-600 hover:bg-red-50 hover:text-red-600"
+                  permissionModule="product"
+                  permissionAction="delete"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
