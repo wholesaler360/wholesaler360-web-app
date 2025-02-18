@@ -22,7 +22,7 @@ export function StockComponent() {
       try {
         setIsLoading(true);
         const response = await getStock();
-        setData(response?.value || []);
+        setData(response?.value?.product || []);
       } catch (error) {
         console.error("Failed to fetch stock:", error);
         showNotification.error("Failed to fetch stock");
