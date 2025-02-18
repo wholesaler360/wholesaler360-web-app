@@ -45,27 +45,6 @@ const changePassword = asyncHandler(async(req,res,next)=>{
     } catch (error) {
         return next(ApiError.dataNotUpdated("Unable to update the password"));
     }
-})
-
-  const isPasswordMatched = await user.isPasswordCorrect(password);
-  if (!isPasswordMatched) {
-    return next(ApiError.validationFailed("Invalid password"));
-  }
-
-  try {
-    user.password = newPassword;
-    await user.save();
-    res
-      .status(200)
-      .json(
-        ApiResponse.successRead({ message: "Password changed successfully" })
-      );
-    console.log(
-      "------------------Password Changed Successfully-----------------"
-    );
-  } catch (error) {
-    return next(ApiError.dataNotUpdated("Unable to update the password"));
-  }
 });
 
 const editProfile = asyncHandler(async (req, res, next) => {
