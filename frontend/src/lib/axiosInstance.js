@@ -17,30 +17,43 @@ const api = axios.create({
   withCredentials: true, // Required for refresh token in cookies
   headers: {
     "Content-Type": "application/json",
+    Accept: "application/json",
+    "Access-Control-Allow-Credentials": true,
   },
 });
 
 api.interceptors.request.use(
   async (config) => {
+    // Ensure withCredentials is always true
+    config.withCredentials = true;
+
     if (config.url === RefreshTokenApi) {
+      // For refresh token requests, ensure cookies are included
+      config.headers["Access-Control-Allow-Credentials"] = true;
       return config;
     }
+
     const token = getAccessToken();
     if (token) {
       const isExpired = await isAccessTokenExpired();
       if (isExpired) {
-        const newToken = await refreshAccessToken();
-        console.log("New Token:", newToken);
-        if (!newToken) {
+        try {
+          const newToken = await refreshAccessToken();
+          if (!newToken) {
+            clearAccessToken();
+            showNotification.error("Session expired. Please login again.");
+            return Promise.reject("Session expired");
+          }
+          setAccessToken(newToken);
+          config.headers.Authorization = `Bearer ${newToken}`;
+        } catch (error) {
           clearAccessToken();
-          showNotification.error("Session expired. Please login again.");
-          return Promise.reject("Session expired");
+          showNotification.error("Error refreshing session");
+          return Promise.reject("Refresh token error");
         }
-        setAccessToken(newToken);
-        config.headers.Authorization = `Bearer ${newToken}`;
-        return config;
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
