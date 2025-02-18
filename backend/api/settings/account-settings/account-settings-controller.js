@@ -8,23 +8,44 @@ import {
   deleteFromCloudinary,
 } from "../../../utils/cloudinary-utils.js";
 
-const changePassword = asyncHandler(async (req, res, next) => {
-  console.log(
-    "------------------Account Setting Change Password-----------------"
-  );
-  const { password, newPassword } = req.body;
-  const mobileNo = req.fetchedUser.mobileNo;
-  if (!password || !newPassword) {
-    return next(
-      ApiError.validationFailed(
-        "Please provide the mobile number and old password and new password"
-      )
-    );
-  }
-  const user = await User.findOne({ mobileNo: mobileNo, isUserDeleted: false });
-  if (!user) {
-    return next(ApiError.dataNotFound("User not found"));
-  }
+
+const changePassword = asyncHandler(async(req,res,next)=>{
+    console.log("------------------Account Setting Change Password-----------------");
+    const {password , newPassword} = req.body;
+    const mobileNo = req.fetchedUser.mobileNo;
+    if(!password || !newPassword)
+    {
+        return next(ApiError.validationFailed("Please provide the mobile number and old password and new password"));
+    }
+    const user = await User.findOne({mobileNo : mobileNo , isUserDeleted : false});
+    if(!user)
+    {
+        return next(ApiError.dataNotFound("User not found"));
+    }
+    
+    
+    const isPasswordMatched = await user.isPasswordCorrect(password);
+    if(!isPasswordMatched)
+    {
+        return next(ApiError.validationFailed("Invalid password"));
+    }
+    
+    try {
+        user.password = newPassword;
+        user.refreshToken = null;
+        await user.save();
+        const options = {
+            httpOnly:true,
+            secure : process.env.NODE_ENV === "production",
+            sameSite : 'none'
+          }
+        res.clearCookie('refreshToken',options);
+        res.status(200).json(ApiResponse.successRead({message : "Password changed successfully,Please Login again"}));
+        console.log("------------------Password Changed Successfully-----------------");
+    } catch (error) {
+        return next(ApiError.dataNotUpdated("Unable to update the password"));
+    }
+})
 
   const isPasswordMatched = await user.isPasswordCorrect(password);
   if (!isPasswordMatched) {
