@@ -10,6 +10,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader ? authHeader.split(' ')[1] : null;
     const refreshToken = req.cookies.refreshToken;
+    console.log("Refresh Token:",refreshToken);
     console.log("---------------------------------MIDDLEWARE-----------------------------");
     console.log("\nAccess Token received:", accessToken, "\n");
     
