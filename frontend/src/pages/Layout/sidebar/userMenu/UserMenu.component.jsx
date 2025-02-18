@@ -84,6 +84,36 @@ function UserMenuComponent({ user }) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                permissionModule="account-settings"
+                permissionAction="read"
+              >
+                <Link
+                  to="/account-settings"
+                  className="flex items-center w-full gap-2"
+                >
+                  <UserCog />
+                  Account Setting
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="company-settings"
+                permissionAction="read"
+              >
+                <Building />
+                Company Setting
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="app-settings"
+                permissionAction="read"
+              >
+                <MonitorCog />
+                App Setting
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem permissionModule="user" permissionAction="read">
                 <UserPlus />
@@ -97,30 +127,6 @@ function UserMenuComponent({ user }) {
                   <ShieldCheck />
                   Roles & Permissions
                 </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                permissionModule="profile_setting"
-                permissionAction="read"
-              >
-                <UserCog />
-                Profile Setting
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                permissionModule="company_setting"
-                permissionAction="read"
-              >
-                <Building />
-                Company Setting
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                permissionModule="app_setting"
-                permissionAction="read"
-              >
-                <MonitorCog />
-                App Setting
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

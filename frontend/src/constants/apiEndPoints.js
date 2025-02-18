@@ -45,3 +45,9 @@ export const UpdateVendor = "/vendor/update";
 
 // Inventory
 export const FetchAllInventories = "/inventory/fetch";
+
+// Account Settings
+export const fetchAccountDetails = "/account-settings/fetch";
+export const updateAccountDetails = "/account-settings/update";
+export const changePassword = "/account-settings/changePassword";
+export const changeAvatar = "/account-settings/changeAvatar";
