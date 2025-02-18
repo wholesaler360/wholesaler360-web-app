@@ -162,10 +162,13 @@ function CategoriesController({ children }) {
           <div className="flex space-x-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <ButtonV2 variant="ghost" 
-                size="icon"
-                className="text-blue-600 hover:text-blue-600 hover:bg-blue-50 "
-              >
+                <ButtonV2
+                  variant="ghost"
+                  size="icon"
+                  className="text-blue-600 hover:text-blue-600 hover:bg-blue-50 "
+                  permissionModule="category"
+                  permissionAction="update"
+                >
                   <Edit className="h-4 w-4" />
                 </ButtonV2>
               </DialogTrigger>
@@ -208,6 +211,8 @@ function CategoriesController({ children }) {
                   variant="ghost"
                   size="icon"
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  permissionModule="category"
+                  permissionAction="delete"
                 >
                   <Trash2 className="h-4 w-4" />
                 </ButtonV2>

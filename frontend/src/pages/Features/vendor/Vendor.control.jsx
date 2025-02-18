@@ -143,6 +143,8 @@ function VendorController({ children }) {
               effect="ringHover"
               size="sm"
               onClick={() => navigate(`/vendor/ledger/${row.original.id}`)}
+              permissionModule="vendor"
+              permissionAction="write"
             >
               <BookIcon className="h-4 w-4" />
               Ledger
@@ -160,12 +162,18 @@ function VendorController({ children }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem onClick={handleEdit}>
+                <DropdownMenuItem
+                  onClick={handleEdit}
+                  permissionModule="vendor"
+                  permissionAction="update"
+                >
                   Edit Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                   onClick={handleDelete}
+                  permissionModule="vendor"
+                  permissionAction="delete"
                 >
                   Delete Profile
                 </DropdownMenuItem>

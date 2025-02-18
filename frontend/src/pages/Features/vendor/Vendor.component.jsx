@@ -63,7 +63,12 @@ function VendorComponent() {
             Manage your vendors and their ledgers here.
           </p>
         </div>
-        <Button className="h-10" onClick={() => navigate("/vendor/add")}>
+        <Button
+          className="h-10"
+          onClick={() => navigate("/vendor/add")}
+          permissionModule="vendor"
+          permissionAction="write"
+        >
           <PlusCircle className="mr-2 h-5 w-5" />
           Add Vendor
         </Button>

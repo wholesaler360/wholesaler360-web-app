@@ -6,60 +6,55 @@ import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader"
 
 const StockContext = createContext({});
 
-function StockController({ children }) {
-  const getStock = useCallback(async () => {
-    const response = await axiosGet(FetchAllInventories);
-    return response;
-  }, []);
-
+// Column definitions separated for better readability
+const defineColumns = () => {
   const columnHelper = createColumnHelper();
-
-  const columns = [
-    columnHelper.accessor("productInfo.name", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Product Name" />
-        ),
-        cell: ({ row }) => (
-          <div className="flex flex-col">
-            <span className="font-medium">{row.original.productInfo.name}</span>
-            <span className="text-sm text-muted-foreground">
-              {row.original.productInfo.skuCode}
-            </span>
-          </div>
-        ),
-      }),
-
-      columnHelper.accessor("productInfo.category", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Category" />
-        ),
-        cell: ({ getValue }) => (
-          <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-            {getValue()}
+  return [
+    // Product Name and SKU Column
+    columnHelper.accessor("name", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Product Name" />
+      ),
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{row.original.name}</span>
+          <span className="text-sm text-muted-foreground">
+            {row.original.skuCode}
           </span>
-        ),
-      }),
+        </div>
+      ),
+    }),
 
-    columnHelper.accessor("productInfo.productImg", {
+    // Category Column
+    columnHelper.accessor("category", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Category" />
+      ),
+      cell: ({ getValue }) => (
+        <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+          {getValue()}
+        </span>
+      ),
+    }),
+
+    // Product Image Column
+    columnHelper.accessor("productImg", {
       header: "Image",
       size: 100,
       maxSize: 100,
       cell: ({ row }) => (
         <div className="flex items-center py-2">
           <img
-            src={row.original.productInfo.productImg}
-            alt={row.original.productInfo.name}
+            src={row.original.productImg}
+            alt={row.original.name}
             className="h-16 w-16 rounded-lg object-cover border shadow-sm"
           />
         </div>
       ),
     }),
 
-    
-
-   
-
-    columnHelper.accessor("productInfo.totalQuantity", {
+    // Stock Quantity Column
+    columnHelper.accessor("totalQuantity", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Stock Quantity" />
       ),
@@ -80,14 +75,26 @@ function StockController({ children }) {
       },
     }),
   ];
+};
+
+function StockController({ children }) {
+  // API call handler
+  const getStock = useCallback(async () => {
+    const response = await axiosGet(FetchAllInventories);
+    return response;
+  }, []);
+
+  // Get column definitions
+  const columns = defineColumns();
+
+  // Context provider value
+  const contextValue = {
+    getStock,
+    columns,
+  };
 
   return (
-    <StockContext.Provider
-      value={{
-        getStock,
-        columns,
-      }}
-    >
+    <StockContext.Provider value={contextValue}>
       {children}
     </StockContext.Provider>
   );

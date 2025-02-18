@@ -85,12 +85,13 @@ function UserMenuComponent({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem permissionModule="user" permissionAction="read">
                 <UserPlus />
                 Users
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/roles-and-permissions"
+              <DropdownMenuItem permissionModule="role" permissionAction="read">
+                <Link
+                  to="/roles-and-permissions"
                   className="flex items-center w-full gap-2"
                 >
                   <ShieldCheck />
@@ -100,15 +101,24 @@ function UserMenuComponent({ user }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="profile_setting"
+                permissionAction="read"
+              >
                 <UserCog />
                 Profile Setting
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="company_setting"
+                permissionAction="read"
+              >
                 <Building />
                 Company Setting
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="app_setting"
+                permissionAction="read"
+              >
                 <MonitorCog />
                 App Setting
               </DropdownMenuItem>
