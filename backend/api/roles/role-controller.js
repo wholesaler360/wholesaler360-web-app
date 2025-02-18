@@ -246,6 +246,7 @@ const deleteRole = asyncHandler(async (req, res, next) => {
 });
 
 const fetchAllRole = asyncHandler(async (req, res, next) => {
+  console.log(req.cookies);
   const roles = await Role.aggregate([
     {
 
