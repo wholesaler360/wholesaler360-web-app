@@ -9,10 +9,10 @@ function RootLayout() {
   return (
     <>
       <Helmet>
-        <title>WholeSeller360</title>
+        <title>WholeSaler360</title>
         <meta
           name="description"
-          content="Welcome to WholeSeller180, your one-stop solution for all wholesale
+          content="Welcome to WholeSaler360, your one-stop solution for all wholesale
         needs."
         />
         <link rel="icon" type="image/png" href="/dummy-favicon.png" />
