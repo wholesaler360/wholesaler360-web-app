@@ -65,6 +65,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
+import { usePermission } from "@/hooks/usePermission";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const roleFormSchema = z.object({
   roleName: z.string().min(2, {
@@ -78,6 +85,8 @@ const RolesAndPermissionsContext = createContext({});
 // RolesAndPermissionController component
 function RolesAndPermissionController({ children }) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { hasWritePermission, hasUpdatePermission, hasDeletePermission } =
+    usePermission();
 
   const getRoles = async () => {
     const data = await axiosGet(FetchAllRoles);
@@ -174,6 +183,8 @@ function RolesAndPermissionController({ children }) {
                 icon={Edit}
                 iconPlacement="left"
                 className="h-8"
+                permissionModule="role"
+                permissionAction="update"
               >
                 Edit Role
               </ButtonV2>
@@ -223,6 +234,7 @@ function RolesAndPermissionController({ children }) {
         const [open, setOpen] = useState(false);
         const [rolePermissions, setRolePermissions] = useState(null);
         const [updatedPermissions, setUpdatedPermissions] = useState({});
+        const [selectAll, setSelectAll] = useState(false);
 
         const fetchRolePermissions = useCallback(async () => {
           try {
@@ -258,14 +270,51 @@ function RolesAndPermissionController({ children }) {
           }
         }, [rolePermissions]);
 
-        const handlePermissionChange = (moduleId, permissionType) => {
+        const handleSelectAll = (checked) => {
+          setSelectAll(checked);
+          const newPermissions = {};
+          rolePermissions?.sections.forEach((section) => {
+            newPermissions[section.module._id] = {
+              read: checked,
+              write: checked,
+              update: checked,
+              delete: checked,
+            };
+          });
+          setUpdatedPermissions(newPermissions);
+        };
+
+        const handleSelectAllForModule = (moduleId, checked) => {
           setUpdatedPermissions((prev) => ({
             ...prev,
             [moduleId]: {
-              ...prev[moduleId],
-              [permissionType]: !prev[moduleId][permissionType],
+              read: checked,
+              write: checked,
+              update: checked,
+              delete: checked,
             },
           }));
+        };
+
+        const handlePermissionChange = (moduleId, permissionType) => {
+          setUpdatedPermissions((prev) => {
+            const newPermissions = {
+              ...prev,
+              [moduleId]: {
+                ...prev[moduleId],
+                [permissionType]: !prev[moduleId][permissionType],
+              },
+            };
+
+            // If read permission is being disabled, disable all other permissions
+            if (permissionType === "read" && !newPermissions[moduleId].read) {
+              newPermissions[moduleId].write = false;
+              newPermissions[moduleId].update = false;
+              newPermissions[moduleId].delete = false;
+            }
+
+            return newPermissions;
+          });
         };
 
         const handleSubmit = async () => {
@@ -299,6 +348,8 @@ function RolesAndPermissionController({ children }) {
                   variant="outline"
                   className="h-10"
                   effect="hoverUnderline"
+                  permissionModule="role"
+                  permissionAction="update"
                 >
                   <IdCard />
                   Edit Permissions
@@ -319,10 +370,24 @@ function RolesAndPermissionController({ children }) {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[200px]">Module</TableHead>
+                        <TableHead className="text-center">
+                          Select All
+                        </TableHead>
                         <TableHead className="text-center">Read</TableHead>
                         <TableHead className="text-center">Write</TableHead>
                         <TableHead className="text-center">Update</TableHead>
                         <TableHead className="text-center">Delete</TableHead>
+                      </TableRow>
+                      <TableRow>
+                        <TableHead>All Modules</TableHead>
+                        <TableHead className="text-center">
+                          <Checkbox
+                            checked={selectAll}
+                            onCheckedChange={handleSelectAll}
+                            className="mx-auto"
+                          />
+                        </TableHead>
+                        <TableHead colSpan={4} />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -336,7 +401,23 @@ function RolesAndPermissionController({ children }) {
                             </TableCell>
                             <TableCell className="text-center">
                               <Checkbox
-                                id={`${section.module._id}-read`}
+                                checked={
+                                  permissions.read &&
+                                  permissions.write &&
+                                  permissions.update &&
+                                  permissions.delete
+                                }
+                                onCheckedChange={(checked) =>
+                                  handleSelectAllForModule(
+                                    section.module._id,
+                                    checked
+                                  )
+                                }
+                                className="mx-auto"
+                              />
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Checkbox
                                 checked={permissions.read}
                                 onCheckedChange={() =>
                                   handlePermissionChange(
@@ -348,43 +429,91 @@ function RolesAndPermissionController({ children }) {
                               />
                             </TableCell>
                             <TableCell className="text-center">
-                              <Checkbox
-                                id={`${section.module._id}-write`}
-                                checked={permissions.write}
-                                onCheckedChange={() =>
-                                  handlePermissionChange(
-                                    section.module._id,
-                                    "write"
-                                  )
-                                }
-                                className="mx-auto"
-                              />
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div>
+                                      <Checkbox
+                                        checked={permissions.write}
+                                        onCheckedChange={() =>
+                                          handlePermissionChange(
+                                            section.module._id,
+                                            "write"
+                                          )
+                                        }
+                                        disabled={!permissions.read}
+                                        className="mx-auto"
+                                      />
+                                    </div>
+                                  </TooltipTrigger>
+                                  {!permissions.read && (
+                                    <TooltipContent>
+                                      <p>
+                                        Enable read permission first to assign
+                                        write permission
+                                      </p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </TooltipProvider>
                             </TableCell>
                             <TableCell className="text-center">
-                              <Checkbox
-                                id={`${section.module._id}-update`}
-                                checked={permissions.update}
-                                onCheckedChange={() =>
-                                  handlePermissionChange(
-                                    section.module._id,
-                                    "update"
-                                  )
-                                }
-                                className="mx-auto"
-                              />
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div>
+                                      <Checkbox
+                                        checked={permissions.update}
+                                        onCheckedChange={() =>
+                                          handlePermissionChange(
+                                            section.module._id,
+                                            "update"
+                                          )
+                                        }
+                                        disabled={!permissions.read}
+                                        className="mx-auto"
+                                      />
+                                    </div>
+                                  </TooltipTrigger>
+                                  {!permissions.read && (
+                                    <TooltipContent>
+                                      <p>
+                                        Enable read permission first to assign
+                                        update permission
+                                      </p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </TooltipProvider>
                             </TableCell>
                             <TableCell className="text-center">
-                              <Checkbox
-                                id={`${section.module._id}-delete`}
-                                checked={permissions.delete}
-                                onCheckedChange={() =>
-                                  handlePermissionChange(
-                                    section.module._id,
-                                    "delete"
-                                  )
-                                }
-                                className="mx-auto"
-                              />
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div>
+                                      <Checkbox
+                                        checked={permissions.delete}
+                                        onCheckedChange={() =>
+                                          handlePermissionChange(
+                                            section.module._id,
+                                            "delete"
+                                          )
+                                        }
+                                        disabled={!permissions.read}
+                                        className="mx-auto"
+                                      />
+                                    </div>
+                                  </TooltipTrigger>
+                                  {!permissions.read && (
+                                    <TooltipContent>
+                                      <p>
+                                        Enable read permission first to assign
+                                        delete permission
+                                      </p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </TooltipProvider>
                             </TableCell>
                           </TableRow>
                         );
@@ -433,6 +562,8 @@ function RolesAndPermissionController({ children }) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                permissionModule="role"
+                permissionAction="delete"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
