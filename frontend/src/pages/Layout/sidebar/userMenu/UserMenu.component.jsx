@@ -90,8 +90,13 @@ function UserMenuComponent({ user }) {
                 permissionModule="account-settings"
                 permissionAction="read"
               >
-                <UserCog />
-                Account Setting
+                <Link
+                  to="/account-settings"
+                  className="flex items-center w-full gap-2"
+                >
+                  <UserCog />
+                  Account Setting
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 permissionModule="company-settings"

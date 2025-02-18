@@ -12,6 +12,7 @@ import RolesAndPermissions from "@/pages/Features/roles and permissions/index.js
 import Vendors from "@/pages/Features/vendor";
 import AddVendor from "@/pages/Features/vendor/addVendor";
 import UpdateVendor from "@/pages/Features/vendor/updateVendor";
+import AccountSettings from "@/pages/Features/account-settings";
 
 const authRoutes = [
   {
@@ -78,6 +79,11 @@ const authRoutes = [
     path: "/stock",
     element: <Stock />,
     permission: "inventory",
+  },
+  {
+    path: "/account-settings",
+    element: <AccountSettings />,
+    permission: "account-settings",
   },
 ];
 
