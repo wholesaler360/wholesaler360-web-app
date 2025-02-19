@@ -56,6 +56,7 @@ export const isAccessTokenExpired = async () => {
 export const refreshAccessToken = async () => {
   try {
     const data = await axiosGet(RefreshTokenApi);
+    console.log(data);
     return data.value.newAccessToken;
   } catch (error) {
     console.error("Error refreshing access token:", error.message);

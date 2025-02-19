@@ -44,7 +44,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
     }
 
     // Checks if the avatar is uploaded or not
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
     if(!avatarLocalPath)
     {
         return next(ApiError.validationFailed("Avatar is required"));

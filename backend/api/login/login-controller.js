@@ -48,7 +48,7 @@ const login = asyncHandler(async(req,res,next)=>{
 
     const options = {
         httpOnly: true,
-        secure : process.env.NODE_ENV === 'production',
+        secure : true,
         sameSite : 'none'
     }
     const { password : $password, refreshToken: $userRefreshToken, ...sanitizedUser } = user.toObject();
@@ -60,6 +60,7 @@ const login = asyncHandler(async(req,res,next)=>{
 
 const refreshAccessToken = asyncHandler(async(req,res,next)=>{  
     const {refreshToken} = req.cookies;
+    console.log(req.cookies);
     if(!refreshToken)
         {
             return next(ApiError.validationFailed("Please provide the tokens"));
@@ -75,11 +76,15 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
 
         const user = await User.findById(decodedRefreshToken._id)
             
-        if (!user || user?.refreshToken !== refreshToken) {
-            // TODO : Redirect to login page
-            
+        if (!user || user?.refreshToken !== refreshToken) {            
             user.refreshToken = null;
-            // request.redirect('auth/login');
+            await user.save();
+            const options = {
+                httpOnly:true,
+                secure : true,
+                sameSite : 'none'
+              }
+            res.clearCookie('refreshToken',options);
             return next(ApiError.unauthorizedAccess("User Does Not Exists or Login Again"));
         }
 
@@ -90,18 +95,16 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         console.log("----------------------------------------------------------------------");
         
         const { password, refreshToken: userRefreshToken, ...sanitizedUser } = user.toObject();
-
-        const options = {
-            httpOnly: true,
-            secure : process.env.NODE_ENV === 'production',
-            sameSite : 'none'
-        }
-        
         console.log("----------------------------------------------------------------------");
         res.status(200).json(ApiResponse.successRead({user : sanitizedUser ,newAccessToken},"Token Refreshed Successfully"));
     } catch (error) {
-        // TODO : Redirect to login page
-        return next(ApiError.dataNotInserted("Unable to generate new access Token"));
+        const options = {
+            httpOnly:true,
+            secure : true,
+            sameSite : 'none'
+        }
+        res.clearCookie('refreshToken',options);
+        return next(new ApiError(400,error.message + " Invalid Refresh Token Login Again"));
     }
 });
 
@@ -142,7 +145,7 @@ const logout = asyncHandler(async(req,res,next)=>{
 
             const options = {
               httpOnly:true,
-              secure : process.env.NODE_ENV === "production",
+              secure : true,
               sameSite : 'none'
             }
             console.log("------------------------------------------------------------------------");
@@ -210,12 +213,19 @@ const validateOtpAndChangePassword = asyncHandler(async (req, res, next) => {
         user.password = newPassword;
         user.otp = null;
         user.otpExpiration = null;
+        user.refreshToken = null;
         await user.save();
-        res.status(200).json(ApiResponse.successRead({ message: "Password changed successfully" }));
+        const options = {
+            httpOnly:true,
+            secure : true,
+            sameSite : 'none'
+          }
+        res.clearCookie('refreshToken',options);
+        res.status(200).json(ApiResponse.successRead({ message: "Password changed successfully, Please login again" }));
     }
     catch (error) {
       return next(ApiError.dataNotUpdated("Unable to update the password "));
-    }
+    }   
 });
 
 export {login , refreshAccessToken , logout , forgotPassword, validateOtpAndChangePassword };
