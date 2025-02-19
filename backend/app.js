@@ -23,6 +23,7 @@ import { batchRouter } from "./api/batch/batch-route.js";
 import { accountSettingsRouter } from "./api/settings/account-settings/account-settings-route.js";
 import { companySettingsRouter } from "./api/settings/company-settings/company-settings-route.js";
 import { appSettingsRouter } from "./api/settings/app-settings/app-settings-route.js";
+import { customerLedgerRouter } from "./api/customer-ledger/customer-ledger-route.js";
 
 // TODO : Validation like email, mobile number etc..,
 
@@ -72,12 +73,13 @@ app.use("/tax", taxRouter);
 app.use('/category', categoryRouter);
 app.use('/product', productRouter)
 app.use('/inventory', inventoryRouter);
-app.use('/batch',batchRouter)
+app.use('/batch', batchRouter)
 
 app.use("/customer", customerRouter);
+app.use("/customer-ledger", customerLedgerRouter);
 
 app.use('/vendor', vendorRouter);
-app.use('/ledger', ledgerRouter);
+app.use('/vendor-ledger', ledgerRouter);
 
 app.use('/purchase', purchaseRouter);
 

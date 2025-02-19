@@ -10,6 +10,7 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 
 import { Invoice } from "../invoice/invoice-model.js";
 
+
 const createCustomer = asyncHandler(async (req, res, next) => {
   console.log("-----------------Create Customer-----------------");
   try {
@@ -357,6 +358,7 @@ const fetchCustomer = asyncHandler(async (req, res, next) => {
     const { __v, createdAt, updatedAt, isDeleted, ...rest } =
       customer.toObject();
     const orderedCustomer = {
+      _id: rest._id,
       name: rest.name,
       mobileNo: rest.mobileNo,
       email: rest.email,
@@ -382,6 +384,7 @@ const fetchCustomer = asyncHandler(async (req, res, next) => {
     return next(ApiError.dataNotFound(error.message, error));
   }
 });
+
 const fetchAllCustomer = asyncHandler(async (req, res, next) => {
   const customer = await Customer.aggregate([
     {
@@ -406,6 +409,7 @@ const fetchAllCustomer = asyncHandler(async (req, res, next) => {
     {
       $addFields: {
         customerInfo: {
+          _id: "$_id",
           name: "$name",
           mobileNo: "$mobileNo",
           email: "$email",
