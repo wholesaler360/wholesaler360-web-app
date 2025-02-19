@@ -9,7 +9,7 @@ function RootLayout() {
   return (
     <>
       <Helmet>
-        <title>WholeSaler360</title>
+        <title>Wholesaler360</title>
         <meta
           name="description"
           content="Welcome to WholeSaler360, your one-stop solution for all wholesale
