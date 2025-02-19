@@ -22,6 +22,8 @@ export function FileUpload({
   onImageCropped,
   formData,
   enableAIGeneration = false,
+  aspectRatio = 1, // Add aspectRatio prop with default value
+  id = Math.random().toString(36).substring(7), // Generate unique ID for each instance
 }) {
   const [image, setImage] = useState(null);
   const [croppedPreview, setCroppedPreview] = useState(null);
@@ -34,6 +36,9 @@ export function FileUpload({
   const [isGenerating, setIsGenerating] = useState(false);
   const [cropped, SetCropped] = useState(null);
 
+  // Add unique identifier to input
+  const inputId = `image-upload-${id}`;
+
   const onCropComplete = (croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
@@ -43,6 +48,9 @@ export function FileUpload({
       const reader = new FileReader();
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = () => {
+        // Reset any existing cropped data
+        setCroppedPreview(null);
+        setCroppedAreaPixels(null);
         setImage(reader.result);
         setIsDialogOpen(true);
       };
@@ -96,15 +104,18 @@ export function FileUpload({
       setCroppedPreview(croppedPreviewUrl);
       onImageCropped(croppedImage);
       setIsDialogOpen(false);
+      // Clear the original image to prevent interference with other instances
+      setImage(null);
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     setIsDialogOpen(false);
     setImage(null);
     setCroppedPreview(null);
+    setCroppedAreaPixels(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -192,7 +203,7 @@ export function FileUpload({
       <div className="flex flex-col items-center gap-4">
         {/* Upload Area */}
         <Label
-          htmlFor="image-upload"
+          htmlFor={inputId} // Use unique ID
           className={cn(
             "flex min-h-[160px] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4",
             "transition-all duration-200",
@@ -242,7 +253,7 @@ export function FileUpload({
             </div>
           )}
           <Input
-            id="image-upload"
+            id={inputId} // Use unique ID
             type="file"
             accept="image/*"
             className="hidden"
@@ -288,7 +299,13 @@ export function FileUpload({
       </div>
 
       {/* Cropper Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCancel(); // Clean up when dialog is closed
+          setIsDialogOpen(open);
+        }}
+      >
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Crop Image</DialogTitle>
@@ -299,7 +316,7 @@ export function FileUpload({
                 image={image}
                 crop={crop}
                 zoom={zoom}
-                aspect={1}
+                aspect={aspectRatio} // Use provided aspectRatio
                 onCropChange={setCrop}
                 onCropComplete={onCropComplete}
                 onZoomChange={setZoom}
