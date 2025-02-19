@@ -13,6 +13,7 @@ import Vendors from "@/pages/Features/vendor";
 import AddVendor from "@/pages/Features/vendor/addVendor";
 import UpdateVendor from "@/pages/Features/vendor/updateVendor";
 import AccountSettings from "@/pages/Features/account-settings";
+import CompanySettings from "@/pages/Features/company-settings";
 
 const authRoutes = [
   {
@@ -84,6 +85,11 @@ const authRoutes = [
     path: "/account-settings",
     element: <AccountSettings />,
     permission: "account-settings",
+  },
+  {
+    path: "/company-settings",
+    element: <CompanySettings />,
+    permission: "company-settings",
   },
 ];
 
