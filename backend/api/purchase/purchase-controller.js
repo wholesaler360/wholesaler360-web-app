@@ -129,4 +129,75 @@ const createPurchase = asyncHandler(async (req, res, next) => {
 
 });
 
-export { createPurchase };
+const fetch = asyncHandler(async (req, res, next) => {
+    let {purchaseId} = req.body;
+    purchaseId = new mongoose.Types.ObjectId(purchaseId);
+
+    const purchase = await Purchase.findById({_id : purchaseId , isDeleted : false})
+    .populate(
+        {
+            path : "vendorId",
+            select : "-_id name"
+        }
+    
+    )
+    .populate(
+        {
+            path : "products.id",
+            select : "-_id name"
+        }
+    )
+    .populate(
+        {
+            path : "createdBy",
+            select : "-_id name"
+        }
+    )
+    .select("-isDeleted -__v -updatedAt -createdAt");
+    if (!purchase) {
+        return next(ApiError.dataNotFound("Purchase not found"));
+    }
+    res.status(200).json(ApiResponse.successRead(purchase, "Purchase fetched successfully"));
+})
+
+const fetchAll = asyncHandler(async (req, res, next) => {
+    const purchases = await Purchase.aggregate([
+      {
+        $match: { isDeleted: false }
+      },
+      {
+        $lookup: {
+            from: "vendors",
+            localField: "vendorId",
+            foreignField: "_id",
+            as: "vendor"
+        }
+      },
+      {
+        $addFields : {
+            purchaseNo : "$purchaseNo",
+            purchaseDate : "$purchaseDate",
+            vendorName : { $arrayElemAt: ["$vendor.name", 0] },
+            totalAmount : "$totalAmount",
+            paymentMode : "$paymentMode",
+            transactionType : "$transactionType",
+        }
+      },
+      {
+        $project: {
+            _id: 1,
+            purchaseNo: 1,
+            purchaseDate: 1,
+            vendorName: 1,
+            totalAmount: 1,
+            paymentMode: 1,
+            transactionType: 1
+        }
+      }
+    ])
+    if(purchases.length === 0){
+        return res.status(200).json(ApiResponse.successRead([], "No purchases found"));
+    }
+    res.status(200).json(ApiResponse.successRead(purchases, "Purchases fetched successfully"));
+})
+export { createPurchase, fetch, fetchAll };

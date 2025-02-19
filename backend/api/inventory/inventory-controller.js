@@ -3,13 +3,13 @@ import { Inventory } from "./inventory-model.js";
 import { Batch } from "../batch/batch-model.js";
 import { ApiError } from "../../utils/api-error-utils.js";
 import { Product } from "../product/product-model.js";
-import mongoose from "mongoose";
+import mongoose, { disconnect } from "mongoose";
 import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 import { ApiResponse } from "../../utils/api-Responnse-utils.js";
 
 // --------------------- Add Purchase Stock Service function---------------------- \\
 const addInventoryService = async (purchaseData, session) => {
-  console.log("--------------Internal Inventory Operation--------------");
+  console.log("--------------Internal Inventory Purchase Operation--------------");
   // It Confirms that purchase reaches here
   if (!purchaseData) {
     return {
@@ -134,6 +134,96 @@ const addInventoryService = async (purchaseData, session) => {
     };
   }
 };
+// --------------------- Add Purchase Stock Service function Ends------------------ \\
+
+const stockDeductionInventoryService = async(invoiceData, session)=> {
+  try {
+    console.log("--------------Internal Inventory Operation Start--------------");
+    if(!invoiceData){
+      return {
+        success: false,
+        errorType: "validationFailed",
+        message: "Please provide invoice data details",
+        data: null
+      };
+    }
+    const productArray = invoiceData?.products;
+
+    const inventories = await Inventory.find({
+      productId: { $in: productArray.map(p => p.id) }
+    }).populate({
+      path: "batches.batch",
+      match: { isDeleted: false }
+    }).select("batches totalQuantity productId").session(session);
+    console.log("Inventories:\n",inventories);
+    
+    const bulkBatchUpdates = [];
+    const bulkInventoryUpdates = [];
+
+    for (const element of productArray) {
+      const inventory = inventories.find(inv => inv.productId.equals(element.id));
+
+      if (!inventory || inventory.totalQuantity < element.quantity) {
+        return {
+          success: false,
+          errorType: "dataNotFound",
+          message: "One or more products not found",
+          data: null
+        };
+      }
+
+      let remainingQuantity = element.quantity;
+
+      for (const batch of inventory.batches) {
+        if (batch.batch.currentQuantity > 0) {
+          const quantity = Math.min(remainingQuantity, batch.batch.currentQuantity);
+          remainingQuantity -= quantity;
+          batch.batch.currentQuantity -= quantity;
+
+          bulkBatchUpdates.push({
+            updateOne: {
+              filter: { _id: batch.batch._id },
+              update: { $set: { currentQuantity: batch.batch.currentQuantity, isDeleted: batch.batch.currentQuantity === 0 } }
+            }
+          });
+
+          if (remainingQuantity === 0) break;
+        }
+        console.log("Bulk Updates\n",bulkBatchUpdates);
+      }
+
+      bulkInventoryUpdates.push({
+        updateOne: {
+          filter: { productId: element.id },
+          update: { $inc: { totalQuantity: -element.quantity } }
+        }
+      });
+      console.log("Bulk Inventory Updates\n",bulkInventoryUpdates);
+    }
+
+    if (bulkBatchUpdates.length) await Batch.bulkWrite(bulkBatchUpdates, { session });
+    if (bulkInventoryUpdates.length) await Inventory.bulkWrite(bulkInventoryUpdates, { session });
+
+    console.log("--------------Internal Inventory Operation End--------------");
+
+    return {
+      success: true,
+      errorType: null,
+      message: "Successfully stock deducted from the inventory",
+      data: null
+    };
+
+  } catch (error) {
+    console.log("Error in Internal Inventory Operation: ", error);
+    return {
+      success: false,
+      errorType: "dataNotInserted",
+      message: "Failed to deduct stock from inventory",
+      data: error.message
+    };
+  }
+};
+// ---------------------Remove Invoice Stock Service function Ends------------------\\
 
 const fetchInventory = asyncHandler(async (req, res, next) => {
   const inventory = await Product.aggregate([
@@ -195,4 +285,8 @@ const fetchInventory = asyncHandler(async (req, res, next) => {
 
 
 
-export { addInventoryService, fetchInventory };
+export { 
+  addInventoryService,
+  stockDeductionInventoryService,
+  fetchInventory 
+};

@@ -454,6 +454,25 @@ const fetchAllCustomer = asyncHandler(async (req, res, next) => {
     );
 });
 
+const fetchCustomerDropdown = asyncHandler(async (req, res, next) => {
+  const customers = await Customer.aggregate([
+    {
+      $match: { isDeleted: false },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        mobileNo: 1,
+      },
+    },
+  ])
+  if(customers.length === 0){
+    return res.status(200).json(ApiResponse.successRead([], "No Customers found"));
+  }
+  res.status(200).json(ApiResponse.successRead(customers, "Customers fetched successfully"));
+})
+
 export {
   createCustomer,
   updateCustomer,
@@ -461,4 +480,5 @@ export {
   deleteCustomer,
   fetchCustomer,
   fetchAllCustomer,
+  fetchCustomerDropdown,
 };
