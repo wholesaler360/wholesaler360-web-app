@@ -18,8 +18,9 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     {
         return next(ApiError.validationFailed("Please provide the tokens"));
     }
+    // Logout the user if the refresh token is not provided
     if(!refreshToken){
-        return next(ApiError.validationFailed("Please provide the refresh tokens or Login again"));
+        return next(ApiError.unauthorizedAccess("Please provide the refresh tokens or Login again"));
     }
 
     let decodedAccessToken;
@@ -77,6 +78,7 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
         if (!user || user?.isUserDeleted) {
             return next(ApiError.dataNotFound("User not found"));
         }
+        //Logout the user if the refresh token is not valid        
         if(user.refreshToken !== refreshToken){
             return next(ApiError.unauthorizedAccess("Password is changed or you donot have access login Again"));
         }

@@ -153,6 +153,12 @@ const logout = asyncHandler(async(req,res,next)=>{
             .clearCookie("refreshToken",options)
             .json(ApiResponse.successUpdated(loggedOutUser ,"User Logged Out Successfully"))
     } catch (error) {
+        const options = {
+            httpOnly:true,
+            secure : true,
+            sameSite : 'none'
+          }
+        res.clearCookie('refreshToken',options);
         return next(ApiError.dataNotInserted("Unable to logout"));
     }
 });
@@ -191,6 +197,7 @@ const forgotPassword = asyncHandler(async(req,res,next)=>{
 });
 
 const validateOtpAndChangePassword = asyncHandler(async (req, res, next) => {
+    console.log("-----------------Validate OTP and Change Password-----------------");
     const { mobileNo, otp , newPassword } = req.body;
     if (!mobileNo || !otp || !newPassword) {
       return next(ApiError.validationFailed("Please provide the mobile number and OTP and new password"));
@@ -222,6 +229,7 @@ const validateOtpAndChangePassword = asyncHandler(async (req, res, next) => {
           }
         res.clearCookie('refreshToken',options);
         res.status(200).json(ApiResponse.successRead({ message: "Password changed successfully, Please login again" }));
+        console.log("------------------Password Changed Successfully-----------------");
     }
     catch (error) {
       return next(ApiError.dataNotUpdated("Unable to update the password "));
