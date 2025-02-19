@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-
 const appEmailSettingsSchema = new Schema(
     {
         email: {
@@ -27,27 +26,14 @@ const appEmailSettingsSchema = new Schema(
     },
     { timestamps: true }
 );
+
+
 const appInvoiceTemplateSchema = new Schema(
     {
-        email: {
+        defaultInvoiceTemplate: {
             type: String,
             trim: true,
             lowercase: true,
-            required: true,
-        },
-        credential: {
-            type: String,
-            trim: true,
-            required: true,
-        },
-        smtpHost: {
-            type: String,
-            trim: true,
-            required: true,
-        },
-        smtpPort: {
-            type: Number,
-            trim: true,
             required: true,
         }
     },
@@ -55,4 +41,5 @@ const appInvoiceTemplateSchema = new Schema(
 );
 
 
-export const AppEmailSettings = mongoose.model("CompanyEmailSettings", appEmailSettingsSchema);
+export const AppEmailSettings = mongoose.model("AppEmailSettings", appEmailSettingsSchema);
+export const AppInvoiceTemplates = mongoose.model("AppInvoiceTemplates", appInvoiceTemplateSchema); 

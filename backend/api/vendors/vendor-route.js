@@ -1,6 +1,16 @@
-import { createVendor, fetchAllVendors, fetchVendorsList, fetchVendor, deleteVendor, updateVendor, updateAvatar } from "./vendor-controller.js";
+import { 
+    createVendor, 
+    fetchAllVendors, 
+    fetchVendorsList, 
+    fetchVendor, 
+    deleteVendor, 
+    updateVendor, 
+    updateAvatar 
+} from "./vendor-controller.js";
+
 import Router from 'express'
 import { upload } from "../../middlewares/multer-middleware.js";
+
 
 const vendorRouter = Router()
 
