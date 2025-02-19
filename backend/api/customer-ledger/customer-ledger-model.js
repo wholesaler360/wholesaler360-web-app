@@ -1,15 +1,15 @@
 import mongoose, { Schema } from "mongoose";
 
-const ledgerSchema = new Schema(
+const customerLedgerSchema = new Schema(
     {
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: "User",
             required: true
         },
-        vendorId: {
+        customerId: {
             type: Schema.Types.ObjectId,
-            ref: "Vendor",
+            ref: "Customer",
             required: true
         },
         date: {
@@ -29,7 +29,7 @@ const ledgerSchema = new Schema(
             type: String,
             enum: ['cash', 'cheque', 'upi', 'online', 'N/A'],
         },
-        payableBalance: {
+        receivableBalance: {
             type: Number,
             required: true
         },
@@ -45,4 +45,4 @@ const ledgerSchema = new Schema(
 );
 
 
-export const Ledger = mongoose.model("VendorLedger", ledgerSchema);
+export const CustomerLedger = mongoose.model("CustomerLedger", customerLedgerSchema);
