@@ -40,7 +40,8 @@ const changePassword = asyncHandler(async(req,res,next)=>{
             sameSite : 'none'
           }
         res.clearCookie('refreshToken',options);
-        res.status(200).json(ApiResponse.successRead({message : "Password changed successfully,Please Login again"}));
+        res.status(200).json(ApiResponse.successUpdated({message : "Password changed successfully,Please Login again"}));
+        // Logout the user after change password
         console.log("------------------Password Changed Successfully-----------------");
     } catch (error) {
         return next(ApiError.dataNotUpdated("Unable to update the password"));
