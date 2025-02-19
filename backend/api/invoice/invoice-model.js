@@ -15,8 +15,7 @@ const invoiceSchema = new Schema(
             required: true,
         },
         invoiceDueDate:{
-            type: Date,
-            required: true,
+            type: Date
         },
         customerId: {
             type: Schema.Types.ObjectId,
