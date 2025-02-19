@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-
 const appEmailSettingsSchema = new Schema(
     {
         email: {
@@ -29,4 +28,18 @@ const appEmailSettingsSchema = new Schema(
 );
 
 
-export const AppEmailSettings = mongoose.model("CompanyEmailSettings", appEmailSettingsSchema);
+const appInvoiceTemplateSchema = new Schema(
+    {
+        defaultInvoiceTemplate: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            required: true,
+        }
+    },
+    { timestamps: true }
+);
+
+
+export const AppEmailSettings = mongoose.model("AppEmailSettings", appEmailSettingsSchema);
+export const AppInvoiceTemplates = mongoose.model("AppInvoiceTemplates", appInvoiceTemplateSchema); 
