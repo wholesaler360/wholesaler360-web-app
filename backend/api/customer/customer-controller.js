@@ -75,7 +75,7 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       return next(ApiError.validationFailed("Bank Details are required"));
     }
 
-    const receiveableBalance = req.body.receiveableBalance;
+    const receivableBalance = req.body.receivableBalance;
 
     let avatar = await uploadFile(customerImageLocalPath);
     if (customerImageLocalPath) {
@@ -93,7 +93,7 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       billingAddress,
       shippingAddress,
       bankDetails,
-      receiveableBalance,
+      receivableBalance,
       createdBy: req.fetchedUser._id,
     });
 
@@ -217,7 +217,7 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
       billingAddress: rest.billingAddress,
       shippingAddress: rest.shippingAddress,
       bankDetails: rest.bankDetails,
-      receiveableBalance: rest.receiveableBalance,
+      receivableBalance: rest.receivableBalance,
       createdBy: rest.createdBy,
     };
     console.log(orderedCustomer);
@@ -271,7 +271,7 @@ const updateCustomerAvatar = asyncHandler(async (req, res, next) => {
       billingAddress: rest.billingAddress,
       shippingAddress: rest.shippingAddress,
       bankDetails: rest.bankDetails,
-      receiveableBalance: rest.receiveableBalance,
+      receivableBalance: rest.receivableBalance,
       createdBy: rest.createdBy,
     };
     res
@@ -314,7 +314,7 @@ const deleteCustomer = asyncHandler(async (req, res, next) => {
       );
     }
 
-    if (customer.receiveableBalance > 0) {
+    if (customer.receivableBalance > 0) {
       return next(
         ApiError.validationFailed("Customer has some debt payment left balance")
       );
@@ -367,7 +367,7 @@ const fetchCustomer = asyncHandler(async (req, res, next) => {
       billingAddress: rest.billingAddress,
       shippingAddress: rest.shippingAddress,
       bankDetails: rest.bankDetails,
-      receiveableBalance: rest.receiveableBalance,
+      receivableBalance: rest.receivableBalance,
       createdBy: rest.createdBy,
     };
     res
@@ -415,7 +415,7 @@ const fetchAllCustomer = asyncHandler(async (req, res, next) => {
           email: "$email",
           avatar: "$avatar",
           totalNoOFInvoice: { $size: "$invoice" },
-          receiveableBalance: "$receiveableBalance",
+          receivableBalance: "$receivableBalance",
           createdAt: "$createdAt",
           createdBy: {
             name: { $arrayElemAt: ["$user.name", 0] },

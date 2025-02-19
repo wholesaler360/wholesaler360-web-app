@@ -87,7 +87,7 @@ function CustomerController({ children }) {
       ),
     }),
 
-    columnHelper.accessor("receiveableBalance", {
+    columnHelper.accessor("receivableBalance", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Balance" />
       ),
