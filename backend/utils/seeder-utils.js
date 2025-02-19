@@ -12,7 +12,7 @@ const all_Modules = [
     "dashboard",
     "user",
     "role",
-    "customer",
+    "customer","customer-ledger",
     "company-settings","app-settings","account-settings"
     ,"inventory","product","tax","category","batch"
     ,"invoice","sales-return","quotation",

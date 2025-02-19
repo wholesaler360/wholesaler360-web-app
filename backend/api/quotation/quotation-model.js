@@ -1,8 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
-const invoiceSchema = new Schema(
+const quotationSchema = new Schema(
     {
-        invoiceNo: {
+        quotationNo: {
             type: String,
             required: true,
             trim: true,
@@ -10,11 +10,7 @@ const invoiceSchema = new Schema(
             index: true,
             unique: true,
         },
-        invoiceDate: {
-            type: Date,
-            required: true,
-        },
-        invoiceDueDate:{
+        quotationDate: {
             type: Date,
             required: true,
         },
@@ -58,46 +54,28 @@ const invoiceSchema = new Schema(
         totalAmount: {
             type: Number,
         },
-        transactionType: {
-            type: String,
-            enum: ["debit", "credit"],
-            required: true,
-        },
-        paymentMode: {
-            type: String,
-            enum: ['cash', 'cheque', 'upi', 'online', 'N/A'],
-        },
-        initialPayment: {
-            type: Number,
-            required: true,
-            default: 0,
-        },
         description: {
             type: String,
         },
-        bankDetails:{
-            type : Schema.Types.ObjectId,
-            ref : "CompanyBankDetails",
-            required : true, 
+        quotationStatus : {
+            type: String,
+            enum: ["sent", "accepted", "rejected"],
+            default: "sent",
         },
-        signature:{
-            type : Schema.Types.ObjectId,
-            ref : "CompanySignatures",
-            required : true,
-        },
-        quotationId: {
+        signature: {
             type: Schema.Types.ObjectId,
-            ref: "Quotation",
-        },
+            ref: "CompanySignatures",
+            required : true
+        }, 
         isDeleted: {
             type: Boolean,
             default: false,
         },
-        isSaleReturn: {
+        isRoundedOff: {
             type: Boolean,
             default: false,
         },
-        isRoundedOff: {
+        isConvertedToInvoice: {
             type: Boolean,
             default: false,
         },
@@ -111,4 +89,4 @@ const invoiceSchema = new Schema(
 );
 
 
-export const Invoice = mongoose.model("Invoice", invoiceSchema);
+export const Quotation = mongoose.model("Quotation", quotationSchema);
