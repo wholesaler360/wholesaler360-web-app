@@ -16,8 +16,8 @@ const all_Modules = [
     "company-settings","app-settings","account-settings"
     ,"inventory","product","tax","category","batch"
     ,"invoice","sales-return","quotation",
-    "vendor","ledger",
-    "purchase","purchase_return",
+    "vendor","vendor-ledger",
+    "purchase","purchase-return",
     "sales-report","purchase-report","inventory-report","expense","payment",
     "customer-portal"
 ];
