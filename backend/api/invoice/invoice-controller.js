@@ -5,7 +5,7 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 import { Invoice } from "./invoice-model.js";
 import { Product } from "../product/product-model.js";
 import { CompanyBankDetails, CompanySignatures } from "../settings/company-settings/company-settings-model.js";
-import {  } from "../inventory/inventory-controller.js";
+import { stockDeductionInventoryService } from "../inventory/inventory-controller.js";
 import { createCustomerLedgerService } from "../customer-ledger/customer-ledger-controller.js";
 import { incrementTrackerService } from "../data-tracker/data-tracker-controller.js"; 
 
@@ -179,14 +179,14 @@ const createInvoice = asyncHandler(async (req, res, next) => {
 
         // Add inventory for the products
 
-        // const InventoryData = { products, purchaseRef: purchaseCreated._id };
-        // const inventoryResult = await addInventoryService(InventoryData, session);
+        const InventoryData = { products };
+        const inventoryResult = await stockDeductionInventoryService(InventoryData, session);
                                                                                                                                                                
-        // if (!(inventoryResult.success)) {
-        //     await session.abortTransaction();
-        //     session.endSession();
-        //     return next(ApiError[inventoryResult.errorType](inventoryResult.message));
-        // }
+        if (!(inventoryResult.success)) {
+            await session.abortTransaction();
+            session.endSession();
+            return next(ApiError[inventoryResult.errorType](inventoryResult.message));
+        }
 
         // Create the credit entry in the ledger
 
