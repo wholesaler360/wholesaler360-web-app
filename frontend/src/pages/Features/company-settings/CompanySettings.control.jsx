@@ -13,6 +13,7 @@ import {
 } from "@/constants/apiEndPoints";
 import { showNotification } from "@/core/toaster/toast";
 import * as z from "zod";
+import { useBranding } from "@/context/BrandingContext";
 
 export const CompanySettingsContext = createContext({});
 
@@ -39,6 +40,7 @@ const bankDetailsSchema = z.object({
 
 export function CompanySettingsController({ children }) {
   const [isLoading, setIsLoading] = useState(false);
+  const { updateLogo, updateFavicon } = useBranding();
 
   const fetchCompanyData = async () => {
     try {
@@ -48,6 +50,15 @@ export function CompanySettingsController({ children }) {
         axiosGet(fetchCompanySignature),
         axiosGet(fetchCompanyBankDetails),
       ]);
+
+      // Update global branding on initial load
+      if (companyData.value?.logoUrl) {
+        updateLogo(companyData.value.logoUrl);
+      }
+      if (companyData.value?.faviconUrl) {
+        updateFavicon(companyData.value.faviconUrl);
+      }
+
       return {
         company: companyData.value,
         signatures: signatureData.value,
@@ -101,9 +112,12 @@ export function CompanySettingsController({ children }) {
     try {
       setIsLoading(true);
       const response = await axiosPut(updateCompanyLogo, formData);
-      console.log(response);
       if (response.data.success) {
         showNotification.success("Company logo updated successfully");
+        // Update global logo
+        if (response.data.value?.logoUrl) {
+          updateLogo(response.data.value.logoUrl);
+        }
         return response;
       } else {
         showNotification.error("Failed to update company logo");
@@ -122,6 +136,10 @@ export function CompanySettingsController({ children }) {
       const response = await axiosPut(updateCompanyFavicon, formData);
       if (response.data.success) {
         showNotification.success("Favicon updated successfully");
+        // Update global favicon
+        if (response.data.value?.faviconUrl) {
+          updateFavicon(response.data.value.faviconUrl);
+        }
         return response;
       } else {
         showNotification.error("Failed to update favicon");
