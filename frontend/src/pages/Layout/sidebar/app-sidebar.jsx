@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserMenu from "./userMenu/index.jsx";
+import { useBranding } from "@/context/BrandingContext";
 
 const data = {
   user: {
@@ -189,6 +190,7 @@ export function AppSidebar({ ...props }) {
   const location = useLocation();
   const currentPath = location.pathname;
   const { hasReadPermission } = usePermission();
+  const { logoUrl } = useBranding();
 
   // Simplified filterNavItems function using the permission property
   const filterNavItems = (items) => {
@@ -232,7 +234,14 @@ export function AppSidebar({ ...props }) {
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
+                  {/* {logoUrl && logoUrl !== "/" && (
+                    <img
+                      src={logoUrl}
+                      alt="Company Logo"
+                      className="h-8 w-auto object-contain mr-2"
+                    />
+                  )} */}
+                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Wholesaler 360</span>

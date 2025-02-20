@@ -4,8 +4,11 @@ import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { useBranding } from "@/context/BrandingContext";
 
 function RootLayout() {
+  const { faviconUrl } = useBranding();
+
   return (
     <>
       <Helmet>
@@ -15,7 +18,7 @@ function RootLayout() {
           content="Welcome to WholeSaler360, your one-stop solution for all wholesale
         needs."
         />
-        <link rel="icon" type="image/png" href="/dummy-favicon.png" />
+        <link rel="icon" type="image/png" href={faviconUrl} />
       </Helmet>
       <Suspense fallback={<div>Loading...</div>}>
         <SidebarProvider>
