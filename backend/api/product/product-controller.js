@@ -437,81 +437,88 @@ const fetchProductDropdownForInvoice = asyncHandler(async (req, res, next) => {
       },
     },
     {
-      $lookup : {
-        from : "inventories",
-        localField : "_id",
-        foreignField : "productId",
-        as : "inventory"
-      }
+      $lookup: {
+        from: "inventories",
+        localField: "_id",
+        foreignField: "productId",
+        as: "inventory",
+      },
     },
     {
-      $unwind : "$inventory"
+      $unwind: { path: "$inventory", preserveNullAndEmptyArrays: true },
     },
     {
-      $unwind : "$inventory.batches"
+      $unwind: { path: "$inventory.batches", preserveNullAndEmptyArrays: true },
     },
     {
-      $lookup : {
-        from : "batches",
-        localField : "inventory.batches.batch",
-        foreignField : "_id",
-        as : "batch"
-      }
+      $lookup: {
+        from: "batches",
+        localField: "inventory.batches.batch",
+        foreignField: "_id",
+        as: "batch",
+      },
     },
     {
-      $unwind : "$batch"
+      $unwind: { path: "$batch", preserveNullAndEmptyArrays: true },
     },
     {
-      $match : {
-      "batch.isDeleted" : false
-      }
+      // Include products even if no batch exists
+      $match: {
+        $or: [{ "batch.isDeleted": false }, { "batch": null }], 
+      },
     },
     {
       $group: {
         _id: "$_id",
-        name: { $first: "$name" },
-        skuCode: { $first: "$skuCode" },
-        category: { $first: "$category" },
-        tax: { $first: "$tax" },
-        discountType: { $first: "$discountType" },
-        discountValue: { $first: "$discountValue" },
-        totalQuantity: { $first: "$inventory.totalQuantity" },
-        salePrice: { $first: "$batch.salePriceWithoutTax" },
+        productInfo: {
+          $first: {
+            id: "$_id",
+            name: "$name",
+            skuCode: "$skuCode",
+            category: { $arrayElemAt: ["$category.name", 0] },
+            taxRate: { $arrayElemAt: ["$tax.percent", 0] },
+            discountType: "$discountType",
+            discountValue: "$discountValue",
+          },
+        },
+        batches: {
+          $push: {
+            batchId: "$batch._id",
+            batchNo: "$inventory.batches.batchNo",
+            totalQuantity: "$inventory.batches.totalQuantity",
+            salePrice: "$batch.salePriceWithoutTax",
+          },
+        },
       },
     },
     {
       $addFields: {
-        productInfo : {
-          id : "$_id",
-          name: "$name",
-          skuCode: "$skuCode",
-          category: { $arrayElemAt: ["$category.name", 0] },
-          taxRate: { $arrayElemAt: ["$tax.percent", 0] },
-          discountType : "$discountType",
-          discountValue : "$discountValue",
-          totalQuantity : "$totalQuantity",
-          salePrice : "$salePrice",
-        }
-      }
+        "productInfo.batches": {
+          $cond: { if: { $eq: ["$batches.batchId", null] }, then: [], else: "$batches" },
+        },
+      },
     },
     {
       $group: {
         _id: null,
-        product: { $push: "$productInfo" },
-      }
+        products: { $push: "$productInfo" },
+      },
     },
     {
       $project: {
         _id: 0,
-        product: 1,
+        products: 1,
       },
     },
   ]);
-  if(products.length === 0){
-    return next(ApiError.dataNotFound("No products Exists"));
+
+  if (products.length === 0) {
+    return next(ApiError.dataNotFound("No products exist"));
   }
+
   res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));
 });
+
 
 export { 
   createProduct, 

@@ -6,6 +6,7 @@ import {
   deleteCustomer,
   fetchCustomer,
   fetchAllCustomer,
+  fetchCustomerDropdown
 } from "./customer-controller.js";
 import { upload } from "../../middlewares/multer-middleware.js";
 const customerRouter = Router();
@@ -29,5 +30,5 @@ customerRouter.route('/fetch').post(fetchCustomer);
 
 
 customerRouter.route("/fetchAll").get(fetchAllCustomer);
-
+customerRouter.route("/fetchCustomerDropdown").get(fetchCustomerDropdown);
 export { customerRouter };

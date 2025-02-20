@@ -102,8 +102,13 @@ function UserMenuComponent({ user }) {
                 permissionModule="company-settings"
                 permissionAction="read"
               >
-                <Building />
-                Company Setting
+                <Link
+                  to="/company-settings"
+                  className="flex items-center w-full gap-2"
+                >
+                  <Building />
+                  Company Setting
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 permissionModule="app-settings"

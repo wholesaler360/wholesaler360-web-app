@@ -51,3 +51,15 @@ export const fetchAccountDetails = "/account-settings/fetch";
 export const updateAccountDetails = "/account-settings/update";
 export const changePassword = "/account-settings/changePassword";
 export const changeAvatar = "/account-settings/changeAvatar";
+
+// Company Settings
+export const fetchCompanyDetails = "/company-settings/companyDetails/fetch";
+export const fetchCompanySignature = "/company-settings/signature/fetch";
+export const fetchCompanyBankDetails = "/company-settings/bankDetails/fetch";
+export const updateCompanyDetails = "/company-settings/companyDetails/update";
+export const updateCompanyBankDetails = "/company-settings/bankDetails/update";
+export const updateCompanyLogo = "/company-settings/companyDetails/updateLogo";
+export const addCompanySignature = "/company-settings/signature/create";
+export const deleteCompanySignature = "/company-settings/signature/delete";
+export const updateCompanyFavicon =
+  "/company-settings/companyDetails/updateFavicon";
