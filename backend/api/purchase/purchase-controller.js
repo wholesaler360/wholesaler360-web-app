@@ -89,7 +89,7 @@ const createPurchase = asyncHandler(async (req, res, next) => {
         }
 
         // Create the credit entry in the ledger
-        const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit", date: purchaseDateObj };
+        const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit", date: purchaseDateObj, description };
         const ledgerResultCredit = await createLedgerService(ledgerDataCredit, req.fetchedUser, session);
         
         if (!(ledgerResultCredit.success)) {  
@@ -98,9 +98,9 @@ const createPurchase = asyncHandler(async (req, res, next) => {
             return next(ApiError[ledgerResultCredit.errorType](ledgerResultCredit.message));
         }
 
-        // // create debit entry in the ledger only if transaction type is debit
+        // create debit entry in the ledger only if transaction type is debit
         if(transactionType === "debit") {
-            const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode, date: purchaseDateObj };
+            const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode, date: purchaseDateObj, description };
             const ledgerResultDebit = await createLedgerService(ledgerDataDebit, req.fetchedUser, session);
             
             if (!(ledgerResultDebit.success)) {

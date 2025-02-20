@@ -39,16 +39,20 @@ const purchaseSchema = new Schema(
             },
             taxAmount: {
                 type: Number,
+                required: true,
             },
             amount: {
                 type: Number,
+                required: true,
             }
         }],
         totalTax: {
             type: Number,
+            required: true,
         },
         totalAmount: {
             type: Number,
+            required: true,
         },
         transactionType: {
             type: String,

@@ -23,6 +23,7 @@ const invoiceSchema = new Schema(
             required: true,
         },
         products: [{
+            _id: false,
             id: {
                 type: Schema.Types.ObjectId,
                 ref: "Product",
@@ -46,16 +47,20 @@ const invoiceSchema = new Schema(
             },
             amount: {
               type: Number,
+              required: true,
             }
         }],
         totalDiscount : {
             type: Number,
+            required: true,
         },
         totalTax: {
             type: Number,
+            required: true,
         },
         totalAmount: {
             type: Number,
+            required: true,
         },
         transactionType: {
             type: String,

@@ -324,6 +324,7 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
     {
       $addFields: {
         productInfo: {
+          id: "$_id",
           name: "$name",
           skuCode: "$skuCode",
           productImg: "$productImg",

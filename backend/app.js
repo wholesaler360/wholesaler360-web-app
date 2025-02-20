@@ -24,6 +24,7 @@ import { accountSettingsRouter } from "./api/settings/account-settings/account-s
 import { companySettingsRouter } from "./api/settings/company-settings/company-settings-route.js";
 import { appSettingsRouter } from "./api/settings/app-settings/app-settings-route.js";
 import { customerLedgerRouter } from "./api/customer-ledger/customer-ledger-route.js";
+import { invoiceRouter } from "./api/invoice/invoice-route.js";
 
 // TODO : Validation like email, mobile number etc..,
 
@@ -82,6 +83,8 @@ app.use('/vendor', vendorRouter);
 app.use('/vendor-ledger', ledgerRouter);
 
 app.use('/purchase', purchaseRouter);
+
+app.use('/invoice', invoiceRouter)
 
 app.use('/account-settings', accountSettingsRouter);
 app.use('/company-settings', companySettingsRouter);

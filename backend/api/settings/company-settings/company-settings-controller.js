@@ -253,7 +253,7 @@ const fetchCompanyBankDetails = asyncHandler(async (req, res, next) => {
       return next(ApiError.validationFailed("Company's Bank Details not found"));
     }
     
-    const { isDeleted, __v, _id, ...remaining } = companyBankDetails[0].toObject();
+    const { isDeleted, __v, ...remaining } = companyBankDetails[0].toObject();
 
     return res
       .status(200)
@@ -308,7 +308,7 @@ const addCompanySignature = asyncHandler(async (req, res, next) => {
 
     const savedSignature = await newSignature.save();
 
-    const { isDeleted, __v, _id, ...remaining } = savedSignature.toObject();
+    const { isDeleted, __v, ...remaining } = savedSignature.toObject();
 
     return res
       .status(201)
@@ -352,7 +352,7 @@ const deleteCompanySignature = asyncHandler(async (req, res, next) => {
 
 const fetchCompanySignatures = asyncHandler(async (req, res, next) => {
   try {
-    const signatures = await CompanySignatures.find({ isDeleted: false }, { __v: 0, _id: 0, updatedAt: 0, isDeleted: 0 });
+    const signatures = await CompanySignatures.find({ isDeleted: false }, { __v: 0, updatedAt: 0, isDeleted: 0 });
 
     return res
       .status(200)
