@@ -14,6 +14,7 @@ import AddVendor from "@/pages/Features/vendor/addVendor";
 import UpdateVendor from "@/pages/Features/vendor/updateVendor";
 import AccountSettings from "@/pages/Features/account-settings";
 import CompanySettings from "@/pages/Features/company-settings";
+import VendorLedger from "@/pages/Features/vendor-ledger";
 
 const authRoutes = [
   {
@@ -75,6 +76,11 @@ const authRoutes = [
     path: "/vendor/edit",
     element: <UpdateVendor />,
     permission: "vendor",
+  },
+  {
+    path: "/vendor/ledger/:id",
+    element: <VendorLedger />,
+    permission: "vendor-ledger",
   },
   {
     path: "/stock",

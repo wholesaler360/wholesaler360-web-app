@@ -4,6 +4,6 @@ import Router from 'express'
 const ledgerRouter = Router()
 
 ledgerRouter.route('/create').post(createLedger);
-ledgerRouter.route('/show').get(showLedger);
+ledgerRouter.route('/show').post(showLedger);
 
 export { ledgerRouter }

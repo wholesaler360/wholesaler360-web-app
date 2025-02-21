@@ -43,6 +43,10 @@ export const CreateVendor = "/vendor/create";
 export const UpdateVendorAvatar = "/vendor/updateAvatar";
 export const UpdateVendor = "/vendor/update";
 
+// Vendor Ledger
+export const FetchVendorLedgers = "/vendor-ledger/show";
+export const CreateVendorLedger = "/vendor-ledger/create";
+
 // Inventory
 export const FetchAllInventories = "/inventory/fetch";
 
