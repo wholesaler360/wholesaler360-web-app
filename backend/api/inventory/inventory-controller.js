@@ -167,7 +167,7 @@ const stockDeductionInventoryService = async(invoiceData, session)=> {
         return {
           success: false,
           errorType: "dataNotFound",
-          message: "One or more products not found",
+          message: "One or more products is not found or insufficient stock",
           data: null
         };
       }
