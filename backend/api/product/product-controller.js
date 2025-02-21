@@ -479,6 +479,7 @@ const fetchProductDropdownForInvoice = asyncHandler(async (req, res, next) => {
             taxRate: { $arrayElemAt: ["$tax.percent", 0] },
             discountType: "$discountType",
             discountValue: "$discountValue",
+            totalQuantity : "$inventory.totalQuantity",
           },
         },
         batches: {

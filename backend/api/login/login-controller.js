@@ -85,7 +85,7 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
                 sameSite : 'none'
               }
             res.clearCookie('refreshToken',options);
-            return next(ApiError.unauthorizedAccess("User Does Not Exists or Login Again"));
+            return next(ApiError.unauthenticatedAccess("User Does Not Exists or Login Again"));
         }
 
         

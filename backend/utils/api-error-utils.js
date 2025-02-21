@@ -77,6 +77,10 @@ class ApiError extends Error {
      * @returns {ApiError}
      */
     static unauthorizedAccess(message = "Unauthorized access") {
+        return new ApiError(403, message);
+    }
+
+    static unauthenticatedAccess(message = "unauthenticated access") {
         return new ApiError(401, message);
     }
 
