@@ -65,6 +65,13 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
+
+    if (error.response?.status === 401) {
+      clearAccessToken();
+      showNotification.error("Please login to continue");
+      window.location.href = "/login";
+    }
+
     return Promise.reject(error);
   }
 );
