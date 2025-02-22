@@ -130,7 +130,7 @@ const createPurchase = asyncHandler(async (req, res, next) => {
 });
 
 const fetch = asyncHandler(async (req, res, next) => {
-    let {purchaseId} = req.body;
+    let { purchaseId } = req.params;
     purchaseId = new mongoose.Types.ObjectId(purchaseId);
 
     const purchase = await Purchase.findById({_id : purchaseId , isDeleted : false})

@@ -343,7 +343,7 @@ const deleteCustomer = asyncHandler(async (req, res, next) => {
 
 const fetchCustomer = asyncHandler(async (req, res, next) => {
   console.log("-----------------Fetch Customer-----------------");
-  const { mobileNo } = req.body;
+  const { mobileNo } = req.params;
   if (!mobileNo) {
     return next(ApiError.validationFailed("Mobile No or Email is required"));
   }

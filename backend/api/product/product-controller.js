@@ -271,7 +271,7 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
 
 // Change from GET to POST
 const getProduct = asyncHandler(async (req, res, next) => {
-  let { skuCode } = req.body; // Now we can use req.body
+  let { skuCode } = req.params; // Now we can use req.body
 
   if (!skuCode) {
     return next(ApiError.validationFailed("Sku code is required"));

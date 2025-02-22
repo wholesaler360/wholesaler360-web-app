@@ -152,7 +152,7 @@ const deleteUser = asyncHandler(async(req,res,next)=>{
 })
 
 const fetchUser = asyncHandler(async(req,res,next)=>{
-    const {mobileNo} = req.body;
+    const { mobileNo } = req.params;
     if(!mobileNo)
     {
         return next(ApiError.validationFailed("Please provide the mobile number"));

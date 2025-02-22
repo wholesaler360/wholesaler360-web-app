@@ -76,7 +76,7 @@ const deleteTax = asyncHandler(async (req, res, next) => {
 });
 
 const getTax = asyncHandler(async (req, res, next) => {
-    let {name} = req.body;
+    let {name} = req.params;
     if(!name) {
         return next(ApiError.validationFailed('Name is required'));
     }

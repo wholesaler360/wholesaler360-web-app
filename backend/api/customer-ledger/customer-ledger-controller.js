@@ -120,7 +120,7 @@ const createCustomerLedger = asyncHandler(async(req, res, next)=>{
 
 
 const showCustomerLedger = asyncHandler (async(req, res, next) => {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
 
     if (!customerId) {
         return next(ApiError.validationFailed("Please provide customer Id"));

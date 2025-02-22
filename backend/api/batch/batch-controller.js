@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 
 const fetchAllBatch = asyncHandler(async (req, res, next) => {
   try {
-    let productId = req.body.productId;
+    let { productId } = req.params;
     if (!productId) {
       return next(ApiError.validationFailed("Please provide productId"));
     }

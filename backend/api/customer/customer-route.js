@@ -26,7 +26,7 @@ customerRouter.route('/updateImg').put(upload(
 
 customerRouter.route("/delete").delete(deleteCustomer);
 
-customerRouter.route('/fetch').post(fetchCustomer);
+customerRouter.route('/fetch/:mobileNo').get(fetchCustomer);
 
 
 customerRouter.route("/fetchAll").get(fetchAllCustomer);

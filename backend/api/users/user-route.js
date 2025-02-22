@@ -10,7 +10,7 @@ userRouter.route('/createUser').post(
     createUser
     )
 
-userRouter.route('/fetch').get(fetchUser)
+userRouter.route('/fetch/:mobileNo').get(fetchUser)
 userRouter.route('/fetchAll').get(fetchAllUsers)
 
 userRouter.route('/update').put(updateUser)

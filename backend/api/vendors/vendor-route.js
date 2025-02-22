@@ -23,7 +23,7 @@ vendorRouter.route('/updateAvatar').put(
     updateAvatar
 )
 vendorRouter.route('/fetchAll').get(fetchAllVendors)
-vendorRouter.route('/fetch').post(fetchVendor)
+vendorRouter.route('/fetch/:mobileNo').get(fetchVendor)
 vendorRouter.route('/delete').delete(deleteVendor)
 vendorRouter.route('/fetchList').get(fetchVendorsList)
 
