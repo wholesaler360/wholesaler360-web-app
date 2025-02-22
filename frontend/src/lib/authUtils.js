@@ -66,8 +66,7 @@ export const refreshAccessToken = async () => {
 
 const fetchAndProcessPermissions = async (roleName) => {
   try {
-    const response = await axiosPost(FetchRolePermission, { name: roleName});
-    console.log(response)
+    const response = await axiosGet(`${FetchRolePermission}/${roleName}`);
     if (!response.data.success) throw new Error("Failed to fetch role permissions");
 
     const processedPermissions = {};

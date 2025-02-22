@@ -24,7 +24,7 @@ function VendorController({ children }) {
 
   const getVendors = useCallback(async () => {
     const response = await axiosGet(FetchAllVendors);
-    return response;
+    return response.data;
   }, []);
 
   const getInitials = (name) => {

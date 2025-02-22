@@ -52,17 +52,17 @@ export function CompanySettingsController({ children }) {
       ]);
 
       // Update global branding on initial load
-      if (companyData.value?.logoUrl) {
-        updateLogo(companyData.value.logoUrl);
+      if (companyData.data.value?.logoUrl) {
+        updateLogo(companyData.data.value.logoUrl);
       }
-      if (companyData.value?.faviconUrl) {
-        updateFavicon(companyData.value.faviconUrl);
+      if (companyData.data.value?.faviconUrl) {
+        updateFavicon(companyData.data.value.faviconUrl);
       }
 
       return {
-        company: companyData.value,
-        signatures: signatureData.value,
-        bank: bankData.value,
+        company: companyData.data.value,
+        signatures: signatureData.data.value,
+        bank: bankData.data.value,
       };
     } catch (error) {
       showNotification.error("Failed to fetch company details");

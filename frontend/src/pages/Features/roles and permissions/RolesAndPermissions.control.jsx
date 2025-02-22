@@ -90,7 +90,7 @@ function RolesAndPermissionController({ children }) {
 
   const getRoles = async () => {
     const data = await axiosGet(FetchAllRoles);
-    return data;
+    return data.data;
   };
 
   const addRole = async (value) => {
@@ -238,9 +238,7 @@ function RolesAndPermissionController({ children }) {
 
         const fetchRolePermissions = useCallback(async () => {
           try {
-            const response = await axiosPost(FetchRolePermission, {
-              name: row.original.name,
-            });
+            const response = await axiosGet(`${FetchRolePermission}/${row.original.name}`);
             if (response.status === 200) {
               setRolePermissions(response.data.value);
             } else {

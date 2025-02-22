@@ -33,13 +33,14 @@ export function AddProductController({ children }) {
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axiosGet(FetchAllCategories);
-      if (response.success) {
-        setCategories(response.value.categories);
+      if (response.data.success) {
+        setCategories(response.data.value.categories);
+
       } else {
-        throw new Error(response || "Failed to fetch categories");
+        throw new Error(response.status || "Failed to fetch categories");
       }
     } catch (error) {
-      if (response.statusCode === 404) {
+      if (parseInt(error.message) === 404) {
         navigate("/products");
         showNotification.error(
           "No categories found. Please add a category first"
@@ -54,8 +55,8 @@ export function AddProductController({ children }) {
   const fetchTaxes = useCallback(async () => {
     try {
       const response = await axiosGet(FetchAllTaxes);
-      if (response.success) {
-        setTaxes(response.value.taxes);
+      if (response.data.success) {
+        setTaxes(response.data.value.taxes);
       }
     } catch (error) {
       showNotification.error("Failed to fetch tax options");
