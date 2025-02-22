@@ -27,7 +27,7 @@ function ProductsController({ children }) {
 
   const getProducts = useCallback(async () => {
     const response = await axiosGet(FetchAllProducts);
-    return response;
+    return response.data;
   }, []);
 
   const columnHelper = createColumnHelper();

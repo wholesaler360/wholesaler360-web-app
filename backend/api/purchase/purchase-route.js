@@ -4,7 +4,7 @@ import Router from 'express'
 const purchaseRouter = Router()
 
 purchaseRouter.route('/create').post(createPurchase)
-purchaseRouter.route('/fetch').post(fetch)
+purchaseRouter.route('/fetch/:purchaseId').get(fetch)
 
 purchaseRouter.route('/fetchAll').get(fetchAll)
 

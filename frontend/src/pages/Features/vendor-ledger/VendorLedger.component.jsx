@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import * as z from "zod";
+import { cn } from "@/lib/utils";
 
 const addLedgerSchema = z.object({
   amount: z.string().min(1, "Amount is required").transform(Number),
@@ -57,6 +58,7 @@ function VendorLedgerComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { getLedgerEntries, columns, createLedgerEntry, refreshTrigger } = useContext(VendorLedgerContext);
 
   const form = useForm({
@@ -121,6 +123,7 @@ function VendorLedgerComponent() {
 
   const onSubmit = async (values) => {
     try {
+      setIsSubmitting(true);
       await createLedgerEntry({
         ...values,
         vendorId,
@@ -130,8 +133,12 @@ function VendorLedgerComponent() {
       form.reset();
     } catch (error) {
       // Error is handled in createLedgerEntry
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const transactionType = form.watch("transactionType");
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -218,29 +225,31 @@ function VendorLedgerComponent() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="paymentMode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Payment Mode</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select payment mode" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="cash">Cash</SelectItem>
-                          <SelectItem value="upi">UPI</SelectItem>
-                          <SelectItem value="bank">Bank</SelectItem>
-                          <SelectItem value="cheque">Cheque</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {transactionType === "debit" && (
+                  <FormField
+                    control={form.control}
+                    name="paymentMode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Mode</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select payment mode" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="upi">UPI</SelectItem>
+                            <SelectItem value="bank">Bank</SelectItem>
+                            <SelectItem value="cheque">Cheque</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="description"
@@ -255,7 +264,16 @@ function VendorLedgerComponent() {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Add Entry</Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={cn(
+                      "min-w-[120px]",
+                      isSubmitting && "animate-pulse"
+                    )}
+                  >
+                    {isSubmitting ? "Adding..." : "Add Entry"}
+                  </Button>
                 </DialogFooter>
               </form>
             </Form>

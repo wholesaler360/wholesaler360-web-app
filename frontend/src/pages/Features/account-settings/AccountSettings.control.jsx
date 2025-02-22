@@ -39,7 +39,7 @@ function AccountSettingsController({ children }) {
     try {
       setIsLoading(true);
       const response = await axiosGet(fetchAccountDetails);
-      return response.value;
+      return response.data.value;
     } catch (error) {
       showNotification.error("Failed to fetch profile details");
       throw error;

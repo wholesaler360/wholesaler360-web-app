@@ -1,5 +1,5 @@
 import { createContext, useState, useCallback } from "react";
-import { axiosPost, axiosPut } from "@/constants/api-context";
+import { axiosGet, axiosPut } from "@/constants/api-context";
 import {
   FetchVendor,
   UpdateVendor,
@@ -36,9 +36,7 @@ function UpdateVendorController({ children }) {
   const fetchVendorDetails = useCallback(async (mobileNo) => {
     try {
       setIsLoading(true);
-      const response = await axiosPost(FetchVendor, {
-        mobileNo: mobileNo,
-      });
+      const response = await axiosGet(`${FetchVendor}/${mobileNo}`);
       return response.data.value;
     } catch (error) {
       showNotification.error("Failed to fetch vendor details");

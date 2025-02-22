@@ -121,7 +121,7 @@ const createLedger = asyncHandler(async(req, res, next)=>{
 
 
 const showLedger = asyncHandler (async(req, res, next) => {
-    const { vendorId } = req.body;
+    const { vendorId } = req.params;
 
     if (!vendorId) {
         return next(ApiError.validationFailed("Please provide vendorId"));

@@ -32,9 +32,7 @@ function UpdateProductController({ children }) {
   const fetchProductDetails = useCallback(async (productSkuCode) => {
     try {
       setIsLoading(true);
-      const response = await axiosPost(FetchProduct, {
-        skuCode: productSkuCode,
-      });
+      const response = await axiosGet(`${FetchProduct}/${productSkuCode}`);
             
       return response.data.value;
     } catch (error) {
@@ -48,8 +46,8 @@ function UpdateProductController({ children }) {
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axiosGet(FetchAllCategories);
-      if (response.success) {
-        setCategories(response.value.categories);
+      if (response.data.success) {
+        setCategories(response.data.value.categories);
       }
     } catch (error) {
       showNotification.error("Failed to fetch categories");
@@ -59,8 +57,8 @@ function UpdateProductController({ children }) {
   const fetchTaxes = useCallback(async () => {
     try {
       const response = await axiosGet(FetchAllTaxes);
-      if (response.success) {
-        setTaxes(response.value.taxes);
+      if (response.data.success) {
+        setTaxes(response.data.value.taxes);
       }
     } catch (error) {
       showNotification.error("Failed to fetch tax options");

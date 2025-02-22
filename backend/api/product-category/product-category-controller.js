@@ -91,7 +91,7 @@ const deleteCategory = asyncHandler(async(req,res,next)=>{
     }
 });
 const getCategory = asyncHandler(async(req,res,next)=>{
-    let {name} = req.body;
+    let { name } = req.params;
     if(!(name?.trim())){
         return next(ApiError.validationFailed("Category name is required"));
     }

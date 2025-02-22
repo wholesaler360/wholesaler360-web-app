@@ -81,7 +81,7 @@ function StockController({ children }) {
   // API call handler
   const getStock = useCallback(async () => {
     const response = await axiosGet(FetchAllInventories);
-    return response;
+    return response.data;
   }, []);
 
   // Get column definitions

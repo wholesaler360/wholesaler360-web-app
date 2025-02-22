@@ -89,7 +89,7 @@ const updateRole = asyncHandler(async (req, res, next) => {
 });
 
 const fetchPermission = asyncHandler(async (req, res, next) => {
-  const { name } = req.body;
+  const { name } = req.params;
 
   if (!name?.trim()) {
     return next(ApiError.validationFailed("Role name is required"));

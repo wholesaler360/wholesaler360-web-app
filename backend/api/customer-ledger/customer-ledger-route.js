@@ -4,6 +4,6 @@ import Router from 'express'
 const customerLedgerRouter = Router()
 
 customerLedgerRouter.route('/create').post(createCustomerLedger);
-customerLedgerRouter.route('/show').get(showCustomerLedger);
+customerLedgerRouter.route('/show/:customerId').get(showCustomerLedger);
 
 export { customerLedgerRouter }

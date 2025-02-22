@@ -52,9 +52,7 @@ function UpdateCustomerController({ children }) {
   const fetchCustomerDetails = useCallback(async (mobileNo) => {
     try {
       setIsLoading(true);
-      const response = await axiosPost(FetchCustomer, {
-        mobileNo: mobileNo,
-      });
+      const response = await axiosGet(`${FetchCustomer}/${mobileNo}`);
       return response.data.value;
     } catch (error) {
       showNotification.error("Failed to fetch customer details");
@@ -89,7 +87,7 @@ function UpdateCustomerController({ children }) {
       setIsLoading(true);
       const response = await axiosPut(UpdateCustomerImage, formData);
 
-      if (response.success) {
+      if (response.data.success) {
         showNotification.success("Customer image updated successfully");
         return { success: true, data: response.data };
       }

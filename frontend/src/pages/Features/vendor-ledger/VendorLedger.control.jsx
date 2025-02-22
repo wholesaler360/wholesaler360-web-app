@@ -12,11 +12,11 @@ function VendorLedgerController({ children }) {
 
   const getLedgerEntries = async (vendorId) => {
     try {
-      const response = await axiosPost(FetchVendorLedgers, { vendorId });
-      if (response.data?.success) {
+      const response = await axiosGet(`${FetchVendorLedgers}/${vendorId}`);
+      if (response.data.success) {
         return response.data;
       } else {
-        throw new Error(response.data?.message || "Failed to fetch vendor ledger");
+        throw new Error(response.data.message || "Failed to fetch vendor ledger");
       }
     } catch (error) {
       throw new Error(error.message || "Failed to fetch vendor ledger");

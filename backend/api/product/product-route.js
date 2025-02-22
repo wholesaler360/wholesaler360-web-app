@@ -17,7 +17,7 @@ productRouter.route('/generateImage').post(generateAndSaveImage);
 
 productRouter.route('/fetchAllProduct').get(fetchAllProduct);
 
-productRouter.route('/fetchProduct').post(getProduct);
+productRouter.route('/fetchProduct/:skuCode').get(getProduct);
 
 productRouter.route('/discountTypes').get(getDiscountTypes);
 
