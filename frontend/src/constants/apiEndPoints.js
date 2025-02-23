@@ -20,6 +20,7 @@ export const DeleteCategory = "/category/deleteCategory";
 // Products
 export const FetchAllProducts = "/product/fetchAllProduct";
 export const FetchProduct = "/product/fetchProduct";
+export const FetchProductListDropdown = "/product/fetchProductDropdown";
 export const DeleteProduct = "product/deleteProduct";
 export const CreateProduct = "/product/createProduct";
 export const FetchAllTaxes = "/tax/getAllTax";
@@ -38,6 +39,7 @@ export const DeleteCustomer = "/customer/delete";
 //Vendor
 export const FetchAllVendors = "/vendor/fetchAll";
 export const FetchVendor = "/vendor/fetch";
+export const FetchVendorList = "/vendor/fetchList";
 export const DeleteVendor = "/vendor/delete";
 export const CreateVendor = "/vendor/create";
 export const UpdateVendorAvatar = "/vendor/updateAvatar";
@@ -67,3 +69,7 @@ export const addCompanySignature = "/company-settings/signature/create";
 export const deleteCompanySignature = "/company-settings/signature/delete";
 export const updateCompanyFavicon =
   "/company-settings/companyDetails/updateFavicon";
+
+// Purchase
+export const FetchAllPurchases = "/purchase/fetchAll";
+export const CreatePurchase = "/purchase/create";

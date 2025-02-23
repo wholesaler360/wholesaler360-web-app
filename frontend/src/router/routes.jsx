@@ -15,6 +15,8 @@ import UpdateVendor from "@/pages/Features/vendor/updateVendor";
 import AccountSettings from "@/pages/Features/account-settings";
 import CompanySettings from "@/pages/Features/company-settings";
 import VendorLedger from "@/pages/Features/vendor-ledger";
+import Purchases from "@/pages/Features/purchases";
+import AddPurchase from "@/pages/Features/purchases/addPurchase";
 
 const authRoutes = [
   {
@@ -96,6 +98,16 @@ const authRoutes = [
     path: "/company-settings",
     element: <CompanySettings />,
     permission: "company-settings",
+  },
+  {
+    path: "/purchases",
+    element: <Purchases />,
+    permission: "purchase",
+  },
+  {
+    path: "/purchase/add",
+    element: <AddPurchase />,
+    permission: "purchase",
   },
 ];
 
