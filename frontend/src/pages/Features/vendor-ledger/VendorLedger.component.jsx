@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { VendorLedgerContext } from "./VendorLedger.control";
 import { DataTable } from "@/components/datatable/DataTable";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, PlusCircle } from "lucide-react";
+import { ArrowLeft, PlusCircle, CalendarIcon } from "lucide-react";
 import { DataTableSkeleton } from "@/components/datatable/DataTableSkeleton";
 import { showNotification } from "@/core/toaster/toast";
 import {
@@ -42,10 +42,15 @@ import {
 } from "@/components/ui/select";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 const addLedgerSchema = z.object({
   amount: z.string().min(1, "Amount is required").transform(Number),
-  date: z.string().min(1, "Date is required"),
+  date: z.date({
+    required_error: "Date is required",
+  }),
   transactionType: z.enum(["debit", "credit"]),
   paymentMode: z.enum(["cash", "upi", "bank", "cheque"]),
   description: z.string().optional(),
@@ -65,7 +70,7 @@ function VendorLedgerComponent() {
     resolver: zodResolver(addLedgerSchema),
     defaultValues: {
       amount: "",
-      date: new Date().toISOString().split('T')[0],
+      date: new Date(),
       transactionType: "debit",
       paymentMode: "cash",
       description: "",
@@ -195,11 +200,39 @@ function VendorLedgerComponent() {
                   control={form.control}
                   name="date"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}

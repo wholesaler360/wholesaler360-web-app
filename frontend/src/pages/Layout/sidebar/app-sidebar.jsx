@@ -29,11 +29,12 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserMenu from "./userMenu/index.jsx";
 import { useBranding } from "@/context/BrandingContext";
+import { useNavigate } from "react-router-dom";
 
 const data = {
   user: {
-    name: "Priyanshu",
-    mobile: "+91 7096562308",
+    name: "User",
+    mobile: "+91 9999999999",
     avatar: "/avatars/avatar-1.jpg",
   },
   NavItems: [
@@ -104,24 +105,12 @@ const data = {
         },
       ],
     },
-
     {
-      title: "Purchase",
-      url: "#",
+      title: "Purchases",
+      url: "/purchases",
       icon: ShoppingCart,
       isActive: false,
-      items: [
-        {
-          title: "Purchase Invoice",
-          url: "#",
-          permission: "purchase",
-        },
-        {
-          title: "Purchase Return",
-          url: "#",
-          permission: "purchase_return",
-        },
-      ],
+      permission: "purchase",
     },
     {
       title: "Reports",
@@ -226,13 +215,15 @@ export function AppSidebar({ ...props }) {
     }));
   }, [currentPath]);
 
+  const navigate = useNavigate();
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <div onClick={() => navigate('/')} className="cursor-pointer">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   {/* {logoUrl && logoUrl !== "/" && (
                     <img
@@ -249,7 +240,7 @@ export function AppSidebar({ ...props }) {
                     {new Date().toDateString()}
                   </span>
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

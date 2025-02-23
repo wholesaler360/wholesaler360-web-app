@@ -180,6 +180,7 @@ const fetchAll = asyncHandler(async (req, res, next) => {
             vendorName : { $arrayElemAt: ["$vendor.name", 0] },
             totalAmount : "$totalAmount",
             paymentMode : "$paymentMode",
+            initialPayment : "$initialPayment",
             transactionType : "$transactionType",
         }
       },
@@ -191,6 +192,7 @@ const fetchAll = asyncHandler(async (req, res, next) => {
             vendorName: 1,
             totalAmount: 1,
             paymentMode: 1,
+            initialPayment: 1,
             transactionType: 1
         }
       }
