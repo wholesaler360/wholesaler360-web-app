@@ -1,8 +1,9 @@
-import { RefreshTokenApi, FetchRolePermission } from "@/constants/apiEndPoints";
+import { RefreshTokenApi, FetchRolePermission, fetchCompanyDetails } from "@/constants/apiEndPoints";
 import {
   ACCESS_TOKEN_KEY,
   USER_DATA_KEY,
   USER_PERMISSIONS_KEY,
+  COMPANY_DATA_KEY,
 } from "@/constants/globalConstants";
 import { jwtDecode } from "jwt-decode";
 import { axiosGet, axiosPost } from "@/constants/api-context";
@@ -67,7 +68,8 @@ export const refreshAccessToken = async () => {
 const fetchAndProcessPermissions = async (roleName) => {
   try {
     const response = await axiosGet(`${FetchRolePermission}/${roleName}`);
-    if (!response.data.success) throw new Error("Failed to fetch role permissions");
+    if (!response.data.success)
+      throw new Error("Failed to fetch role permissions");
 
     const processedPermissions = {};
     response.data.value.sections.forEach(({ module, permission }) => {
@@ -97,7 +99,7 @@ export const setAuthData = async (authResponse) => {
       throw new Error("Invalid auth response");
     }
 
-    // Store token
+    // Store token first to use it in subsequent requests
     localStorage.setItem(ACCESS_TOKEN_KEY, authResponse.value.accessToken);
 
     // Store user data
@@ -106,6 +108,12 @@ export const setAuthData = async (authResponse) => {
       lastLoginAt: new Date().toISOString(),
     };
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+
+    // Fetch company details separately
+    const companyResponse = await axiosGet(fetchCompanyDetails);
+    if (companyResponse.data.success) {
+      localStorage.setItem(COMPANY_DATA_KEY, JSON.stringify(companyResponse.data.value));
+    }
 
     // Fetch and store permissions
     const permissions = await fetchAndProcessPermissions(userData.role.name);
@@ -116,6 +124,7 @@ export const setAuthData = async (authResponse) => {
     return true;
   } catch (error) {
     console.error("Error setting auth data:", error.message);
+    clearAuthData(); // Clean up on failure
     return false;
   }
 };
@@ -130,11 +139,22 @@ export const getUserData = () => {
   }
 };
 
+export const getCompanyData = () => {
+  try {
+    const companyDataStr = localStorage.getItem(COMPANY_DATA_KEY);
+    return companyDataStr ? JSON.parse(companyDataStr) : null;
+  } catch (error) {
+    console.error("Error getting company data:", error.message);
+    return null;
+  }
+};
+
 export const clearAuthData = () => {
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USER_DATA_KEY);
     localStorage.removeItem(USER_PERMISSIONS_KEY);
+    localStorage.removeItem(COMPANY_DATA_KEY);
     return true;
   } catch (error) {
     console.error("Error clearing auth data:", error.message);
