@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { FileUpload } from "@/components/custom/FileUpload";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function CompanySettingsComponent() {
   const {
@@ -39,6 +40,7 @@ function CompanySettingsComponent() {
   const [newFavicon, setNewFavicon] = useState(null);
   const [newSignature, setNewSignature] = useState(null);
   const [signatureName, setSignatureName] = useState("");
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const companyForm = useForm({
     resolver: zodResolver(companyDetailsSchema),
@@ -62,6 +64,8 @@ function CompanySettingsComponent() {
       bankForm.reset(data.bank);
     } catch (error) {
       console.error("Error refreshing data:", error);
+    } finally {
+      setIsInitialLoading(false);
     }
   };
 
@@ -136,6 +140,97 @@ function CompanySettingsComponent() {
   useEffect(() => {
     refreshData();
   }, []);
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6">
+        <div>
+          <Skeleton className="h-8 w-[300px]" />
+          <Skeleton className="h-4 w-[400px] mt-2" />
+        </div>
+
+        <Separator />
+
+        <div className="grid gap-6">
+          {/* Company Details Skeleton */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-[200px]" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
+              </div>
+              <Skeleton className="h-[100px] w-full mt-4" />
+            </CardContent>
+          </Card>
+
+          {/* Bank Details Skeleton */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-[150px]" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Logo and Favicon Skeleton */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-[150px]" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="aspect-video w-full" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-[100px]" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-16 w-16" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Signatures Skeleton */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-[120px]" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="aspect-video w-full" />
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-8 w-full" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
