@@ -19,6 +19,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
+
 function AccountSettingsComponent() {
   const {
     profileSchema,
@@ -33,6 +36,9 @@ function AccountSettingsComponent() {
   const [profileData, setProfileData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
 
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: profileData,
@@ -42,16 +48,21 @@ function AccountSettingsComponent() {
     resolver: zodResolver(passwordSchema),
   });
 
+
+  const loadProfile = async () => {
+    try {
+      const data = await fetchProfile();
+      setProfileData(data);
+      profileForm.reset(data);
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    } finally {
+      setIsInitialLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const data = await fetchProfile();
-        setProfileData(data);
-        profileForm.reset(data);
-      } catch (error) {
-        console.error("Error loading profile:", error);
-      }
-    };
+
     loadProfile();
   }, []);
 
@@ -90,6 +101,75 @@ function AccountSettingsComponent() {
     }
   };
 
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6">
+        <div>
+          <Skeleton className="h-8 w-[250px]" />
+          <Skeleton className="h-4 w-[350px] mt-2" />
+        </div>
+        <Separator />
+        <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-[150px]" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="border-none shadow-md">
+              <CardHeader>
+                <Skeleton className="h-6 w-[120px]" />
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  <Skeleton className="aspect-square w-full max-w-md mx-auto" />
+                  <Separator />
+                  <div className="space-y-4">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-[150px] w-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md lg:self-start">
+              <CardHeader>
+                <Skeleton className="h-6 w-[150px]" />
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <Skeleton className="h-5 w-[150px] mb-1" />
+                    <Skeleton className="h-4 w-[250px]" />
+                  </div>
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-[120px]" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ))}
+                    <Skeleton className="h-10 w-full mt-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div>
@@ -102,7 +182,8 @@ function AccountSettingsComponent() {
       <Separator />
 
       <div className="grid gap-6">
-        {/* Profile Details Section */}
+
+
         <Card>
           <CardHeader>
             <CardTitle>Profile Details</CardTitle>
@@ -164,9 +245,8 @@ function AccountSettingsComponent() {
           </CardContent>
         </Card>
 
-        {/* Security and Image Section - Side by side */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Profile Image Section */}
+
           <Card className="border-none shadow-md">
             <CardHeader>
               <CardTitle>Profile Image</CardTitle>
@@ -220,7 +300,7 @@ function AccountSettingsComponent() {
             </CardContent>
           </Card>
 
-          {/* Change Password Section */}
+
           <div className="lg:self-start">
             <Card className="border-none shadow-md">
               <CardHeader>
