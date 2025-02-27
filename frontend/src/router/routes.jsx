@@ -12,6 +12,11 @@ import RolesAndPermissions from "@/pages/Features/roles and permissions/index.js
 import Vendors from "@/pages/Features/vendor";
 import AddVendor from "@/pages/Features/vendor/addVendor";
 import UpdateVendor from "@/pages/Features/vendor/updateVendor";
+import AccountSettings from "@/pages/Features/account-settings";
+import CompanySettings from "@/pages/Features/company-settings";
+import VendorLedger from "@/pages/Features/vendor-ledger";
+import Purchases from "@/pages/Features/purchases";
+import AddPurchase from "@/pages/Features/purchases/addPurchase";
 
 const authRoutes = [
   {
@@ -75,9 +80,34 @@ const authRoutes = [
     permission: "vendor",
   },
   {
+    path: "/vendor/ledger/:id",
+    element: <VendorLedger />,
+    permission: "vendor-ledger",
+  },
+  {
     path: "/stock",
     element: <Stock />,
     permission: "inventory",
+  },
+  {
+    path: "/account-settings",
+    element: <AccountSettings />,
+    permission: "account-settings",
+  },
+  {
+    path: "/company-settings",
+    element: <CompanySettings />,
+    permission: "company-settings",
+  },
+  {
+    path: "/purchases",
+    element: <Purchases />,
+    permission: "purchase",
+  },
+  {
+    path: "/purchase/add",
+    element: <AddPurchase />,
+    permission: "purchase",
   },
 ];
 

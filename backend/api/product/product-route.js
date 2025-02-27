@@ -1,4 +1,13 @@
-import { createProduct , updateProduct , updateProductImage , getProduct , fetchAllProduct, getDiscountTypes , fetchProductDropdown,deleteProduct} from "./product-controller.js";
+import { 
+    createProduct, 
+    updateProduct, 
+    updateProductImage, 
+    getProduct, 
+    fetchAllProduct, 
+    getDiscountTypes, 
+    fetchProductDropdown,
+    fetchProductDropdownForInvoice,
+    deleteProduct} from "./product-controller.js";
 import { generateAndSaveImage } from "../../utils/ai-image-generate-utils.js";
 import  Router  from "express";
 import { upload } from "../../middlewares/multer-middleware.js";
@@ -8,7 +17,7 @@ productRouter.route('/generateImage').post(generateAndSaveImage);
 
 productRouter.route('/fetchAllProduct').get(fetchAllProduct);
 
-productRouter.route('/fetchProduct').post(getProduct);
+productRouter.route('/fetchProduct/:skuCode').get(getProduct);
 
 productRouter.route('/discountTypes').get(getDiscountTypes);
 
@@ -24,6 +33,8 @@ productRouter.route('/updateProductImage').put(
 
 
 productRouter.route('/fetchProductDropdown').get(fetchProductDropdown);
+
+productRouter.route('/fetchProductDropdownInvoice').get(fetchProductDropdownForInvoice);
 
 productRouter.route('/deleteProduct').delete(deleteProduct);
 export { productRouter };

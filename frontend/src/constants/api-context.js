@@ -1,14 +1,14 @@
 import api from "@/lib/axiosInstance";
 
-const axiosGet = async (endpoint = null, data = "") => {
+const axiosGet = async (endpoint = null) => {
   try {
     // Validate endpoint
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
-    const response = await api.get(endpoint, data);
+    const response = await api.get(endpoint);
 
-    return response.data;
+    return response;
   } catch (error) {
     console.error("GET request error:", {
       message: error.message,

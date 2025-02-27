@@ -58,7 +58,7 @@ function CategoriesController({ children }) {
 
   const getCategories = async () => {
     const data = await axiosGet(FetchAllCategories); // Replace with your endpoint
-    return data;
+    return data.data;
   };
 
   const addCategory = async (value) => {

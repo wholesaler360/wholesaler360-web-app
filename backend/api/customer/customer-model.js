@@ -110,7 +110,7 @@ const customerSchema = new mongoose.Schema({
             lowercase: true,
         },
     },
-    receiveableBalance:{
+    receivableBalance:{
         type: Number,
         default: 0,
     },

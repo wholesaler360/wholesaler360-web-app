@@ -18,7 +18,9 @@ import { FileUpload } from "@/components/custom/FileUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+
 import { Skeleton } from "@/components/ui/skeleton";
+
 
 function AccountSettingsComponent() {
   const {
@@ -33,7 +35,9 @@ function AccountSettingsComponent() {
 
   const [profileData, setProfileData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
+
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
@@ -43,6 +47,7 @@ function AccountSettingsComponent() {
   const passwordForm = useForm({
     resolver: zodResolver(passwordSchema),
   });
+
 
   const loadProfile = async () => {
     try {
@@ -57,6 +62,7 @@ function AccountSettingsComponent() {
   };
 
   useEffect(() => {
+
     loadProfile();
   }, []);
 
@@ -82,6 +88,7 @@ function AccountSettingsComponent() {
   const handleImageUpdate = async () => {
     try {
       if (!croppedImage) return;
+
       const formData = new FormData();
       formData.append("avatar", croppedImage);
 
@@ -93,6 +100,7 @@ function AccountSettingsComponent() {
       console.error("Error updating avatar:", error);
     }
   };
+
 
   if (isInitialLoading) {
     return (
@@ -174,6 +182,8 @@ function AccountSettingsComponent() {
       <Separator />
 
       <div className="grid gap-6">
+
+
         <Card>
           <CardHeader>
             <CardTitle>Profile Details</CardTitle>
@@ -236,6 +246,7 @@ function AccountSettingsComponent() {
         </Card>
 
         <div className="grid gap-6 lg:grid-cols-2">
+
           <Card className="border-none shadow-md">
             <CardHeader>
               <CardTitle>Profile Image</CardTitle>
@@ -288,6 +299,7 @@ function AccountSettingsComponent() {
               </div>
             </CardContent>
           </Card>
+
 
           <div className="lg:self-start">
             <Card className="border-none shadow-md">

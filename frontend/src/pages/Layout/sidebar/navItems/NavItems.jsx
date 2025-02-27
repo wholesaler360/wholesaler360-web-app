@@ -46,7 +46,7 @@ export function NavItems({ items, currentPath }) {
             return (
               <Collapsible
                 key={item.title}
-                open={openItems.includes(item.title) || isItemActive(item)}
+                open={openItems.includes(item.title)}
                 onOpenChange={(isOpen) => {
                   setOpenItems((prev) =>
                     isOpen
@@ -67,7 +67,11 @@ export function NavItems({ items, currentPath }) {
                           className={isItemActive(item) ? "text-primary" : ""}
                         />
                         <span className="flex-1">{item.title}</span>
-                        <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        <ChevronDown className={`ml-auto h-4 w-4 transition-transform duration-200 
+                          ${
+                            openItems.includes(item.title) ? 'rotate-180' : ''
+                          }`}
+                        />                      
                       </div>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>

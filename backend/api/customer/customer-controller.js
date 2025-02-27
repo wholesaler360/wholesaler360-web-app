@@ -10,6 +10,7 @@ import { asyncHandler } from "../../utils/asyncHandler-utils.js";
 
 import { Invoice } from "../invoice/invoice-model.js";
 
+
 const createCustomer = asyncHandler(async (req, res, next) => {
   console.log("-----------------Create Customer-----------------");
   try {
@@ -74,7 +75,7 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       return next(ApiError.validationFailed("Bank Details are required"));
     }
 
-    const receiveableBalance = req.body.receiveableBalance;
+    const receivableBalance = req.body.receivableBalance;
 
     let avatar = await uploadFile(customerImageLocalPath);
     if (customerImageLocalPath) {
@@ -92,7 +93,7 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       billingAddress,
       shippingAddress,
       bankDetails,
-      receiveableBalance,
+      receivableBalance,
       createdBy: req.fetchedUser._id,
     });
 
@@ -216,7 +217,7 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
       billingAddress: rest.billingAddress,
       shippingAddress: rest.shippingAddress,
       bankDetails: rest.bankDetails,
-      receiveableBalance: rest.receiveableBalance,
+      receivableBalance: rest.receivableBalance,
       createdBy: rest.createdBy,
     };
     console.log(orderedCustomer);
@@ -270,7 +271,7 @@ const updateCustomerAvatar = asyncHandler(async (req, res, next) => {
       billingAddress: rest.billingAddress,
       shippingAddress: rest.shippingAddress,
       bankDetails: rest.bankDetails,
-      receiveableBalance: rest.receiveableBalance,
+      receivableBalance: rest.receivableBalance,
       createdBy: rest.createdBy,
     };
     res
@@ -313,7 +314,7 @@ const deleteCustomer = asyncHandler(async (req, res, next) => {
       );
     }
 
-    if (customer.receiveableBalance > 0) {
+    if (customer.receivableBalance > 0) {
       return next(
         ApiError.validationFailed("Customer has some debt payment left balance")
       );
@@ -342,7 +343,7 @@ const deleteCustomer = asyncHandler(async (req, res, next) => {
 
 const fetchCustomer = asyncHandler(async (req, res, next) => {
   console.log("-----------------Fetch Customer-----------------");
-  const { mobileNo } = req.body;
+  const { mobileNo } = req.params;
   if (!mobileNo) {
     return next(ApiError.validationFailed("Mobile No or Email is required"));
   }
@@ -357,6 +358,7 @@ const fetchCustomer = asyncHandler(async (req, res, next) => {
     const { __v, createdAt, updatedAt, isDeleted, ...rest } =
       customer.toObject();
     const orderedCustomer = {
+      _id: rest._id,
       name: rest.name,
       mobileNo: rest.mobileNo,
       email: rest.email,
@@ -365,7 +367,7 @@ const fetchCustomer = asyncHandler(async (req, res, next) => {
       billingAddress: rest.billingAddress,
       shippingAddress: rest.shippingAddress,
       bankDetails: rest.bankDetails,
-      receiveableBalance: rest.receiveableBalance,
+      receivableBalance: rest.receivableBalance,
       createdBy: rest.createdBy,
     };
     res
@@ -382,6 +384,7 @@ const fetchCustomer = asyncHandler(async (req, res, next) => {
     return next(ApiError.dataNotFound(error.message, error));
   }
 });
+
 const fetchAllCustomer = asyncHandler(async (req, res, next) => {
   const customer = await Customer.aggregate([
     {
@@ -406,12 +409,13 @@ const fetchAllCustomer = asyncHandler(async (req, res, next) => {
     {
       $addFields: {
         customerInfo: {
+          _id: "$_id",
           name: "$name",
           mobileNo: "$mobileNo",
           email: "$email",
           avatar: "$avatar",
           totalNoOFInvoice: { $size: "$invoice" },
-          receiveableBalance: "$receiveableBalance",
+          receivableBalance: "$receivableBalance",
           createdAt: "$createdAt",
           createdBy: {
             name: { $arrayElemAt: ["$user.name", 0] },
@@ -450,6 +454,25 @@ const fetchAllCustomer = asyncHandler(async (req, res, next) => {
     );
 });
 
+const fetchCustomerDropdown = asyncHandler(async (req, res, next) => {
+  const customers = await Customer.aggregate([
+    {
+      $match: { isDeleted: false },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        mobileNo: 1,
+      },
+    },
+  ])
+  if(customers.length === 0){
+    return res.status(200).json(ApiResponse.successRead([], "No Customers found"));
+  }
+  res.status(200).json(ApiResponse.successRead(customers, "Customers fetched successfully"));
+})
+
 export {
   createCustomer,
   updateCustomer,
@@ -457,4 +480,5 @@ export {
   deleteCustomer,
   fetchCustomer,
   fetchAllCustomer,
+  fetchCustomerDropdown,
 };

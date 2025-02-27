@@ -24,7 +24,7 @@ function VendorController({ children }) {
 
   const getVendors = useCallback(async () => {
     const response = await axiosGet(FetchAllVendors);
-    return response;
+    return response.data;
   }, []);
 
   const getInitials = (name) => {
@@ -142,7 +142,7 @@ function VendorController({ children }) {
               variant="outline"
               effect="ringHover"
               size="sm"
-              onClick={() => navigate(`/vendor/ledger/${row.original.id}`)}
+              onClick={() => navigate(`/vendor/ledger/${row.original._id}`)}
               permissionModule="vendor"
               permissionAction="write"
             >

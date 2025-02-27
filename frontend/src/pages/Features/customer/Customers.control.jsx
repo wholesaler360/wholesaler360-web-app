@@ -24,7 +24,7 @@ function CustomerController({ children }) {
 
   const getCustomers = useCallback(async () => {
     const response = await axiosGet(FetchAllCustomers);
-    return response;
+    return response.data;
   }, []);
 
   const getInitials = (name) => {
@@ -87,7 +87,7 @@ function CustomerController({ children }) {
       ),
     }),
 
-    columnHelper.accessor("receiveableBalance", {
+    columnHelper.accessor("receivableBalance", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Balance" />
       ),

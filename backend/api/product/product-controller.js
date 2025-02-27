@@ -271,7 +271,7 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
 
 // Change from GET to POST
 const getProduct = asyncHandler(async (req, res, next) => {
-  let { skuCode } = req.body; // Now we can use req.body
+  let { skuCode } = req.params; // Now we can use req.body
 
   if (!skuCode) {
     return next(ApiError.validationFailed("Sku code is required"));
@@ -324,6 +324,7 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
     {
       $addFields: {
         productInfo: {
+          id: "$_id",
           name: "$name",
           skuCode: "$skuCode",
           productImg: "$productImg",
@@ -414,5 +415,120 @@ const getDiscountTypes = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { createProduct, updateProduct ,updateProductImage, getProduct ,fetchAllProduct, getDiscountTypes ,fetchProductDropdown ,deleteProduct };
+const fetchProductDropdownForInvoice = asyncHandler(async (req, res, next) => {
+  const products = await Product.aggregate([
+    {
+      $match: { isProductDeleted: false },
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    {
+      $lookup: {
+        from: "taxes",
+        localField: "taxRate",
+        foreignField: "_id",
+        as: "tax",
+      },
+    },
+    {
+      $lookup: {
+        from: "inventories",
+        localField: "_id",
+        foreignField: "productId",
+        as: "inventory",
+      },
+    },
+    {
+      $unwind: { path: "$inventory", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $unwind: { path: "$inventory.batches", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $lookup: {
+        from: "batches",
+        localField: "inventory.batches.batch",
+        foreignField: "_id",
+        as: "batch",
+      },
+    },
+    {
+      $unwind: { path: "$batch", preserveNullAndEmptyArrays: true },
+    },
+    {
+      // Include products even if no batch exists
+      $match: {
+        $or: [{ "batch.isDeleted": false }, { "batch": null }], 
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        productInfo: {
+          $first: {
+            id: "$_id",
+            name: "$name",
+            skuCode: "$skuCode",
+            category: { $arrayElemAt: ["$category.name", 0] },
+            taxRate: { $arrayElemAt: ["$tax.percent", 0] },
+            discountType: "$discountType",
+            discountValue: "$discountValue",
+            totalQuantity : "$inventory.totalQuantity",
+          },
+        },
+        batches: {
+          $push: {
+            batchId: "$batch._id",
+            batchNo: "$inventory.batches.batchNo",
+            totalQuantity: "$inventory.batches.totalQuantity",
+            salePrice: "$batch.salePriceWithoutTax",
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        "productInfo.batches": {
+          $cond: { if: { $eq: ["$batches.batchId", null] }, then: [], else: "$batches" },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        products: { $push: "$productInfo" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        products: 1,
+      },
+    },
+  ]);
+
+  if (products.length === 0) {
+    return next(ApiError.dataNotFound("No products exist"));
+  }
+
+  res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));
+});
+
+
+export { 
+  createProduct, 
+  updateProduct,
+  updateProductImage, 
+  getProduct,
+  fetchAllProduct, 
+  getDiscountTypes,
+  fetchProductDropdown, 
+  fetchProductDropdownForInvoice,
+  deleteProduct };
 

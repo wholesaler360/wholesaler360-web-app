@@ -9,7 +9,7 @@ roleRouter.route('/updateRole').put(updateRole)
 
 roleRouter.route('/assignPermission').put(assignPermission)
 
-roleRouter.route('/fetchRole').post(fetchPermission)
+roleRouter.route('/fetchRole/:name').get(fetchPermission)
 
 roleRouter.route('/deleteRole').delete(deleteRole)
 

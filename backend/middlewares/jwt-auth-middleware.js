@@ -9,7 +9,8 @@ import {requestVerify} from '../utils/convert-array-to-binary-utils.js'
 const authMiddleware = asyncHandler(async(req,res,next)=>{
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader ? authHeader.split(' ')[1] : null;
-
+    const refreshToken = req.cookies.refreshToken;
+    console.log("Refresh Token:",refreshToken);
     console.log("---------------------------------MIDDLEWARE-----------------------------");
     console.log("\nAccess Token received:", accessToken, "\n");
     
@@ -17,7 +18,11 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
     {
         return next(ApiError.validationFailed("Please provide the tokens"));
     }
-    
+    // Logout the user if the refresh token is not provided
+    if(!refreshToken){
+        return next(ApiError.unauthenticatedAccess("Please provide the refresh tokens or Login again"));
+    }
+
     let decodedAccessToken;
 
     try {
@@ -29,13 +34,25 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
         }
         else
         {
-            const options = {
-                httpOnly:true,
-                secure : process.env.NODE_ENV === "production",
-                sameSite : 'none'
-              }
-            res.clearCookie('refreshToken',options);
-            return next(new ApiError(400,error.message + " Invalid Access Token Login Again"));
+            try{
+                const options = {
+                    httpOnly:true,
+                    secure : true,
+                    sameSite : 'none'
+                }
+                res.clearCookie('refreshToken',options);
+                let decodedRefreshToken = jwt.decode(req.cookies.refreshToken);
+                if(decodedRefreshToken?._id){
+                    const user = await User.findById(decodedRefreshToken._id);
+                    user.refreshToken = null;
+                    await user.save();
+                }
+                return next(new ApiError(400,error.message + " Invalid Access Token Login Again"));
+            }
+            catch(error){
+                console.log("Error while logging out the user due to non token expiry errors: ",error);
+                return next(new ApiError(400,error.message + "Error while logging out the user due to non token expiry errors"));
+            }
         }
 
     }
@@ -58,14 +75,16 @@ const authMiddleware = asyncHandler(async(req,res,next)=>{
                 model: 'Module',        // Replace 'Section' with the actual model name for the sections
             },
         });
-        
-        console.log("Checking for the user permissions");
-        console.log(requestType, " ", requestModule);
-
         if (!user || user?.isUserDeleted) {
             return next(ApiError.dataNotFound("User not found"));
         }
+        //Logout the user if the refresh token is not valid        
+        if(user.refreshToken !== refreshToken){
+            return next(ApiError.unauthenticatedAccess("Password is changed or you donot have access login Again"));
+        }
         
+        console.log("Checking for the user permissions");
+        console.log(requestType, " ", requestModule);
         if (!user?.role || !user?.role.sections || !Array.isArray(user?.role.sections)) {
             return next(ApiError.unauthorizedAccess("User does not have valid sections assigned"));
         }

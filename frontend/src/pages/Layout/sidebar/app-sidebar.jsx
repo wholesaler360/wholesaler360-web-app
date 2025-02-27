@@ -28,11 +28,13 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserMenu from "./userMenu/index.jsx";
+import { useBranding } from "@/context/BrandingContext";
+import { useNavigate } from "react-router-dom";
 
 const data = {
   user: {
-    name: "Priyanshu",
-    mobile: "+91 7096562308",
+    name: "User",
+    mobile: "+91 9999999999",
     avatar: "/avatars/avatar-1.jpg",
   },
   NavItems: [
@@ -103,24 +105,12 @@ const data = {
         },
       ],
     },
-
     {
-      title: "Purchase",
-      url: "#",
+      title: "Purchases",
+      url: "/purchases",
       icon: ShoppingCart,
       isActive: false,
-      items: [
-        {
-          title: "Purchase Invoice",
-          url: "#",
-          permission: "purchase",
-        },
-        {
-          title: "Purchase Return",
-          url: "#",
-          permission: "purchase_return",
-        },
-      ],
+      permission: "purchase",
     },
     {
       title: "Reports",
@@ -189,6 +179,7 @@ export function AppSidebar({ ...props }) {
   const location = useLocation();
   const currentPath = location.pathname;
   const { hasReadPermission } = usePermission();
+  const { logoUrl } = useBranding();
 
   // Simplified filterNavItems function using the permission property
   const filterNavItems = (items) => {
@@ -224,15 +215,24 @@ export function AppSidebar({ ...props }) {
     }));
   }, [currentPath]);
 
+  const navigate = useNavigate();
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <div onClick={() => navigate('/')} className="cursor-pointer">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
+                  {/* {logoUrl && logoUrl !== "/" && (
+                    <img
+                      src={logoUrl}
+                      alt="Company Logo"
+                      className="h-8 w-auto object-contain mr-2"
+                    />
+                  )} */}
+                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Wholesaler 360</span>
@@ -240,7 +240,7 @@ export function AppSidebar({ ...props }) {
                     {new Date().toDateString()}
                   </span>
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

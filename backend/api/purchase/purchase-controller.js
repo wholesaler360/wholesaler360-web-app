@@ -89,7 +89,7 @@ const createPurchase = asyncHandler(async (req, res, next) => {
         }
 
         // Create the credit entry in the ledger
-        const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit", date: purchaseDateObj };
+        const ledgerDataCredit = { vendorId, amount: purchaseCreated.totalAmount, transactionType: "credit", date: purchaseDateObj, description };
         const ledgerResultCredit = await createLedgerService(ledgerDataCredit, req.fetchedUser, session);
         
         if (!(ledgerResultCredit.success)) {  
@@ -98,9 +98,9 @@ const createPurchase = asyncHandler(async (req, res, next) => {
             return next(ApiError[ledgerResultCredit.errorType](ledgerResultCredit.message));
         }
 
-        // // create debit entry in the ledger only if transaction type is debit
+        // create debit entry in the ledger only if transaction type is debit
         if(transactionType === "debit") {
-            const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode, date: purchaseDateObj };
+            const ledgerDataDebit = { vendorId, amount: initialPayment, transactionType, paymentMode, date: purchaseDateObj, description };
             const ledgerResultDebit = await createLedgerService(ledgerDataDebit, req.fetchedUser, session);
             
             if (!(ledgerResultDebit.success)) {
@@ -129,4 +129,77 @@ const createPurchase = asyncHandler(async (req, res, next) => {
 
 });
 
-export { createPurchase };
+const fetch = asyncHandler(async (req, res, next) => {
+    let { purchaseId } = req.params;
+    purchaseId = new mongoose.Types.ObjectId(purchaseId);
+
+    const purchase = await Purchase.findById({_id : purchaseId , isDeleted : false})
+    .populate(
+        {
+            path : "vendorId",
+            select : "-_id name"
+        }
+    
+    )
+    .populate(
+        {
+            path : "products.id",
+            select : "-_id name"
+        }
+    )
+    .populate(
+        {
+            path : "createdBy",
+            select : "-_id name"
+        }
+    )
+    .select("-isDeleted -__v -updatedAt -createdAt");
+    if (!purchase) {
+        return next(ApiError.dataNotFound("Purchase not found"));
+    }
+    res.status(200).json(ApiResponse.successRead(purchase, "Purchase fetched successfully"));
+})
+
+const fetchAll = asyncHandler(async (req, res, next) => {
+    const purchases = await Purchase.aggregate([
+      {
+        $match: { isDeleted: false }
+      },
+      {
+        $lookup: {
+            from: "vendors",
+            localField: "vendorId",
+            foreignField: "_id",
+            as: "vendor"
+        }
+      },
+      {
+        $addFields : {
+            purchaseNo : "$purchaseNo",
+            purchaseDate : "$purchaseDate",
+            vendorName : { $arrayElemAt: ["$vendor.name", 0] },
+            totalAmount : "$totalAmount",
+            paymentMode : "$paymentMode",
+            initialPayment : "$initialPayment",
+            transactionType : "$transactionType",
+        }
+      },
+      {
+        $project: {
+            _id: 1,
+            purchaseNo: 1,
+            purchaseDate: 1,
+            vendorName: 1,
+            totalAmount: 1,
+            paymentMode: 1,
+            initialPayment: 1,
+            transactionType: 1
+        }
+      }
+    ])
+    if(purchases.length === 0){
+        return res.status(200).json(ApiResponse.successRead([], "No purchases found"));
+    }
+    res.status(200).json(ApiResponse.successRead(purchases, "Purchases fetched successfully"));
+})
+export { createPurchase, fetch, fetchAll };

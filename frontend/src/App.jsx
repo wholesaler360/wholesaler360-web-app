@@ -4,6 +4,7 @@ import AppContainer from "./AppContainer";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/theme-context";
 import { AuthProvider } from "@/context/auth-context";
+import { BrandingProvider } from "./context/BrandingContext";
 
 export const AuthContext = createContext(null);
 
@@ -13,8 +14,10 @@ function App() {
       <BrowserRouter basename="/">
         <AuthProvider>
           <ThemeProvider>
-            <Toaster position="top-right" />
-            <AppContainer />
+            <BrandingProvider>
+              <Toaster position="top-right" />
+              <AppContainer />
+            </BrandingProvider>
           </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>

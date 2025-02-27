@@ -45,4 +45,4 @@ const ledgerSchema = new Schema(
 );
 
 
-export const Ledger = mongoose.model("Ledger", ledgerSchema);
+export const Ledger = mongoose.model("VendorLedger", ledgerSchema);

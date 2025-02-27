@@ -174,7 +174,7 @@ const fetchVendorsList = asyncHandler(async (req, res, next) => {
 });
 
 const fetchVendor = asyncHandler(async (req, res, next) => {
-  const { mobileNo } = req.body;
+  const { mobileNo } = req.params;
 
   if (!mobileNo?.trim()) {
     return next(ApiError.validationFailed("Mobile number is required"));

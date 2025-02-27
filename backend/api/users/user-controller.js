@@ -44,7 +44,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
     }
 
     // Checks if the avatar is uploaded or not
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
     if(!avatarLocalPath)
     {
         return next(ApiError.validationFailed("Avatar is required"));
@@ -152,7 +152,7 @@ const deleteUser = asyncHandler(async(req,res,next)=>{
 })
 
 const fetchUser = asyncHandler(async(req,res,next)=>{
-    const {mobileNo} = req.body;
+    const { mobileNo } = req.params;
     if(!mobileNo)
     {
         return next(ApiError.validationFailed("Please provide the mobile number"));

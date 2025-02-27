@@ -36,10 +36,12 @@ import {
 import { useContext } from "react";
 import { UserMenuContext } from "./userMenu.control";
 import { Link } from "react-router-dom";
+import { getUserData } from "@/lib/authUtils";
 
-function UserMenuComponent({ user }) {
+function UserMenuComponent() {
   const { logout } = useContext(UserMenuContext);
   const { isMobile } = useSidebar();
+  const user = getUserData();
 
   const handleLogout = () => {
     logout();
@@ -55,12 +57,14 @@ function UserMenuComponent({ user }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">P</AvatarFallback>
+                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarFallback className="rounded-lg">
+                  {user?.name[0].toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.mobile}</span>
+                <span className="truncate font-semibold">{user?.name}</span>
+                <span className="truncate text-xs">{user?.mobileNo}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -74,15 +78,52 @@ function UserMenuComponent({ user }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">P</AvatarFallback>
+                  <AvatarImage src={user?.avatar} alt={user?.name} />
+                  <AvatarFallback className="rounded-lg">
+                    {user?.name[0].toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.mobile}</span>
+                  <span className="truncate font-semibold">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.mobileNo}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                permissionModule="account-settings"
+                permissionAction="read"
+              >
+                <Link
+                  to="/account-settings"
+                  className="flex items-center w-full gap-2"
+                >
+                  <UserCog />
+                  Account Setting
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="company-settings"
+                permissionAction="read"
+              >
+                <Link
+                  to="/company-settings"
+                  className="flex items-center w-full gap-2"
+                >
+                  <Building />
+                  Company Setting
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                permissionModule="app-settings"
+                permissionAction="read"
+              >
+                <MonitorCog />
+                App Setting
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem permissionModule="user" permissionAction="read">
@@ -97,30 +138,6 @@ function UserMenuComponent({ user }) {
                   <ShieldCheck />
                   Roles & Permissions
                 </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                permissionModule="profile_setting"
-                permissionAction="read"
-              >
-                <UserCog />
-                Profile Setting
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                permissionModule="company_setting"
-                permissionAction="read"
-              >
-                <Building />
-                Company Setting
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                permissionModule="app_setting"
-                permissionAction="read"
-              >
-                <MonitorCog />
-                App Setting
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
