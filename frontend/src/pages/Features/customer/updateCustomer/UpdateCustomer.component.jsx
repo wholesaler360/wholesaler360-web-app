@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // State list from AddCustomer
 const statesList = [
@@ -55,6 +56,7 @@ const statesList = [
 function UpdateCustomerComponent() {
   const [customerData, setCustomerData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const {
     customerSchema,
@@ -78,19 +80,20 @@ function UpdateCustomerComponent() {
       try {
         const response = await fetchCustomerDetails(customerMobileNo);
         setCustomerData(response);
-        console.log(response);
         form.reset({
           ...response,
-          newMobileNo: response.mobileNo, // Set newMobileNo same as mobileNo initially
+          newMobileNo: response.mobileNo,
         });
       } catch (error) {
         console.error("Failed to fetch customer details", error);
+      } finally {
+        setIsInitialLoading(false);
       }
     };
     if (customerMobileNo) {
       fetchData();
     }
-  }, [customerMobileNo]);
+  }, [customerMobileNo, fetchCustomerDetails, form]);
 
   const onSubmit = async (values) => {
     try {
@@ -106,12 +109,10 @@ function UpdateCustomerComponent() {
 
       const formData = new FormData();
       formData.append("mobileNo", customerData.mobileNo);
-
       const imageFile = new File([croppedImage], "avatar.jpg", {
         type: "image/jpeg",
         lastModified: new Date().getTime(),
       });
-
       formData.append("avatar", imageFile);
 
       const result = await updateCustomerImage(formData);
@@ -126,6 +127,118 @@ function UpdateCustomerComponent() {
       console.error("Image update error:", error);
     }
   };
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10" />
+          <div>
+            <Skeleton className="h-8 w-[200px]" />
+            <Skeleton className="h-4 w-[300px] mt-2" />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="container mx-auto max-w-[1200px]">
+          <Card className="border-none shadow-md">
+            <CardContent className="p-6">
+              {/* Basic Details Skeleton */}
+              <section className="mb-8">
+                <div className="mb-4">
+                  <Skeleton className="h-6 w-[150px]" />
+                  <Skeleton className="h-4 w-[250px] mt-2" />
+                </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-[100px]" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Address Skeleton */}
+              <section className="mb-8">
+                <div className="mb-4">
+                  <Skeleton className="h-6 w-[180px]" />
+                  <Skeleton className="h-4 w-[280px] mt-2" />
+                </div>
+                <div className="grid gap-8 lg:grid-cols-2">
+                  {[...Array(2)].map((_, i) => (
+                    <Card key={i} className="border shadow-sm">
+                      <CardContent className="p-4 space-y-4">
+                        <Skeleton className="h-6 w-[120px]" />
+                        {[...Array(5)].map((_, j) => (
+                          <div key={j} className="space-y-2">
+                            <Skeleton className="h-4 w-[100px]" />
+                            <Skeleton className="h-10 w-full" />
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+
+              {/* Bank Details Skeleton */}
+              <section>
+                <div className="mb-4">
+                  <Skeleton className="h-6 w-[130px]" />
+                  <Skeleton className="h-4 w-[260px] mt-2" />
+                </div>
+                <Card className="border shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <Skeleton className="h-4 w-[100px]" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+
+              {/* Form Actions Skeleton */}
+              <div className="flex justify-end gap-4 mt-8">
+                <Skeleton className="h-10 w-[100px]" />
+                <Skeleton className="h-10 w-[150px]" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Image Management Skeleton */}
+          <div className="mt-8">
+            <Skeleton className="h-6 w-[150px] mb-4" />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <Card className="border-none shadow-md">
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <Skeleton className="h-6 w-[120px] mb-4" />
+                      <Skeleton className="aspect-square w-full max-w-md" />
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-4">
+                      <Skeleton className="h-6 w-[120px]" />
+                      <Skeleton className="h-40 w-full" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
