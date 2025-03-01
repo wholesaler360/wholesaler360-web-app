@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statesList = [
   "Andhra Pradesh",
@@ -54,6 +55,7 @@ const statesList = [
 function UpdateVendorComponent() {
   const [vendorData, setVendorData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const {
     vendorSchema,
@@ -66,6 +68,7 @@ function UpdateVendorComponent() {
   const navigate = useNavigate();
   const location = useLocation();
   const vendorMobileNo = location.state?.mobileNo;
+
   const form = useForm({
     resolver: zodResolver(vendorSchema),
     defaultValues: vendorData,
@@ -82,15 +85,18 @@ function UpdateVendorComponent() {
         });
       } catch (error) {
         console.error("Failed to fetch vendor details", error);
+      } finally {
+        setIsInitialLoading(false);
       }
     };
-    fetchData();
-  }, [vendorMobileNo]);
+    if (vendorMobileNo) {
+      fetchData();
+    }
+  }, [vendorMobileNo, fetchVendorDetails, form]);
 
   const onSubmit = async (values) => {
     try {
       await updateVendor(values);
-
       if (croppedImage) {
         const formData = new FormData();
         formData.append("mobileNo", values.mobileNo);
@@ -105,11 +111,9 @@ function UpdateVendorComponent() {
   const handleImageUpdate = async () => {
     try {
       if (!croppedImage) return;
-
       const formData = new FormData();
       formData.append("mobileNo", vendorData.mobileNo);
       formData.append("avatar", croppedImage);
-
       const result = await updateVendorAvatar(formData);
       if (result.success) {
         setCroppedImage(null);
@@ -120,6 +124,109 @@ function UpdateVendorComponent() {
       console.error("Image update error:", error);
     }
   };
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10" />
+          <div>
+            <Skeleton className="h-8 w-[200px]" />
+            <Skeleton className="h-4 w-[300px] mt-2" />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="container mx-auto max-w-[1200px]">
+          <Card className="border-none shadow-md">
+            <CardContent className="p-6">
+              {/* Basic Details Skeleton */}
+              <section className="mb-8">
+                <div className="mb-4">
+                  <Skeleton className="h-6 w-[150px]" />
+                  <Skeleton className="h-4 w-[250px] mt-2" />
+                </div>
+                <Card className="border shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="grid gap-4 md:grid-cols-3">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <Skeleton className="h-4 w-[100px]" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+
+              {/* Address Skeleton */}
+              <section>
+                <Card className="border shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <Skeleton className="h-4 w-[100px]" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+
+              {/* Bank Details Skeleton */}
+              <section className="mt-8">
+                <Card className="border shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <Skeleton className="h-4 w-[100px]" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+
+              {/* Form Actions Skeleton */}
+              <div className="flex justify-end gap-4 mt-8">
+                <Skeleton className="h-10 w-[100px]" />
+                <Skeleton className="h-10 w-[150px]" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Image Management Skeleton */}
+          <div className="mt-8">
+            <Skeleton className="h-6 w-[150px] mb-4" />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <Card className="border-none shadow-md">
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <Skeleton className="h-6 w-[120px] mb-4" />
+                      <Skeleton className="aspect-square w-full max-w-md" />
+                    </div>
+                    <Separator />
+                    <div className="space-y-4">
+                      <Skeleton className="h-6 w-[120px]" />
+                      <Skeleton className="h-40 w-full" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50">
@@ -151,113 +258,96 @@ function UpdateVendorComponent() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                
-
                 {/* Basic Details */}
-                <div className="flex flex-col gap-8">
-                  {/* Product Details Section */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">
-                      Vendor Details
-                    </h3>
-                    <Card className="border-none shadow-md">
-                      <CardContent className="p-6">
-                        <Form {...form}>
-                          <form
-                            onSubmit={form.handleSubmit(onSubmit)}
-                            className="space-y-6"
-                          >
-                            <div className="grid gap-4 md:grid-cols-3">
-                              <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Vendor Name</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter vendor name"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="mobileNo"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Current Mobile Number</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter mobile number"
-                                        disabled
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="newMobileNo"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>New Mobile Number</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter new mobile number"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Email Address</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter email address"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="gstin"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>GSTIN (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter GSTIN"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </form>
-                        </Form>
-                      </CardContent>
-                    </Card>
+                <section>
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold">Vendor Details</h3>
                   </div>
-
-                  
-                </div>
+                  <Card className="border shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Vendor Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter vendor name"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="mobileNo"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Current Mobile Number</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter mobile number"
+                                  disabled
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="newMobileNo"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>New Mobile Number</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter new mobile number"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email Address</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter email address"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="gstin"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>GSTIN (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter GSTIN" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </section>
 
                 {/* Address Details */}
                 <section>
@@ -461,21 +551,20 @@ function UpdateVendorComponent() {
             </Form>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Image Management Section */}
-      <div>
-                    <h3 className="text-lg font-semibold mb-4">Vendor Image</h3>
-                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                      <Card className="border-none shadow-md">
-                        <CardContent className="p-6">
-                          <div className="space-y-6">
-                            <div>
-                              <Label className="text-base font-semibold mb-4">
-                                Current Image
-                              </Label>
-                              <div className="mt-2 aspect-square w-full max-w-md overflow-hidden rounded-lg border">
-                              {vendorData?.imageUrl ? (
+        {/* Image Management Section */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Vendor Image</h3>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <Card className="border-none shadow-md">
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <Label className="text-base font-semibold mb-4">
+                      Current Image
+                    </Label>
+                    <div className="mt-2 aspect-square w-full max-w-md overflow-hidden rounded-lg border">
+                      {vendorData?.imageUrl ? (
                         <img
                           src={vendorData.imageUrl}
                           alt="Customer"
@@ -486,66 +575,67 @@ function UpdateVendorComponent() {
                           No image set
                         </div>
                       )}
-                              </div>
-                            </div>
-
-                            <Separator />
-
-                            <div className="space-y-4">
-                              <Label className="text-base font-semibold">
-                                Update Image
-                              </Label>
-                              <FileUpload
-                                onImageCropped={(croppedImg) => {
-                                  setCroppedImage(croppedImg);
-                                }}
-                                aspectRatio={1}
-                              />
-                            </div>
-
-                            {/* Image Update Button */}
-                            {croppedImage && (
-                              <div className="flex justify-end">
-                                <Button
-                                  type="button"
-                                  onClick={handleImageUpdate}
-                                  disabled={isLoading}
-                                  className={cn(
-                                    "min-w-[120px]",
-                                    isLoading && "animate-pulse"
-                                  )}
-                                >
-                                  {isLoading ? "Updating..." : "Update Image"}
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* Preview Card - Only shows when there's a new image */}
-                      {croppedImage && (
-                        <div className="lg:sticky lg:top-6">
-                          <Card className="border-none shadow-md">
-                            <CardContent className="p-6">
-                              <h3 className="mb-6 text-lg font-semibold">
-                                New Image Preview
-                              </h3>
-                              <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-950">
-                                <div className="aspect-square">
-                                  <img
-                                    src={URL.createObjectURL(croppedImage)}
-                                    alt="Preview"
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      )}
                     </div>
-                  </div>        
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold">
+                      Update Image
+                    </Label>
+                    <FileUpload
+                      onImageCropped={(croppedImg) => {
+                        setCroppedImage(croppedImg);
+                      }}
+                      aspectRatio={1}
+                    />
+                  </div>
+
+                  {/* Image Update Button */}
+                  {croppedImage && (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        onClick={handleImageUpdate}
+                        disabled={isLoading}
+                        className={cn(
+                          "min-w-[120px]",
+                          isLoading && "animate-pulse"
+                        )}
+                      >
+                        {isLoading ? "Updating..." : "Update Image"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Preview Card - Only shows when there's a new image */}
+            {croppedImage && (
+              <div className="lg:sticky lg:top-6">
+                <Card className="border-none shadow-md">
+                  <CardContent className="p-6">
+                    <h3 className="mb-6 text-lg font-semibold">
+                      New Image Preview
+                    </h3>
+                    <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-950">
+                      <div className="aspect-square">
+                        <img
+                          src={URL.createObjectURL(croppedImage)}
+                          alt="Preview"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
