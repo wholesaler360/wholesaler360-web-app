@@ -27,9 +27,12 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function UpdateProductComponent() {
   const [productData, setProductData] = useState(null);
+  const [croppedImage, setCroppedImage] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const {
     categories,
@@ -46,7 +49,6 @@ function UpdateProductComponent() {
   const navigate = useNavigate();
   const location = useLocation();
   const productSkuCode = location.state?.productSkuCode;
-  const [croppedImage, setCroppedImage] = useState(null);
 
   const form = useForm({
     resolver: zodResolver(productSchema),
@@ -72,6 +74,8 @@ function UpdateProductComponent() {
         form.reset(formData); // Set form values with transformed data
       } catch (error) {
         console.error("Failed to fetch product details", error);
+      } finally {
+        setIsInitialLoading(false);
       }
     };
     fetchData();
@@ -128,6 +132,100 @@ function UpdateProductComponent() {
       console.error("Image update error:", error);
     }
   };
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10" />
+          <div>
+            <Skeleton className="h-8 w-[200px]" />
+            <Skeleton className="h-4 w-[300px] mt-2" />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="flex flex-col gap-8">
+          {/* Product Details Form Skeleton */}
+          <div>
+            <Skeleton className="h-6 w-[150px] mb-4" />
+            <Card className="border-none shadow-md">
+              <CardContent className="p-6">
+                {/* Basic Details Section */}
+                <div className="space-y-4">
+                  <Skeleton className="h-5 w-[100px]" />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-[100px]" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Category and Price Section */}
+                <div className="space-y-4 mt-6">
+                  <Skeleton className="h-5 w-[140px]" />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-[100px]" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Stock and Tax Section */}
+                <div className="space-y-4 mt-6">
+                  <Skeleton className="h-5 w-[100px]" />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-[100px]" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Form Actions Skeleton */}
+                <div className="flex justify-end gap-4 pt-4">
+                  <Skeleton className="h-10 w-[100px]" />
+                  <Skeleton className="h-10 w-[150px]" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Image Management Skeleton */}
+          <div>
+            <Skeleton className="h-6 w-[150px] mb-4" />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <Card className="border-none shadow-md">
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <Skeleton className="h-6 w-[120px] mb-4" />
+                      <Skeleton className="aspect-square w-full max-w-md" />
+                    </div>
+                    <Separator />
+                    <div className="space-y-4">
+                      <Skeleton className="h-6 w-[120px]" />
+                      <Skeleton className="h-40 w-full" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
@@ -443,3 +541,4 @@ function UpdateProductComponent() {
 }
 
 export default UpdateProductComponent;
+
