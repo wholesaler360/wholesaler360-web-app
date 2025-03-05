@@ -127,8 +127,13 @@ function UserMenuComponent() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem permissionModule="user" permissionAction="read">
-                <UserPlus />
-                Users
+                <Link
+                  to="/users"
+                  className="flex items-center w-full gap-2"
+                >
+                  <UserPlus />
+                  Users
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem permissionModule="role" permissionAction="read">
                 <Link

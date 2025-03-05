@@ -20,6 +20,9 @@ import AddPurchase from "@/pages/Features/purchases/addPurchase";
 import Invoices from "@/pages/Features/invoice";
 import AddInvoice from "@/pages/Features/invoice/addInvoice";
 import Payments from "@/pages/Features/payments";
+import Users from "@/pages/Features/users";
+import AddUser from "@/pages/Features/users/addUser";
+import UpdateUser from "@/pages/Features/users/updateUser";
 
 const authRoutes = [
   {
@@ -126,6 +129,26 @@ const authRoutes = [
     path: "/payments",
     element: <Payments />,
     permission: "payment",
+  },
+  {
+    path: "/users",
+    element: <Users />,
+    permission: "user",
+  },
+  {
+    path: "/users",
+    element: <Users />,
+    permission: "user",
+  },
+  {
+    path: "/user/add",
+    element: <AddUser />,
+    permission: "user",
+  },
+  {
+    path: "/user/edit",
+    element: <UpdateUser />,
+    permission: "user",
   },
 ];
 

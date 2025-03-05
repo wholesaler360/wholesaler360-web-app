@@ -263,42 +263,42 @@ export function FileUpload({
         </Label>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4">
-          {image && (
-            <Button variant="destructive" size="sm" onClick={handleRemoveImage}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Remove Image
-            </Button>
-          )}
+          <div className="flex items-center gap-4">
+            {image && (
+              <Button variant="destructive" size="sm" onClick={handleRemoveImage}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                <span className="text-white dark:text-white">Remove Image</span>
+              </Button>
+            )}
 
-          {enableAIGeneration && (
-            <ShimmerButton
-              onClick={handleGenerateImage}
-              disabled={isGenerating}
-              className={cn("px-4 py-2", isGenerating && "opacity-80")}
-              shimmerColor="pink"
-            >
-              <div className="relative flex items-center gap-2">
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    <span>
-                      {image ? "Generate Another Image" : "Generate Image"}
-                    </span>
-                  </>
-                )}
+            {enableAIGeneration && (
+              <ShimmerButton
+                onClick={handleGenerateImage}
+                disabled={isGenerating}
+                className={cn("px-4 py-2", isGenerating && "opacity-80")}
+                shimmerColor="pink"
+              >
+                <div className="relative flex items-center gap-2 text-white dark:text-white">
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Generating...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" />
+                <span>
+                  {image ? "Generate Another Image" : "Generate Image"}
+                </span>
+              </>
+            )}
+                </div>
+              </ShimmerButton>
+            )}
+          </div>
               </div>
-            </ShimmerButton>
-          )}
-        </div>
-      </div>
 
-      {/* Cropper Dialog */}
+              {/* Cropper Dialog */}
       <Dialog
         open={isDialogOpen}
         onOpenChange={(open) => {
