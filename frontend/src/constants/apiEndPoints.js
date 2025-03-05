@@ -73,3 +73,6 @@ export const updateCompanyFavicon =
 // Purchase
 export const FetchAllPurchases = "/purchase/fetchAll";
 export const CreatePurchase = "/purchase/create";
+
+// Inovice
+export const FetchAllInvoices = "/invoice/fetchAll";
