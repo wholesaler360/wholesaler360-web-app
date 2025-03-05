@@ -80,3 +80,6 @@ export const CreatePurchase = "/purchase/create";
 // Inovice
 export const FetchAllInvoices = "/invoice/fetchAll";
 export const CreateInvoice = "/invoice/create";
+
+// Payment
+export const FetchAllPayments = "/payment/fetch";
