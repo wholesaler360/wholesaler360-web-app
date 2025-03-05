@@ -83,7 +83,7 @@ function InvoiceController({ children }) {
         return (
           <span
             className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-              type === "credit"
+              type === "debit"
                 ? "bg-yellow-50 text-yellow-700 ring-yellow-600/20"
                 : "bg-green-50 text-green-700 ring-green-600/20"
             }`}

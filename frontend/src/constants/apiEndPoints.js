@@ -21,6 +21,7 @@ export const DeleteCategory = "/category/deleteCategory";
 export const FetchAllProducts = "/product/fetchAllProduct";
 export const FetchProduct = "/product/fetchProduct";
 export const FetchProductListDropdown = "/product/fetchProductDropdown";
+export const FetchProductListDropdownInvoice = "/product/fetchProductDropdownInvoice";
 export const DeleteProduct = "product/deleteProduct";
 export const CreateProduct = "/product/createProduct";
 export const FetchAllTaxes = "/tax/getAllTax";
@@ -67,6 +68,7 @@ export const updateCompanyDetails = "/company-settings/companyDetails/update";
 export const updateCompanyBankDetails = "/company-settings/bankDetails/update";
 export const updateCompanyLogo = "/company-settings/companyDetails/updateLogo";
 export const addCompanySignature = "/company-settings/signature/create";
+export const fetchCompanySignatures = "/company-settings/signature/fetch";
 export const deleteCompanySignature = "/company-settings/signature/delete";
 export const updateCompanyFavicon =
   "/company-settings/companyDetails/updateFavicon";
