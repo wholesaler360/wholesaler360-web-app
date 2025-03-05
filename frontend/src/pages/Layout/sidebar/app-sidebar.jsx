@@ -148,7 +148,7 @@ const data = {
         },
         {
           title: "Payments",
-          url: "#",
+          url: "/payments",
           permission: "payment",
         },
       ],

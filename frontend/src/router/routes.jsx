@@ -19,6 +19,7 @@ import Purchases from "@/pages/Features/purchases";
 import AddPurchase from "@/pages/Features/purchases/addPurchase";
 import Invoices from "@/pages/Features/invoice";
 import AddInvoice from "@/pages/Features/invoice/addInvoice";
+import Payments from "@/pages/Features/payments";
 
 const authRoutes = [
   {
@@ -120,6 +121,11 @@ const authRoutes = [
     path: "/invoice/add",
     element: <AddInvoice />,
     permission: "invoice",
+  },
+  {
+    path: "/payments",
+    element: <Payments />,
+    permission: "payment",
   },
 ];
 
