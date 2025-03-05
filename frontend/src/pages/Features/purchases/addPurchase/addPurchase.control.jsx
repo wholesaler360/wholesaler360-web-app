@@ -69,7 +69,7 @@ function AddPurchaseControl({ children }) {
         navigate("/purchases");
       }
     } catch (error) {
-      showNotification.error(error.message || "Failed to create purchase");
+      showNotification.error(error.response?.data?.message || "Failed to create purchase");
       throw error;
     } finally {
       setIsLoading(false);
