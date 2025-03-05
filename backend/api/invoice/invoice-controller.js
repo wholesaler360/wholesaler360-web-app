@@ -234,4 +234,64 @@ const createInvoice = asyncHandler(async (req, res, next) => {
 
 });
 
-export { createInvoice };
+
+const fetchAll = asyncHandler(async (req, res, next) => {
+    try {
+        // const invoices = await Invoice.find(
+        //     {
+        //         isSaleReturn: false,
+        //     },
+        //     {
+        //         select: "_id invoiceNo invoiceDate customerId totalAmount",
+        //     },
+        //     {
+        //         sort: { createdAt: -1 },
+        //     }
+        // );
+
+        // if (!invoices?.length) {
+        //     return next(ApiError.dataNotFound("No Invoices found"));
+        // }
+
+        // return res.status(200).json(ApiResponse.successRead(invoices));
+
+        const invoices = await Invoice.aggregate([
+            {
+                $match: {
+                    isSaleReturn: false,
+                }
+            },
+            {
+                $lookup: {
+                    from: "customers",
+                    localField: "customerId",
+                    foreignField: "_id",
+                    as: "customer",
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    invoiceNo: 1,
+                    invoiceDate: 1,
+                    initialPayment : 1,
+                    totalAmount: 1,
+                    transactionType: 1,
+                    paymentMode: 1,
+                    customerName: { $arrayElemAt: ["$customer.name", 0] },
+
+                }
+            }
+        ])
+        if(!invoices?.length) {
+            return res.status(200).json(ApiResponse.successRead([]));
+        }
+        return res.status(200).json(ApiResponse.successRead(invoices));
+
+    } catch (error) {
+        console.log(`Error fetching invoices: ${error}`);
+        return next(ApiError.dataNotFound("Failed to fetch invoices"));
+    }
+});
+
+export { createInvoice, fetchAll };
