@@ -486,6 +486,7 @@ const fetchProductDropdownForInvoice = asyncHandler(async (req, res, next) => {
           $push: {
             batchId: "$batch._id",
             batchNo: "$inventory.batches.batchNo",
+            currentQuantity: "$batch.currentQuantity",
             totalQuantity: "$inventory.batches.totalQuantity",
             salePrice: "$batch.salePriceWithoutTax",
           },

@@ -83,6 +83,7 @@ const fetchAllBatch = asyncHandler(async (req, res, next) => {
               batchId: "$batch._id",
               batchNo: "$batches.batchNo",
               purchasePrice: "$batch.purchasePrice",
+              currentQuantity: "$batch.currentQuantity",
               salePriceWithoutTax: "$batch.salePriceWithoutTax",
               isSalePriceEntered: "$batch.isSalePriceEntered",
               purchaseNo : "$purchase.purchaseNo",
