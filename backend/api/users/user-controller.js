@@ -9,9 +9,9 @@ import { uploadFile, deleteFromLocalPath, deleteFromCloudinary } from "../../uti
 const createUser = asyncHandler(async(req,res,next)=>{
 
     // take the values and validate it 
-    const {name, email, mobileNo, password, confirmPassword, role} = req.body;
+    const {name, email, mobileNo, password, role} = req.body;
 
-    if ([name, email, mobileNo, password, confirmPassword, role ].some((field) => !field?.trim())) {
+    if ([name, email, mobileNo, password, role ].some((field) => !field?.trim())) {
         return next(ApiError.validationFailed("Please provide all required fields"));
     }
 
@@ -24,13 +24,6 @@ const createUser = asyncHandler(async(req,res,next)=>{
     {
         deleteFromLocalPath(req.files?.avatar[0]?.path);
         return next(ApiError.valueAlreadyExists("User Already Exists"))
-    }
-    
-    // Checks if the password and confirm password are same
-    if(confirmPassword !== password)
-    {
-        deleteFromLocalPath(req.files?.avatar[0]?.path);
-        return next(ApiError.validationFailed("confirm password does not matchs the password"))
     }
 
     // Checks if role exists or not and trim and convert to lower case

@@ -83,3 +83,9 @@ export const CreateInvoice = "/invoice/create";
 
 // Payment
 export const FetchAllPayments = "/payment/fetch";
+
+// User
+export const FetchAllUsers = "/user/fetchAll";
+export const CreateUser = "/user/createUser";
+export const UpdateUser = "/user/update";
+export const UpdateUserAvatar = "/user/updateAvatar";
