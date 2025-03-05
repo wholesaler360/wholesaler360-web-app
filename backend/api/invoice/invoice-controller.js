@@ -237,24 +237,6 @@ const createInvoice = asyncHandler(async (req, res, next) => {
 
 const fetchAll = asyncHandler(async (req, res, next) => {
     try {
-        // const invoices = await Invoice.find(
-        //     {
-        //         isSaleReturn: false,
-        //     },
-        //     {
-        //         select: "_id invoiceNo invoiceDate customerId totalAmount",
-        //     },
-        //     {
-        //         sort: { createdAt: -1 },
-        //     }
-        // );
-
-        // if (!invoices?.length) {
-        //     return next(ApiError.dataNotFound("No Invoices found"));
-        // }
-
-        // return res.status(200).json(ApiResponse.successRead(invoices));
-
         const invoices = await Invoice.aggregate([
             {
                 $match: {

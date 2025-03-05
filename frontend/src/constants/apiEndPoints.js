@@ -35,6 +35,7 @@ export const CreateCustomer = "/customer/create";
 export const UpdateCustomer = "/customer/update";
 export const UpdateCustomerImage = "/customer/updateImg";
 export const DeleteCustomer = "/customer/delete";
+export const FetchCustomerList = "customer/fetchCustomerDropdown";
 
 //Vendor
 export const FetchAllVendors = "/vendor/fetchAll";
@@ -73,3 +74,7 @@ export const updateCompanyFavicon =
 // Purchase
 export const FetchAllPurchases = "/purchase/fetchAll";
 export const CreatePurchase = "/purchase/create";
+
+// Inovice
+export const FetchAllInvoices = "/invoice/fetchAll";
+export const CreateInvoice = "/invoice/create";
