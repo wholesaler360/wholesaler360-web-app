@@ -25,7 +25,8 @@ import { companySettingsRouter } from "./api/settings/company-settings/company-s
 import { appSettingsRouter } from "./api/settings/app-settings/app-settings-route.js";
 import { customerLedgerRouter } from "./api/customer-ledger/customer-ledger-route.js";
 import { invoiceRouter } from "./api/invoice/invoice-route.js";
-
+import { dashboardRouter } from "./api/dashboard/dashboard-route.js";
+import { paymentRouter} from "./api/payment-summary/payment-summary-route.js";
 // TODO : Validation like email, mobile number etc..,
 
 
@@ -65,6 +66,7 @@ app.use('/seed', seederRouter);
 
 // Use the authMiddleware for all routes
 app.use(authMiddleware);
+app.use('/dashboard', dashboardRouter);
 
 app.use('/role', roleRouter);
 app.use("/user", userRouter);
@@ -91,6 +93,7 @@ app.use('/company-settings', companySettingsRouter);
 app.use('/app-settings', appSettingsRouter)
 
 
+app.use('/payment', paymentRouter);
 // catch all undefined routes for authenticated users
 app.use('*', (req, res, next) => {
     return next(new ApiError(404, 'Route not found'));
