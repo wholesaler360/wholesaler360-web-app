@@ -17,6 +17,7 @@ import CompanySettings from "@/pages/Features/company-settings";
 import VendorLedger from "@/pages/Features/vendor-ledger";
 import Purchases from "@/pages/Features/purchases";
 import AddPurchase from "@/pages/Features/purchases/addPurchase";
+import Invoices from "@/pages/Features/invoice";
 
 const authRoutes = [
   {
@@ -108,6 +109,11 @@ const authRoutes = [
     path: "/purchase/add",
     element: <AddPurchase />,
     permission: "purchase",
+  },
+  {
+    path: "/invoices",
+    element: <Invoices />,
+    permission: "invoice",
   },
 ];
 

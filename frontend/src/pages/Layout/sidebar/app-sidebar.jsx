@@ -90,18 +90,18 @@ const data = {
       items: [
         {
           title: "Quotation",
-          url: "/quotation",
+          url: "/quotations",
           permission: "quotation",
         },
         {
           title: "Invoice",
-          url: "#",
+          url: "/invoices",
           permission: "invoice",
         },
         {
           title: "Sales Return",
           url: "#",
-          permission: "sales_return",
+          permission: "sales-return",
         },
       ],
     },

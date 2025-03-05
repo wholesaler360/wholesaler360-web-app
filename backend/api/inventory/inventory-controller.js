@@ -155,8 +155,26 @@ const stockDeductionInventoryService = async(invoiceData, session)=> {
       path: "batches.batch",
       match: { isDeleted: false }
     }).select("batches totalQuantity productId").session(session);
-    console.log("Inventories:\n",inventories);
-    
+
+    console.log("---------Full Inventory Details:------------");
+    inventories.forEach(inventory => {
+      // Filter out batches where batch is null (deleted batches)
+      inventory.batches = inventory.batches.filter(batchItem => batchItem.batch);
+      
+      console.log(`\nProduct ID: ${inventory.productId}`);
+      console.log(`Total Quantity: ${inventory.totalQuantity}`);
+      console.log("Batches:");
+      inventory.batches.forEach(batchItem => {
+        console.log({
+          batchNo: batchItem.batchNo,
+          currentQuantity: batchItem.batch?.currentQuantity,
+          purchaseId: batchItem.batch?.purchaseId,
+          purchasePrice: batchItem.batch?.purchasePrice,
+          salePriceWithoutTax: batchItem.batch?.salePriceWithoutTax
+        });
+      });
+    });
+
     const bulkBatchUpdates = [];
     const bulkInventoryUpdates = [];
 
@@ -174,16 +192,16 @@ const stockDeductionInventoryService = async(invoiceData, session)=> {
 
       let remainingQuantity = element.quantity;
 
-      for (const batch of inventory.batches) {
-        if (batch.batch.currentQuantity > 0) {
-          const quantity = Math.min(remainingQuantity, batch.batch.currentQuantity);
+      for (const batchItem of inventory.batches) {
+        if (batchItem.batch.currentQuantity > 0) {
+          const quantity = Math.min(remainingQuantity, batchItem.batch.currentQuantity);
           remainingQuantity -= quantity;
-          batch.batch.currentQuantity -= quantity;
+          batchItem.batch.currentQuantity -= quantity;
 
           bulkBatchUpdates.push({
             updateOne: {
-              filter: { _id: batch.batch._id },
-              update: { $set: { currentQuantity: batch.batch.currentQuantity, isDeleted: batch.batch.currentQuantity === 0 } }
+              filter: { _id: batchItem.batch._id },
+              update: { $set: { currentQuantity: batchItem.batch.currentQuantity, isDeleted: batchItem.batch.currentQuantity === 0 } }
             }
           });
 
