@@ -3,11 +3,15 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { axiosGet } from "@/constants/api-context";
 import { FetchAllInvoices } from "@/constants/apiEndPoints";
 import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
+import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ButtonV2 } from "@/components/ui/button-v2";
 
 export const InvoiceContext = createContext({});
 
 function InvoiceController({ children }) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const navigate = useNavigate();
 
   const getInvoices = useCallback(async () => {
     const response = await axiosGet(FetchAllInvoices);
@@ -98,14 +102,44 @@ function InvoiceController({ children }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Payment Mode" />
       ),
-      cell: ({ getValue }) => (
-        <span className="capitalize">{getValue()}</span>
-      ),
+      cell: ({ getValue }) => <span className="capitalize">{getValue()}</span>,
+    }),
+
+    columnHelper.accessor("_id", {
+      header: "View Invoice",
+      id: "actions",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center justify-start">
+            <ButtonV2
+              variant="outline"
+              effect="ringHover"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/invoice/view/${row.original._id}`);
+              }}
+              permissionModule="invoice"
+              permissionAction="read"
+            >
+              <Eye className="h-4 w-4 mr-1" />
+              View
+            </ButtonV2>
+          </div>
+        );
+      },
     }),
   ];
 
   return (
-    <InvoiceContext.Provider value={{ getInvoices, columns, refreshTrigger }}>
+    <InvoiceContext.Provider
+      value={{
+        getInvoices,
+        columns,
+        refreshTrigger,
+        setRefreshTrigger,
+      }}
+    >
       {children}
     </InvoiceContext.Provider>
   );
