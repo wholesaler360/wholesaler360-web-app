@@ -21,7 +21,8 @@ export const DeleteCategory = "/category/deleteCategory";
 export const FetchAllProducts = "/product/fetchAllProduct";
 export const FetchProduct = "/product/fetchProduct";
 export const FetchProductListDropdown = "/product/fetchProductDropdown";
-export const FetchProductListDropdownInvoice = "/product/fetchProductDropdownInvoice";
+export const FetchProductListDropdownInvoice =
+  "/product/fetchProductDropdownInvoice";
 export const DeleteProduct = "product/deleteProduct";
 export const CreateProduct = "/product/createProduct";
 export const FetchAllTaxes = "/tax/getAllTax";
@@ -77,9 +78,11 @@ export const updateCompanyFavicon =
 export const FetchAllPurchases = "/purchase/fetchAll";
 export const CreatePurchase = "/purchase/create";
 
-// Inovice
+// Invoice
 export const FetchAllInvoices = "/invoice/fetchAll";
 export const CreateInvoice = "/invoice/create";
+export const FetchInvoice = "/invoice/fetch";
+export const FetchInvoiceById = (id) => `/invoice/fetch/${id}`;
 
 // Payment
 export const FetchAllPayments = "/payment/fetch";

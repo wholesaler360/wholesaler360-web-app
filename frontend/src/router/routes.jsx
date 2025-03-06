@@ -24,6 +24,7 @@ import Users from "@/pages/Features/users";
 import AddUser from "@/pages/Features/users/addUser";
 import UpdateUser from "@/pages/Features/users/updateUser";
 import AppSettings from "@/pages/Features/app-settings";
+import ViewInvoice from "@/pages/Features/invoice/viewInvoice";
 
 const authRoutes = [
   {
@@ -155,6 +156,11 @@ const authRoutes = [
     path: "/app-settings",
     element: <AppSettings />,
     permission: "app-settings",
+  },
+  {
+    path: "/invoice/view/:id",
+    element: <ViewInvoice />,
+    permission: "invoice",
   },
 ];
 
