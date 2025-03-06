@@ -276,4 +276,27 @@ const fetchAll = asyncHandler(async (req, res, next) => {
     }
 });
 
-export { createInvoice, fetchAll };
+const fetchInvoiceById = asyncHandler(async (req, res, next) => {
+    const {invoiceId} = req.params;
+
+    if (!invoiceId) {
+        return next(ApiError.validationFailed("Please provide the invoice id"));
+    }
+    try {
+        const invoice = await Invoice.findById(invoiceId)
+            .populate({ path: "customerId", select: "-_id name" })
+            .populate({ path: "products.id", select: "name" })
+            .populate({ path: "bankDetails", select: "bankName accountNumber" })
+            .populate({ path: "signature", select: "name designation" });
+
+        if (!invoice) {
+            return next(ApiError.notFound("Invoice not found"));
+        }
+
+        return res.status(200).json(ApiResponse.successRead(invoice));
+    } catch (error) {
+        console.log(`Error fetching invoice: ${error}`);
+        return next(ApiError.dataNotFound("Failed to fetch invoice"));
+    }
+});
+export { createInvoice, fetchAll , fetchInvoiceById};

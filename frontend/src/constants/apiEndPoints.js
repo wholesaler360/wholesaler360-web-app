@@ -94,3 +94,7 @@ export const UpdateUserAvatar = "/user/updateAvatar";
 export const FetchDashboard = "/dashboard/fetch";
 export const FetchAlertProductDashboard = "/dashboard/fetchAlert";
 export const FetchBestSellingProductDashboard = "/dashboard/fetchBestSellingProduct";
+
+// App Settings
+export const fetchAppEmailSettings = "app-settings/emailSettings/fetch";
+export const updateAppEmailSettings = "app-settings/emailSettings/update";
