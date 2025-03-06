@@ -66,26 +66,33 @@ const createUser = asyncHandler(async(req,res,next)=>{
 
 const updateUser = asyncHandler(async(req,res,next)=>{
     console.log("-----------------Edit User details-----------------");
-    
+    let userComing = req.fetchedUser;
     let name = req.body?.name?.trim().toLowerCase();
     let mobileNo = req.body?.mobileNo;
     let newMobileNo = req.body?.newMobileNo || mobileNo;
     let email = req.body?.email;
-    if(!name || !mobileNo || !email)
+    let role = req.body?.role;
+
+    if(!name || !mobileNo || !email || !role)
     {
         return next(ApiError.validationFailed("Please provide the name and mobile number and email"));
+    }
+
+    if(userComing.role.name !== 'super admin' && role === 'super admin'){
+        return next(ApiError.validationFailed("You donot have right to assign super admin role because you are sub-admin"))
     }
 
     const user = await User.findOne({mobileNo : mobileNo, isUserDeleted : false})
     .populate({path :'role', select : '-_id name'})
     .select('-password -refreshToken -otp -otpExpiry -isUserDeleted -createdAt -updatedAt -__v');
+
     if(!user){
         return next(ApiError.dataNotFound("User not found"));
     }
-    if(user.role.name === 'super admin'){
-        return next(ApiError.validationFailed("Super Admin cannot be updated"));
-    }
     
+    if(user.role.name === 'super admin'){
+        return next(ApiError.validationFailed("Super admins role and details cannot be changed"))
+    }
     try {
         const condition = [];
         if(newMobileNo !== mobileNo){
@@ -101,10 +108,15 @@ const updateUser = asyncHandler(async(req,res,next)=>{
                 return next(ApiError.validationFailed("Mobile number or email already exists"));
             }
         }
-
+        const roleId = await Role.findOne({name : role , isRoleDeleted : false});
+        if(!roleId)
+        {
+            return next(ApiError.validationFailed("Role does not exists"));
+        }
         user.name = name;
         user.mobileNo = newMobileNo;
         user.email = email;
+        user.role = roleId._id;
         await user.save();
 
         res.status(200).json(ApiResponse.successUpdated(user,"User updated successfully"));
