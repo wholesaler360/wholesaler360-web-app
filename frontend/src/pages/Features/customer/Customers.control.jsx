@@ -43,10 +43,7 @@ function CustomerController({ children }) {
         <DataTableColumnHeader column={column} title="Customer" />
       ),
       cell: ({ row }) => (
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate(`/customer/${row.original.id}`)}
-        >
+        <div className="flex items-center gap-3">
           {row.original.avatar ? (
             <Avatar className="h-9 w-9">
               <AvatarImage src={row.original.avatar} alt={row.original.name} />
@@ -59,7 +56,7 @@ function CustomerController({ children }) {
             </Avatar>
           )}
           <div className="flex flex-col">
-            <span className="font-medium hover:text-primary">
+            <span className="font-medium">
               {row.original.name}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -140,7 +137,7 @@ function CustomerController({ children }) {
               setRefreshTrigger((prev) => prev + 1);
             }
           } catch (error) {
-            showNotification.error("Failed to delete customer");
+            showNotification.error("Can not delete customer");
           }
         };
 

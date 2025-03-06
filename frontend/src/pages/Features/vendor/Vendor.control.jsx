@@ -43,10 +43,7 @@ function VendorController({ children }) {
         <DataTableColumnHeader column={column} title="Vendor" />
       ),
       cell: ({ row }) => (
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate(`/vendor/${row.original.id}`)}
-        >
+        <div className="flex items-center gap-3">
           {row.original.imageUrl ? (
             <Avatar className="h-9 w-9">
               <AvatarImage
@@ -62,7 +59,7 @@ function VendorController({ children }) {
             </Avatar>
           )}
           <div className="flex flex-col">
-            <span className="font-medium hover:text-primary">
+            <span className="font-medium">
               {row.original.name}
             </span>
             <span className="text-xs text-muted-foreground">

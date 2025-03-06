@@ -89,3 +89,8 @@ export const FetchAllUsers = "/user/fetchAll";
 export const CreateUser = "/user/createUser";
 export const UpdateUser = "/user/update";
 export const UpdateUserAvatar = "/user/updateAvatar";
+
+// Dashboard
+export const FetchDashboard = "/dashboard/fetch";
+export const FetchAlertProductDashboard = "/dashboard/fetchAlert";
+export const FetchBestSellingProductDashboard = "/dashboard/fetchBestSellingProduct";

@@ -116,13 +116,13 @@ function UserMenuComponent() {
                   Company Setting
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 permissionModule="app-settings"
                 permissionAction="read"
               >
                 <MonitorCog />
                 App Setting
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
