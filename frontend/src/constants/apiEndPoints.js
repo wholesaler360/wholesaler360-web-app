@@ -89,3 +89,7 @@ export const FetchAllUsers = "/user/fetchAll";
 export const CreateUser = "/user/createUser";
 export const UpdateUser = "/user/update";
 export const UpdateUserAvatar = "/user/updateAvatar";
+
+// App Settings
+export const fetchAppEmailSettings = "app-settings/emailSettings/fetch";
+export const updateAppEmailSettings = "app-settings/emailSettings/update";
