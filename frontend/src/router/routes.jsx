@@ -3,7 +3,7 @@ import Categories from "@/pages/Features/categories";
 import Customers from "@/pages/Features/customer";
 import AddCustomer from "@/pages/Features/customer/addCustomer";
 import UpdateCustomer from "@/pages/Features/customer/updateCustomer";
-import Dashboard from "@/pages/Features/dashboard/Dashboard.jsx";
+import Dashboard from "@/pages/Features/dashboard/index";
 import Stock from "@/pages/Features/stock";
 import Products from "@/pages/Features/products";
 import AddProduct from "@/pages/Features/products/addProduct";

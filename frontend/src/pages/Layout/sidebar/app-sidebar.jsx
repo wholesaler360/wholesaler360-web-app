@@ -88,21 +88,21 @@ const data = {
       icon: ShoppingBag,
       isActive: false,
       items: [
-        {
-          title: "Quotation",
-          url: "/quotations",
-          permission: "quotation",
-        },
+        // {
+        //   title: "Quotation",
+        //   url: "/quotations",
+        //   permission: "quotation",
+        // },
         {
           title: "Invoice",
           url: "/invoices",
           permission: "invoice",
         },
-        {
-          title: "Sales Return",
-          url: "#",
-          permission: "sales-return",
-        },
+        // {
+        //   title: "Sales Return",
+        //   url: "#",
+        //   permission: "sales-return",
+        // },
       ],
     },
     {
@@ -141,11 +141,11 @@ const data = {
       icon: Wallet,
       isActive: false,
       items: [
-        {
-          title: "Expenses",
-          url: "#",
-          permission: "expense",
-        },
+        // {
+        //   title: "Expenses",
+        //   url: "#",
+        //   permission: "expense",
+        // },
         {
           title: "Payments",
           url: "/payments",
