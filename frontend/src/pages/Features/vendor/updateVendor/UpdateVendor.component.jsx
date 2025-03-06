@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateVendorContext } from "./UpdateVendor.control";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -58,7 +57,6 @@ function UpdateVendorComponent() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const {
-    vendorSchema,
     isLoading,
     fetchVendorDetails,
     updateVendor,
@@ -69,10 +67,17 @@ function UpdateVendorComponent() {
   const location = useLocation();
   const vendorMobileNo = location.state?.mobileNo;
 
+  // Modify form setup to remove Zod resolver
   const form = useForm({
-    resolver: zodResolver(vendorSchema),
     defaultValues: vendorData,
+    mode: "onChange",
   });
+
+  // Add this function to check for form errors
+  const checkFormErrors = () => {
+    console.log("Form errors:", form.formState.errors);
+    return Object.keys(form.formState.errors).length === 0;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,9 +99,40 @@ function UpdateVendorComponent() {
     }
   }, [vendorMobileNo, fetchVendorDetails, form]);
 
+  console.log("UpdateVendorComponent file loaded");
+
   const onSubmit = async (values) => {
+    console.log("Form submitted with values:", values);
     try {
-      await updateVendor(values);
+      // Log form state for debugging
+      console.log("Form state:", form.formState);
+      
+      // Create properly structured data for API
+      const updateData = {
+        name: values.name,
+        mobileNo: values.mobileNo,
+        newMobileNo: values.newMobileNo,
+        email: values.email,
+        gstin: values.gstin,
+        address: {
+          addressLine1: values.address?.addressLine1,
+          addressLine2: values.address?.addressLine2,
+          city: values.address?.city,
+          state: values.address?.state,
+          pincode: values.address?.pincode,
+          country: values.address?.country
+        },
+        bankDetails: {
+          accountHolderName: values.bankDetails?.accountHolderName,
+          bankName: values.bankDetails?.bankName,
+          accountNumber: values.bankDetails?.accountNumber,
+          ifsc: values.bankDetails?.ifsc
+        }
+      };
+      
+      console.log("Sending to API:", updateData);
+      await updateVendor(updateData);
+      
       if (croppedImage) {
         const formData = new FormData();
         formData.append("mobileNo", values.mobileNo);
@@ -539,10 +575,20 @@ function UpdateVendorComponent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className={cn(
-                      "min-w-[120px]",
-                      isLoading && "animate-pulse"
-                    )}
+                    className={cn("min-w-[120px]", isLoading && "animate-pulse")}
+                    onClick={() => {
+                      console.log("Update button clicked");
+                      // Optional: Add direct button handler to debug
+                      if (!form.formState.isSubmitting) {
+                        const values = form.getValues();
+                        if (checkFormErrors()) {
+                          console.log("Form is valid, submitting manually");
+                          onSubmit(values);
+                        } else {
+                          console.log("Form has validation errors, can't submit");
+                        }
+                      }
+                    }}
                   >
                     {isLoading ? "Updating..." : "Update Vendor"}
                   </Button>
