@@ -23,6 +23,7 @@ import Payments from "@/pages/Features/payments";
 import Users from "@/pages/Features/users";
 import AddUser from "@/pages/Features/users/addUser";
 import UpdateUser from "@/pages/Features/users/updateUser";
+import AppSettings from "@/pages/Features/app-settings";
 
 const authRoutes = [
   {
@@ -149,6 +150,11 @@ const authRoutes = [
     path: "/user/edit",
     element: <UpdateUser />,
     permission: "user",
+  },
+  {
+    path: "/app-settings",
+    element: <AppSettings />,
+    permission: "app-settings",
   },
 ];
 

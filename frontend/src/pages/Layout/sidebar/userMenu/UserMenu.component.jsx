@@ -120,8 +120,13 @@ function UserMenuComponent() {
                 permissionModule="app-settings"
                 permissionAction="read"
               >
-                <MonitorCog />
-                App Setting
+                <Link
+                  to="/app-settings"
+                  className="flex items-center w-full gap-2"
+                >
+                  <MonitorCog />
+                  App Setting
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
