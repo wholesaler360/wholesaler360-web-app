@@ -88,11 +88,13 @@ const data = {
       icon: ShoppingBag,
       isActive: false,
       items: [
+
         // {
         //   title: "Quotation",
         //   url: "/quotations",
         //   permission: "quotation",
         // },
+
         {
           title: "Invoice",
           url: "/invoices",
@@ -223,7 +225,7 @@ export function AppSidebar({ ...props }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div onClick={() => navigate('/')} className="cursor-pointer">
+              <div onClick={() => navigate("/")} className="cursor-pointer">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   {/* {logoUrl && logoUrl !== "/" && (
                     <img
@@ -232,7 +234,7 @@ export function AppSidebar({ ...props }) {
                       className="h-8 w-auto object-contain mr-2"
                     />
                   )} */}
-                   <Command className="size-4" />
+                  <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Wholesaler 360</span>
