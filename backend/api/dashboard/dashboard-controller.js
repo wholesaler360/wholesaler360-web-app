@@ -339,47 +339,98 @@ const getBestSellingProducts = asyncHandler(async (req, res, next) => {
 
 const getFinancialMetrics = asyncHandler(async (req, res, next) => {
     try {
-        const metrics = await Invoice.aggregate([
-            {
-                $match: { 
-                    isDeleted: false,
-                    isSaleReturn: false
+        const [salesMetrics, stockValue, purchaseMetrics] = await Promise.all([
+            // Sales metrics aggregation
+            Invoice.aggregate([
+                {
+                    $match: { 
+                        isDeleted: false,
+                        isSaleReturn: false
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        grossRevenue: { $sum: "$totalAmount" },
+                        netRevenue: { $sum: { $subtract: ["$totalAmount", "$totalTax"] } },
+                        totalTax: { $sum: "$totalTax" },
+                        totalDiscount: { $sum: "$totalDiscount" }
+                    }
                 }
-            },
-            {
-                $group: {
-                    _id: null,
-                    grossRevenue : { $sum: "$totalAmount" },
-                    netRevenue : { $sum: { $subtract: ["$totalAmount","totalTax"] } },
-                    totalTax : { $sum: "$totalTax" }
-                }
-            }
+            ]),
+            // Stock value aggregation
+            Inventory.aggregate([
+                {
+                    $unwind: "$batches"
+                },
+                {
+                    $lookup: {
+                        from: "batches",
+                        localField: "batches.batch",
+                        foreignField: "_id",
+                        as: "batchDetails"
+                    }
+                },
+                {
+                    $unwind: "$batchDetails"
+                },
+                {
+                    $match: {
+                        "batchDetails.isDeleted": false
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalStockValue: {
+                            $sum: {
+                                $multiply: [
+                                    "$batchDetails.currentQuantity",
+                                    "$batchDetails.purchasePrice"
+                                ]
+                            }
+                        },
+                        totalQuantity: { $sum: "$batchDetails.currentQuantity" }
+                    }
+                },
+            ]),
 
+            Purchase.aggregate([
+                {
+                    $match: { 
+                        isDeleted: false,
+                        isPurchaseReturn: false
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalPurchase: { $sum: "$totalAmount" },
+                        totalPurchaseWithoutTax: { $sum: { $subtract: ["$totalAmount", "$totalTax"] } },
+                        totalTax: { $sum: "$totalTax" },
+                    }
+                }
+            ]),
         ]);
 
-        const purchaseMetrics = await Purchase.aggregate([
-            {
-                $match: { 
-                    isDeleted: false,
-                    isPurchaseReturn: false
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalPurchase: { $sum: "$totalAmount" },
-                    totalPurchaseWithouttax:{$sum : {$substract :[ "$totalAmount","totalTax"]}}
-                }
-            }
-        ])
-        if (!metrics?.length) {
+        if (!salesMetrics?.length && !stockValue?.length && !purchaseMetrics?.length) {
             return res.status(200).json(
                 ApiResponse.successRead([], "No financial metrics found")
             );
         }
-
+        const response = {
+            grossRevenue : salesMetrics[0].grossRevenue,
+            netRevenue : salesMetrics[0].netRevenue,
+            totalTaxReceived : salesMetrics[0].totalTax,
+            totalDiscount : salesMetrics[0].totalDiscount,
+            totalStockValue : stockValue[0].totalStockValue,
+            totalCOGS : purchaseMetrics[0].totalPurchaseWithoutTax,
+            totalTaxPaid : purchaseMetrics[0].totalTax,
+            totalPurchase : purchaseMetrics[0].totalPurchase,
+            grossProfit : (salesMetrics[0].netRevenue - purchaseMetrics[0].totalPurchaseWithoutTax + stockValue[0].totalStockValue).toFixed(2),
+        }
         return res.status(200).json(
-            ApiResponse.successRead(metrics, "Financial metrics fetched successfully")
+            ApiResponse.successRead(response, "Financial metrics fetched successfully")
         );
 
     } catch (error) {
