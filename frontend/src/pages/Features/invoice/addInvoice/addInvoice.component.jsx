@@ -2,22 +2,45 @@ import React, { useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, PlusCircle, Trash2, CalendarIcon, ImageIcon, Check } from "lucide-react";
+import {
+  ChevronLeft,
+  PlusCircle,
+  Trash2,
+  CalendarIcon,
+  ImageIcon,
+  Check,
+} from "lucide-react";
 import { AddInvoiceContext } from "./addInvoice.control";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format, addDays } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
-
 
 // Add a helper function to compute the weighted average price from batches
 function getWeightedAveragePrice(product, quantity) {
@@ -58,7 +81,9 @@ function AddInvoiceComponent() {
       invoiceDate: new Date(),
       invoiceDueDate: addDays(new Date(), 15), // Default due date is 15 days from today
       customerId: "",
-      products: [{ id: "", quantity: 1, unitPrice: 0, taxRate: 0, totalAvailable: 0 }],
+      products: [
+        { id: "", quantity: 1, unitPrice: 0, taxRate: 0, totalAvailable: 0 },
+      ],
       transactionType: "credit",
       paymentMode: "cash",
       initialPayment: 0,
@@ -75,7 +100,10 @@ function AddInvoiceComponent() {
   });
 
   const watchTransactionType = form.watch("transactionType");
-  const selectedProductIds = form.watch("products").map(product => product.id).filter(Boolean);
+  const selectedProductIds = form
+    .watch("products")
+    .map((product) => product.id)
+    .filter(Boolean);
 
   const [customerSearch, setCustomerSearch] = useState("");
   const [productSearch, setProductSearch] = useState("");
@@ -103,41 +131,47 @@ function AddInvoiceComponent() {
 
   // Auto-fill bank details when available
   useEffect(() => {
-    if (bankDetails?._id && form.getValues('bankDetails') === "") {
-      form.setValue('bankDetails', bankDetails._id);
+    if (bankDetails?._id && form.getValues("bankDetails") === "") {
+      form.setValue("bankDetails", bankDetails._id);
     }
   }, [bankDetails, form]);
 
   // Update product details when selected
   const handleProductChange = (index, productId) => {
-    const selectedProduct = products.find(product => product.id === productId);
+    const selectedProduct = products.find(
+      (product) => product.id === productId
+    );
     if (selectedProduct) {
       // Get the first batch's sale price as default or 0 if no batches
       const defaultPrice = selectedProduct.batches?.[0]?.salePrice || 0;
       const defaultTaxRate = selectedProduct.taxRate || 0;
-      
+
       form.setValue(`products.${index}.unitPrice`, defaultPrice);
       form.setValue(`products.${index}.taxRate`, defaultTaxRate);
-      form.setValue(`products.${index}.totalAvailable`, selectedProduct.totalQuantity);
+      form.setValue(
+        `products.${index}.totalAvailable`,
+        selectedProduct.totalQuantity
+      );
     }
   };
 
   const validateQuantity = (index, value) => {
-    const totalAvailable = form.getValues(`products.${index}.totalAvailable`) || 0;
+    const totalAvailable =
+      form.getValues(`products.${index}.totalAvailable`) || 0;
     const quantity = Number(value);
-    
+
     if (quantity > totalAvailable) {
       form.setError(`products.${index}.quantity`, {
         type: "manual",
-        message: `Only ${totalAvailable} units available in stock`
+        message: `Only ${totalAvailable} units available in stock`,
       });
       return false;
     }
-    
+
     // Compute average price if quantity does not exceed stock
     if (quantity <= totalAvailable) {
       const productId = form.getValues(`products.${index}.id`);
-      const selectedProd = products.find(p => p.id === productId);
+      const selectedProd = products.find((p) => p.id === productId);
       const avgPrice = getWeightedAveragePrice(selectedProd, quantity);
       form.setValue(`products.${index}.unitPrice`, avgPrice);
     }
@@ -149,16 +183,16 @@ function AddInvoiceComponent() {
   const onSubmit = async (values) => {
     try {
       // Validate quantities against available stock
-      const invalidQuantity = values.products.some((product, index) => 
-        !validateQuantity(index, product.quantity)
+      const invalidQuantity = values.products.some(
+        (product, index) => !validateQuantity(index, product.quantity)
       );
-      
+
       if (invalidQuantity) return;
 
       // Format data for API
       const formattedValues = {
         ...values,
-        products: values.products.map(product => ({
+        products: values.products.map((product) => ({
           id: product.id,
           quantity: Number(product.quantity),
           unitPrice: Number(product.unitPrice),
@@ -166,7 +200,7 @@ function AddInvoiceComponent() {
         })),
         initialPayment: Number(values.initialPayment),
       };
-      
+
       await createInvoice(formattedValues);
     } catch (error) {
       // Error is handled in createInvoice
@@ -174,7 +208,7 @@ function AddInvoiceComponent() {
   };
 
   // Calculate grand total
-  const grandTotal = form.watch('products').reduce((sum, product) => {
+  const grandTotal = form.watch("products").reduce((sum, product) => {
     const quantity = Number(product.quantity) || 0;
     const unitPrice = Number(product.unitPrice) || 0;
     const taxRate = Number(product.taxRate) || 0;
@@ -184,7 +218,9 @@ function AddInvoiceComponent() {
   }, 0);
 
   // Round off total if enabled
-  const finalTotal = form.watch('isRoundedOff') ? Math.round(grandTotal) : grandTotal;
+  const finalTotal = form.watch("isRoundedOff")
+    ? Math.round(grandTotal)
+    : grandTotal;
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
@@ -248,7 +284,8 @@ function AddInvoiceComponent() {
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) =>
-                                date > new Date() || date < new Date("1900-01-01")
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
                               }
                               initialFocus
                             />
@@ -289,9 +326,7 @@ function AddInvoiceComponent() {
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date("1900-01-01")
-                              }
+                              disabled={(date) => date < new Date("1900-01-01")}
                               initialFocus
                             />
                           </PopoverContent>
@@ -307,7 +342,10 @@ function AddInvoiceComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Customer</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select customer" />
@@ -318,11 +356,16 @@ function AddInvoiceComponent() {
                               <Input
                                 placeholder="Search by name or number..."
                                 value={customerSearch}
-                                onChange={(e) => setCustomerSearch(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerSearch(e.target.value)
+                                }
                               />
                             </div>
                             {filteredCustomers.map((customer) => (
-                              <SelectItem key={customer._id} value={customer._id}>
+                              <SelectItem
+                                key={customer._id}
+                                value={customer._id}
+                              >
                                 {customer.name} ({customer.mobileNo})
                               </SelectItem>
                             ))}
@@ -339,7 +382,10 @@ function AddInvoiceComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Transaction Type</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select type" />
@@ -397,7 +443,9 @@ function AddInvoiceComponent() {
                                 {...field}
                                 onChange={(e) => {
                                   const value = e.target.value;
-                                  field.onChange(value === "" ? 0 : Number(value));
+                                  field.onChange(
+                                    value === "" ? 0 : Number(value)
+                                  );
                                 }}
                               />
                             </FormControl>
@@ -417,7 +465,10 @@ function AddInvoiceComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Bank Details</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select bank details" />
@@ -426,16 +477,21 @@ function AddInvoiceComponent() {
                           <SelectContent>
                             {bankDetails && (
                               <SelectItem value={bankDetails._id}>
-                                {bankDetails.bankName} - {bankDetails.accountNumber}
+                                {bankDetails.bankName} -{" "}
+                                {bankDetails.accountNumber}
                               </SelectItem>
                             )}
                           </SelectContent>
                         </Select>
                         {bankDetails && field.value && (
                           <div className="pt-2 text-xs text-muted-foreground">
-                            <p>Account Holder: {bankDetails.accountHolderName}</p>
+                            <p>
+                              Account Holder: {bankDetails.accountHolderName}
+                            </p>
                             <p>IFSC: {bankDetails.ifsc}</p>
-                            {bankDetails.upiId && <p>UPI: {bankDetails.upiId}</p>}
+                            {bankDetails.upiId && (
+                              <p>UPI: {bankDetails.upiId}</p>
+                            )}
                           </div>
                         )}
                         <FormMessage />
@@ -449,7 +505,10 @@ function AddInvoiceComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Signature</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select signature" />
@@ -465,15 +524,20 @@ function AddInvoiceComponent() {
                             ))}
                           </SelectContent>
                         </Select>
-                        {field.value && signatures.find(sig => sig._id === field.value) && (
-                          <div className="pt-2">
-                            <img 
-                              src={signatures.find(sig => sig._id === field.value)?.signatureUrl} 
-                              alt="Signature"
-                              className="max-h-24 object-contain" 
-                            />
-                          </div>
-                        )}
+                        {field.value &&
+                          signatures.find((sig) => sig._id === field.value) && (
+                            <div className="pt-2">
+                              <img
+                                src={
+                                  signatures.find(
+                                    (sig) => sig._id === field.value
+                                  )?.signatureUrl
+                                }
+                                alt="Signature"
+                                className="max-h-24 object-contain"
+                              />
+                            </div>
+                          )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -503,39 +567,37 @@ function AddInvoiceComponent() {
 
                 {/* Products Section */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Products</h3>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        append({ id: "", quantity: 1, unitPrice: 0, taxRate: 0, totalAvailable: 0 })
-                      }
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Add Product
-                    </Button>
-                  </div>
-
                   <div className="rounded-md border">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b bg-gray-50/50 dark:bg-zinc-800/50">
                           <th className="p-3 text-left font-medium">Product</th>
-                          <th className="p-3 text-left font-medium">Quantity</th>
-                          <th className="p-3 text-left font-medium">Unit Price</th>
-                          <th className="p-3 text-left font-medium">Tax Rate (%)</th>
-                          <th className="p-3 text-left font-medium">Total Amount</th>
-                          <th className="p-3 text-right font-medium">Actions</th>
+                          <th className="p-3 text-left font-medium">
+                            Quantity
+                          </th>
+                          <th className="p-3 text-left font-medium">
+                            Unit Price
+                          </th>
+                          <th className="p-3 text-left font-medium">
+                            Tax Rate (%)
+                          </th>
+                          <th className="p-3 text-left font-medium">
+                            Total Amount
+                          </th>
+                          <th className="p-3 text-right font-medium">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {fields.map((field, index) => {
-                          const quantity = form.watch(`products.${index}.quantity`) || 0;
-                          const unitPrice = form.watch(`products.${index}.unitPrice`) || 0;
-                          const taxRate = form.watch(`products.${index}.taxRate`) || 0;
-                          
+                          const quantity =
+                            form.watch(`products.${index}.quantity`) || 0;
+                          const unitPrice =
+                            form.watch(`products.${index}.unitPrice`) || 0;
+                          const taxRate =
+                            form.watch(`products.${index}.taxRate`) || 0;
+
                           const subtotal = quantity * unitPrice;
                           const taxAmount = (subtotal * taxRate) / 100;
                           const total = subtotal + taxAmount;
@@ -565,22 +627,30 @@ function AddInvoiceComponent() {
                                             <Input
                                               placeholder="Search by name or SKU..."
                                               value={productSearch}
-                                              onChange={(e) => setProductSearch(e.target.value)}
+                                              onChange={(e) =>
+                                                setProductSearch(e.target.value)
+                                              }
                                             />
                                           </div>
                                           {filteredProducts
-                                            .filter(product => 
-                                              !selectedProductIds.includes(product.id) || 
-                                              product.id === field.value
+                                            .filter(
+                                              (product) =>
+                                                !selectedProductIds.includes(
+                                                  product.id
+                                                ) || product.id === field.value
                                             )
                                             .map((product) => (
                                               <SelectItem
                                                 key={product.id}
                                                 value={product.id}
-                                                disabled={product.totalQuantity <= 0}
+                                                disabled={
+                                                  product.totalQuantity <= 0
+                                                }
                                               >
-                                                {product.name} ({product.skuCode})
-                                                {product.totalQuantity <= 0 && " - Out of stock"}
+                                                {product.name} (
+                                                {product.skuCode})
+                                                {product.totalQuantity <= 0 &&
+                                                  " - Out of stock"}
                                               </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -603,16 +673,26 @@ function AddInvoiceComponent() {
                                           {...field}
                                           onChange={(e) => {
                                             const value = e.target.value;
-                                            field.onChange(value === "" ? "" : parseInt(value, 10));
-                                            if (value) validateQuantity(index, value);
+                                            field.onChange(
+                                              value === ""
+                                                ? ""
+                                                : parseInt(value, 10)
+                                            );
+                                            if (value)
+                                              validateQuantity(index, value);
                                           }}
                                           className="w-24"
                                         />
                                       </FormControl>
                                       <FormMessage />
-                                      {form.getValues(`products.${index}.totalAvailable`) > 0 && (
+                                      {form.getValues(
+                                        `products.${index}.totalAvailable`
+                                      ) > 0 && (
                                         <p className="text-xs text-muted-foreground">
-                                          Available: {form.getValues(`products.${index}.totalAvailable`)}
+                                          Available:{" "}
+                                          {form.getValues(
+                                            `products.${index}.totalAvailable`
+                                          )}
                                         </p>
                                       )}
                                     </FormItem>
@@ -633,7 +713,11 @@ function AddInvoiceComponent() {
                                           {...field}
                                           onChange={(e) => {
                                             const value = e.target.value;
-                                            field.onChange(value === "" ? "" : parseFloat(value));
+                                            field.onChange(
+                                              value === ""
+                                                ? ""
+                                                : parseFloat(value)
+                                            );
                                           }}
                                           className="w-28"
                                         />
@@ -657,7 +741,11 @@ function AddInvoiceComponent() {
                                           {...field}
                                           onChange={(e) => {
                                             const value = e.target.value;
-                                            field.onChange(value === "" ? "" : parseFloat(value));
+                                            field.onChange(
+                                              value === ""
+                                                ? ""
+                                                : parseFloat(value)
+                                            );
                                           }}
                                           className="w-24"
                                           disabled // disable the tax rate
@@ -695,6 +783,26 @@ function AddInvoiceComponent() {
                       </tbody>
                     </table>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Products</h3>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        append({
+                          id: "",
+                          quantity: 1,
+                          unitPrice: 0,
+                          taxRate: 0,
+                          totalAvailable: 0,
+                        })
+                      }
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Product
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Grand Total and Form Actions */}
@@ -707,14 +815,18 @@ function AddInvoiceComponent() {
                         <CardContent className="p-4">
                           <div className="text-lg font-semibold">
                             Total Tax: ₹
-                            {form.watch('products').reduce((sum, product) => {
-                              const quantity = Number(product.quantity) || 0;
-                              const unitPrice = Number(product.unitPrice) || 0;
-                              const taxRate = Number(product.taxRate) || 0;
-                              const subtotal = quantity * unitPrice;
-                              const taxAmount = (subtotal * taxRate) / 100;
-                              return sum + taxAmount;
-                            }, 0).toFixed(2)}
+                            {form
+                              .watch("products")
+                              .reduce((sum, product) => {
+                                const quantity = Number(product.quantity) || 0;
+                                const unitPrice =
+                                  Number(product.unitPrice) || 0;
+                                const taxRate = Number(product.taxRate) || 0;
+                                const subtotal = quantity * unitPrice;
+                                const taxAmount = (subtotal * taxRate) / 100;
+                                return sum + taxAmount;
+                              }, 0)
+                              .toFixed(2)}
                           </div>
                         </CardContent>
                       </Card>
@@ -724,13 +836,13 @@ function AddInvoiceComponent() {
                         <CardContent className="p-4">
                           <div className="text-lg font-semibold">
                             Grand Total: ₹
-                            {form.watch('isRoundedOff') 
+                            {form.watch("isRoundedOff")
                               ? Math.round(grandTotal).toFixed(2)
-                              : grandTotal.toFixed(2)
-                            }
+                              : grandTotal.toFixed(2)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {form.watch('isRoundedOff') && grandTotal !== Math.round(grandTotal)}
+                            {form.watch("isRoundedOff") &&
+                              grandTotal !== Math.round(grandTotal)}
                           </div>
                         </CardContent>
                       </Card>
@@ -740,7 +852,8 @@ function AddInvoiceComponent() {
                         <Card className="w-fit">
                           <CardContent className="p-4">
                             <div className="text-lg font-semibold">
-                              Initial Payment: ₹{form.watch('initialPayment').toFixed(2)}
+                              Initial Payment: ₹
+                              {form.watch("initialPayment").toFixed(2)}
                             </div>
                           </CardContent>
                         </Card>
