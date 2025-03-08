@@ -1,12 +1,12 @@
 import { createContext, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosGet, axiosPost } from "@/constants/api-context";
-import { 
-  CreateInvoice, 
-  FetchCustomerList, 
+import {
+  CreateInvoice,
+  FetchCustomerList,
   FetchProductListDropdownInvoice,
   fetchCompanyBankDetails,
-  fetchCompanySignatures
+  fetchCompanySignatures,
 } from "@/constants/apiEndPoints";
 import { showNotification } from "@/core/toaster/toast";
 import * as z from "zod";
@@ -21,28 +21,31 @@ const invoiceSchema = z.object({
     required_error: "Invoice due date is required",
   }),
   customerId: z.string().min(1, "Customer is required"),
-  products: z.array(z.object({
-    id: z.string().min(1, "Product is required"),
-    quantity: z.preprocess(
-      (val) => Number(val),
-      z.number().min(1, "Quantity must be at least 1")
-    ),
-    unitPrice: z.preprocess(
-      (val) => Number(val),
-      z.number().min(0.01, "Unit price must be greater than 0")
-    ),
-    taxRate: z.preprocess(
-      (val) => Number(val),
-      z.number().min(0, "Tax rate must be 0 or greater")
-    ),
-    totalAvailable: z.number().optional(),
-  })).min(1, "At least one product is required"),
+  products: z
+    .array(
+      z.object({
+        id: z.string().min(1, "Product is required"),
+        quantity: z.preprocess(
+          (val) => Number(val),
+          z.number().min(1, "Quantity must be at least 1")
+        ),
+        unitPrice: z.preprocess(
+          (val) => Number(val),
+          z.number().min(0.01, "Unit price must be greater than 0")
+        ),
+        taxRate: z.preprocess(
+          (val) => Number(val),
+          z.number().min(0, "Tax rate must be 0 or greater")
+        ),
+        totalAvailable: z.number().optional(),
+      })
+    )
+    .min(1, "At least one product is required"),
   transactionType: z.enum(["debit", "credit"]),
   paymentMode: z.enum(["cash", "cheque", "upi", "online", "N/A"]).optional(),
-  initialPayment: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0)
-  ).optional(),
+  initialPayment: z
+    .preprocess((val) => Number(val), z.number().min(0))
+    .optional(),
   bankDetails: z.string().min(1, "Bank details are required"),
   signature: z.string().min(1, "Signature is required"),
   isRoundedOff: z.boolean().default(true),
@@ -74,12 +77,14 @@ function AddInvoiceControl({ children }) {
       if (response.data.success) {
         // Map product structure to make it easier to work with
         let mappedProducts = [];
-        
-        mappedProducts = (response.data.value?.products || []).map((product) => ({
+
+        mappedProducts = (response.data.value?.products || []).map(
+          (product) => ({
             ...product,
-            totalAvailable: product.totalQuantity
-        }));
-    
+            totalAvailable: product.totalQuantity,
+          })
+        );
+
         setProducts(mappedProducts);
       }
     } catch (error) {
@@ -112,13 +117,35 @@ function AddInvoiceControl({ children }) {
   const createInvoice = async (data) => {
     try {
       setIsLoading(true);
+      // Check for the print flag directly on the data object
+      const isPrintAfterCreate = data._printAfterCreate === true;
+      console.log("Creating invoice, print flag:", isPrintAfterCreate);
+
       const response = await axiosPost(CreateInvoice, data);
+      console.log("API Response for invoice creation:", response);
+
       if (response.data.success) {
         showNotification.success("Invoice created successfully");
-        navigate("/invoices");
+
+        // Only navigate to invoices if this is NOT a print action
+        if (!isPrintAfterCreate) {
+          console.log("Standard create - navigating to /invoices");
+          navigate("/invoices");
+        } else {
+          console.log("Print action - letting component handle navigation");
+        }
+
+        return response.data;
+      } else {
+        showNotification.error(
+          response.data.message || "Failed to create invoice"
+        );
+        return response.data;
       }
     } catch (error) {
-      showNotification.error(error.response?.data?.message || "Failed to create invoice");
+      showNotification.error(
+        error.response?.data?.message || "Failed to create invoice"
+      );
       throw error;
     } finally {
       setIsLoading(false);

@@ -74,6 +74,8 @@ function AddInvoiceComponent() {
     signatures,
   } = useContext(AddInvoiceContext);
   const navigate = useNavigate();
+  // Add state to track if we should print after creation
+  const [shouldPrintAfterCreate, setShouldPrintAfterCreate] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(invoiceSchema),
@@ -180,8 +182,70 @@ function AddInvoiceComponent() {
     return true;
   };
 
+  // Function to handle "Create and Print" action
+  const handleCreateAndPrint = () => {
+    console.log("Create and Print clicked");
+    // Force state to true
+    setShouldPrintAfterCreate(true);
+
+    // Use a separate submit function to ensure state is updated
+    const submitForm = async () => {
+      try {
+        // Get current form values
+        const values = form.getValues();
+
+        // Validate quantities against available stock
+        const invalidQuantity = values.products.some(
+          (product, index) => !validateQuantity(index, product.quantity)
+        );
+
+        if (invalidQuantity) return;
+
+        // Format data for API with print flag explicitly set
+        const formattedValues = {
+          ...values,
+          // Force the print flag to true
+          _printAfterCreate: true,
+          products: values.products.map((product) => ({
+            id: product.id,
+            quantity: Number(product.quantity),
+            unitPrice: Number(product.unitPrice),
+            taxRate: Number(product.taxRate),
+          })),
+          initialPayment: Number(values.initialPayment),
+        };
+
+        console.log(
+          "Creating invoice with print flag:",
+          formattedValues._printAfterCreate
+        );
+        const response = await createInvoice(formattedValues);
+        console.log("Print-and-create response:", response);
+
+        if (response?.success) {
+          console.log("Redirecting to view invoice:", response.value._id);
+          navigate(`/invoice/view/${response.value._id}?print=true`);
+        }
+      } catch (error) {
+        console.error("Error in create-and-print:", error);
+        setShouldPrintAfterCreate(false);
+      }
+    };
+
+    // Wait a moment for state update then submit
+    setTimeout(submitForm, 10);
+  };
+
+  // The standard onSubmit function for the regular "Create Invoice" button
   const onSubmit = async (values) => {
     try {
+      // Only proceed if this is NOT a print-after-create submission
+      // The print-after-create uses its own submission path
+      if (shouldPrintAfterCreate) {
+        console.log("Ignoring regular submit for create & print");
+        return;
+      }
+
       // Validate quantities against available stock
       const invalidQuantity = values.products.some(
         (product, index) => !validateQuantity(index, product.quantity)
@@ -189,9 +253,10 @@ function AddInvoiceComponent() {
 
       if (invalidQuantity) return;
 
-      // Format data for API
+      // Format data for API - explicitly marking this as NOT print-after-create
       const formattedValues = {
         ...values,
+        _printAfterCreate: false,
         products: values.products.map((product) => ({
           id: product.id,
           quantity: Number(product.quantity),
@@ -201,9 +266,10 @@ function AddInvoiceComponent() {
         initialPayment: Number(values.initialPayment),
       };
 
+      console.log("Standard submission, will navigate to invoices");
       await createInvoice(formattedValues);
     } catch (error) {
-      // Error is handled in createInvoice
+      console.error("Error in submit:", error);
     }
   };
 
@@ -240,9 +306,7 @@ function AddInvoiceComponent() {
           </p>
         </div>
       </div>
-
       <Separator />
-
       <div className="container mx-auto max-w-[1200px]">
         <Card className="border-none shadow-md">
           <CardContent className="p-6">
@@ -400,7 +464,6 @@ function AddInvoiceComponent() {
                       </FormItem>
                     )}
                   />
-
                   {watchTransactionType === "credit" && (
                     <>
                       <FormField
@@ -842,7 +905,8 @@ function AddInvoiceComponent() {
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {form.watch("isRoundedOff") &&
-                              grandTotal !== Math.round(grandTotal)}
+                              grandTotal !== Math.round(grandTotal) &&
+                              `Rounded from ₹${grandTotal.toFixed(2)}`}
                           </div>
                         </CardContent>
                       </Card>
@@ -885,6 +949,18 @@ function AddInvoiceComponent() {
                         onClick={() => navigate("/invoices")}
                       >
                         Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleCreateAndPrint}
+                        disabled={isLoading}
+                        className={cn(
+                          "min-w-[160px]",
+                          isLoading && "animate-pulse"
+                        )}
+                      >
+                        {isLoading ? "Creating..." : "Create & Print"}
                       </Button>
                       <Button
                         type="submit"

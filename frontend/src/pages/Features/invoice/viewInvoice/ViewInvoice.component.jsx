@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ViewInvoiceContext } from "./ViewInvoice.control";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,12 +16,36 @@ function ViewInvoiceComponent() {
     useContext(ViewInvoiceContext);
   const invoiceRef = useRef(null);
 
+  // Check if we should print automatically
+  const location = useLocation();
+  const shouldPrint =
+    new URLSearchParams(location.search).get("print") === "true";
+
   useEffect(() => {
     if (id) {
       fetchInvoice(id);
       fetchCompanyDetails();
     }
   }, [id, fetchInvoice, fetchCompanyDetails]);
+
+  // Add effect to trigger print when the page loads with print=true and invoice is loaded
+  useEffect(() => {
+    if (shouldPrint && invoice && !isLoading) {
+      console.log("Auto-triggering print for invoice:", invoice.invoiceNo);
+      // Use a more reliable delay to ensure the DOM is fully rendered
+      const timer = setTimeout(() => {
+        try {
+          printInvoice();
+          // After printing, remove the print parameter from URL to avoid printing again on refresh
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        } catch (err) {
+          console.error("Error auto-printing:", err);
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldPrint, invoice, isLoading]);
 
   const downloadPDF = () => {
     const element = invoiceRef.current;
@@ -37,30 +61,49 @@ function ViewInvoiceComponent() {
   };
 
   const printInvoice = () => {
-    const printContent = document.getElementById("invoice-content");
-    const WinPrint = window.open("", "", "width=900,height=650");
-    WinPrint.document.write(`
-      <html>
-        <head>
-          <title>Invoice ${invoice?.invoiceNo}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-            .header { display: flex; justify-content: space-between; }
-            .company-details, .invoice-details { margin-bottom: 20px; }
-          </style>
-        </head>
-        <body>
-          ${printContent.innerHTML}
-        </body>
-      </html>
-    `);
+    try {
+      const printContent = document.getElementById("invoice-content");
+      if (!printContent) {
+        console.error("Print content element not found");
+        return;
+      }
 
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
-    WinPrint.close();
+      const WinPrint = window.open("", "", "width=900,height=650");
+      if (!WinPrint) {
+        alert("Please allow pop-ups to print the invoice");
+        return;
+      }
+
+      WinPrint.document.write(`
+        <html>
+          <head>
+            <title>Invoice ${invoice?.invoiceNo}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              table { width: 100%; border-collapse: collapse; }
+              th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+              .header { display: flex; justify-content: space-between; }
+              .company-details, .invoice-details { margin-bottom: 20px; }
+            </style>
+          </head>
+          <body>
+            ${printContent.innerHTML}
+          </body>
+        </html>
+      `);
+
+      WinPrint.document.close();
+      WinPrint.focus();
+
+      // Add slight delay before printing
+      setTimeout(() => {
+        WinPrint.print();
+        setTimeout(() => WinPrint.close(), 500);
+      }, 500);
+    } catch (e) {
+      console.error("Error printing invoice:", e);
+      alert("There was a problem printing the invoice. Please try again.");
+    }
   };
 
   if (isLoading) {
