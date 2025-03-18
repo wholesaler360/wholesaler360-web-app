@@ -230,8 +230,15 @@ const updateProductImage = asyncHandler(async (req, res, next) => {
 
 const getStock = async (product_id) => {
   product_id = product_id.toString();
-  const count = await Inventory.findOne({productId : product_id}).select("totalQuantity -_id");
-  return count.totalQuantity;
+  console.log(product_id);
+  const count = await Inventory.findOne({productId : product_id})
+  if(count === null){
+    return 0;
+  }
+  else{
+
+    return count.totalQuantity;
+  }
 };
 
 const deleteProduct = asyncHandler(async (req, res, next) => {
@@ -255,7 +262,7 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     try{
         product.isProductDeleted = true;
         const ImageUrl = product.productImg;
-        product.productImg = "";
+        product.productImg = "NAN";
         await product.save();
         await deleteFromCloudinary(ImageUrl);
         console.log(product);

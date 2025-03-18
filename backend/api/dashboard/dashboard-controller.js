@@ -288,17 +288,20 @@ const getBestSellingProducts = asyncHandler(async (req, res, next) => {
                 year: "$_id.year",
                 month: "$_id.month",
                 products: {
-                    $slice: [{
-                        $sortArray: {
-                            input: "$products",
-                            sortBy: { totalQuantitySold: -1 }
-                        }
-                    }, 2]
+                    $slice: [ 
+                        { 
+                            $sortArray: { 
+                                input: "$products", 
+                                sortBy: { totalQuantitySold: -1 } 
+                            } 
+                        }, 
+                        2 
+                    ]
                 }
             }
         },
         {
-            $sort: { month: -1 }
+            $sort: { month: 1 }
         },
         {
             $group: {
@@ -320,13 +323,6 @@ const getBestSellingProducts = asyncHandler(async (req, res, next) => {
         },
         {
             $sort: { year: -1 }
-        },
-        {
-            $project: {
-                _id: 0,
-                year: 1,
-                months: 1
-            }
         }
     ]);
 
