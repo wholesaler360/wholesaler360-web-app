@@ -15,23 +15,22 @@ const all_Modules = [
     "customer","customer-ledger",
     "company-settings","app-settings","account-settings"
     ,"inventory","product","tax","category","batch"
-    ,"invoice","sales-return","quotation",
+    ,"invoice",
     "vendor","vendor-ledger",
-    "purchase","purchase-return",
-    "sales-report","purchase-report","inventory-report","expense","payment",
-    "customer-portal"
+    "purchase",
+    "payment",
 ];
 const updateExistingModulesName = asyncHandler(async (req,res,next) => {
     const updateArray = [
         {oldName : "company_setting", newName : "company-settings"},
         {oldName : "app_setting", newName : "app-settings"},
         {oldName : "profile_setting", newName : "account-settings"},
-        {oldName : "sales_return", newName : "sales-return"},
-        {oldName : "purchase_return", newName : "purchase-return"},
-        {oldName : "customer_portal", newName : "customer-portal"},
-        {oldName : "sales_report", newName : "sales-report"},
-        {oldName : "purchase_report", newName : "purchase-report"},
-        {oldName : "invetory_report", newName : "inventory-report"},
+        // {oldName : "sales_return", newName : "sales-return"},
+        // {oldName : "purchase_return", newName : "purchase-return"},
+        // {oldName : "customer_portal", newName : "customer-portal"},
+        // {oldName : "sales_report", newName : "sales-report"},
+        // {oldName : "purchase_report", newName : "purchase-report"},
+        // {oldName : "invetory_report", newName : "inventory-report"},
     ]
     try {
         for (const element of updateArray) {
