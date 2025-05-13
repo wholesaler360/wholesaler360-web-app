@@ -156,7 +156,7 @@ export function CompanySettingsController({ children }) {
       const data = { name };
       const response = await axiosDelete(deleteCompanySignature, { data });
       console.log(response);
-      if (response.data.success) {
+      if (response.status === 204) {
         showNotification.success("Signature removed successfully");
         return response;
       } else {
