@@ -46,46 +46,49 @@ const createRole = asyncHandler(async (req, res, next) => {
 
 const updateRole = asyncHandler(async (req, res, next) => {
 
-    const { name , newName } = req.body;
+  const { name , newName } = req.body;
 
-    if (!name?.trim() || !newName?.trim()) {
-        return next(ApiError.validationFailed("Role name is required"));
-    }
+  if (name?.trim() === newName?.trim()) {
+    return next(ApiError.validationFailed("Updated role name is same as existing"));
+  }
 
-    const roleName = name.trim().toLowerCase();
-    // Checks if user is trying to update own role
-    if(roleName === 'super admin' || req.fetchedUser.role.name === roleName)
-    {
-        return next(ApiError.validationFailed("Cannot update your own role"));
-    }
+  if (!name?.trim() || !newName?.trim()) {
+    return next(ApiError.validationFailed("Role name is required"));
+  }
 
-    
-    const existingRole = await Role.findOne({ name: roleName , isRoleDeleted : false });
-    if (!existingRole ) {
-        return next(ApiError.dataNotFound("Role with this name does not  exists"));
-    }
-    
-    const newRoleName = newName.trim().toLowerCase();
-    
-    const roleWithNewName = await Role.findOne({ name: newRoleName , isRoleDeleted : false });
-    if(roleWithNewName)
-    {
-        return next(ApiError.validationFailed("Role with this name already exists"));
-    } 
+  const roleName = name.trim().toLowerCase();
 
-    try {
-      existingRole.name = newRoleName;
-      await existingRole.save();
-      // Respond with success
-      res
-        .status(200)
-        .json(
-          ApiResponse.successUpdated(existingRole, "Role updated successfully")
-        );
-    } catch (error) {
-      return next(ApiError.dataNotUpdated("Role not updated"));
-    }
+  // Checks if user is trying to update own role
+  if(roleName === 'super admin' || req.fetchedUser.role.name === roleName)
+  {
+    return next(ApiError.validationFailed("Cannot update your own role"));
+  }
 
+  const existingRole = await Role.findOne({ name: roleName , isRoleDeleted : false });
+  if (!existingRole ) {
+    return next(ApiError.dataNotFound("Role with this name does not  exists"));
+  }
+  
+  const newRoleName = newName.trim().toLowerCase();
+  
+  const roleWithNewName = await Role.findOne({ name: newRoleName , isRoleDeleted : false });
+  if(roleWithNewName)
+  {
+    return next(ApiError.validationFailed("Role with this name already exists"));
+  } 
+
+  try {
+    existingRole.name = newRoleName;
+    await existingRole.save();
+    // Respond with success
+    res
+      .status(200)
+      .json(
+        ApiResponse.successUpdated(existingRole, "Role updated successfully")
+      );
+  } catch (error) {
+    return next(ApiError.dataNotUpdated("Role not updated"));
+  }
 });
 
 const fetchPermission = asyncHandler(async (req, res, next) => {

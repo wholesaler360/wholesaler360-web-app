@@ -79,7 +79,7 @@ const updateUser = asyncHandler(async(req,res,next)=>{
     }
 
     if(userComing.role.name !== 'super admin' && role === 'super admin'){
-        return next(ApiError.validationFailed("You donot have right to assign super admin role because you are sub-admin"))
+        return next(ApiError.validationFailed("Super admin role cannot be assigned"));
     }
 
     const user = await User.findOne({mobileNo : mobileNo, isUserDeleted : false})
