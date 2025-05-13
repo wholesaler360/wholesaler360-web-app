@@ -71,9 +71,8 @@ const axiosDelete = async (endpoint = null, data = {}, config = {}) => {
       throw new Error("Valid endpoint is required");
     }
     console.log("Data to be deleted:", data);
-    const response = await api.delete(endpoint, {
+    const response = await api.delete(endpoint, data, {
       ...config,
-      data,
       headers: {
         ...(data instanceof FormData
           ? { "Content-Type": "multipart/form-data" }
