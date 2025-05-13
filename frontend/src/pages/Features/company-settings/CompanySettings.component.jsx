@@ -29,7 +29,6 @@ function CompanySettingsComponent() {
     updateCompany,
     updateBankDetails,
     uploadLogo,
-    uploadFavicon,
     addSignature,
     removeSignature,
   } = useContext(CompanySettingsContext);
@@ -97,19 +96,6 @@ function CompanySettingsComponent() {
       setNewLogo(null);
     } catch (error) {
       console.error("Error updating logo:", error);
-    }
-  };
-
-  const handleFaviconUpdate = async () => {
-    if (!newFavicon) return;
-    const formData = new FormData();
-    formData.append("favicon", newFavicon);
-    try {
-      await uploadFavicon(formData);
-      await refreshData(); // Refresh after update
-      setNewFavicon(null);
-    } catch (error) {
-      console.error("Error updating favicon:", error);
     }
   };
 
@@ -501,7 +487,7 @@ function CompanySettingsComponent() {
           </CardContent>
         </Card>
 
-        {/* Logo and Favicon Section */}
+        {/* Logo and Signature Section */}
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -509,6 +495,26 @@ function CompanySettingsComponent() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                <Label>Update Logo</Label>
+                <FileUpload
+                  onImageCropped={(image) => setNewLogo(image)}
+                  aspectRatio={16 / 9}
+                />
+                {newLogo && (
+                  <div className="space-y-4">
+                    <Button
+                      onClick={handleLogoUpdate}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? "Updating..." : "Update Logo"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <Label>Current Logo</Label>
                 <div className="aspect-video w-full overflow-hidden rounded-lg border bg-muted">
                   {companyData?.logoUrl ? (
                     <img
@@ -522,156 +528,83 @@ function CompanySettingsComponent() {
                     </div>
                   )}
                 </div>
-                <Separator />
-                <div className="space-y-4">
-                  <Label>Update Logo</Label>
-                  <FileUpload
-                    onImageCropped={(image) => setNewLogo(image)}
-                    aspectRatio={16 / 9}
-                  />
-                  {newLogo && (
-                    <div className="space-y-4">
-                      <Button
-                        onClick={handleLogoUpdate}
-                        disabled={isLoading}
-                        className="w-full"
-                      >
-                        {isLoading ? "Updating..." : "Update Logo"}
-                      </Button>
-                    </div>
-                  )}
-                </div>
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
-              <CardTitle>Favicon</CardTitle>
+              <CardTitle>Signatures</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <div className="h-16 w-16 overflow-hidden rounded-lg border bg-muted">
-                    {companyData?.faviconUrl ? (
-                      <img
-                        src={companyData.faviconUrl}
-                        alt="Favicon"
-                        className="h-full w-full object-contain"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                        No favicon
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">
-                      Current favicon displayed in browser tab
-                    </p>
-                  </div>
-                </div>
-                <Separator />
+              <div className="space-y-6">
+                {/* Add New Signature */}
                 <div className="space-y-4">
-                  <Label>Update Favicon</Label>
-                  <FileUpload
-                    onImageCropped={(image) => setNewFavicon(image)}
-                    aspectRatio={1}
-                  />
-                  {newFavicon && (
+                  <h4 className="font-medium">Add New Signature</h4>
+                  <div className="space-y-4">
                     <div className="space-y-4">
-                      <div className="h-16 w-16 overflow-hidden rounded-lg border bg-muted">
-                        <img
-                          src={URL.createObjectURL(newFavicon)}
-                          alt="New Favicon Preview"
-                          className="h-full w-full object-contain"
-                        />
-                      </div>
-                      <Button
-                        onClick={handleFaviconUpdate}
-                        disabled={isLoading}
-                        className="w-full"
-                      >
-                        {isLoading ? "Updating..." : "Update Favicon"}
-                      </Button>
+                      <Label>Signature Name</Label>
+                      <Input
+                        value={signatureName}
+                        onChange={(e) => setSignatureName(e.target.value)}
+                        placeholder="Enter signature name"
+                      />
                     </div>
-                  )}
+                    <div className="space-y-4">
+                      <Label>Signature Image</Label>
+                      <FileUpload
+                        onImageCropped={(image) => setNewSignature(image)}
+                        aspectRatio={16 / 9}
+                      />
+                      {newSignature && signatureName && (
+                        <Button
+                          onClick={handleSignatureAdd}
+                          disabled={isLoading}
+                          className="w-full mt-4"
+                        >
+                          {isLoading ? "Adding..." : "Add Signature"}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
+                {/* Existing Signatures */}
+                <div className="space-y-4">
+                <Label>Existing Signatures</Label>
+                {signatures.length > 0 && (
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {signatures.map((sig, index) => (
+                      <div
+                        key={index}
+                        className="relative rounded-lg border p-4 space-y-2"
+                      >
+                        <div className="aspect-video w-full overflow-hidden rounded-lg border">
+                          <img
+                            src={sig.signatureUrl}
+                            alt={sig.name}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                        <p className="text-sm font-medium">{sig.name}</p>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => handleSignatureRemove(sig.name)}
+                          disabled={isLoading}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Signatures Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Signatures</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Existing Signatures */}
-              {signatures.length > 0 && (
-                <div className="grid gap-4 md:grid-cols-3">
-                  {signatures.map((sig, index) => (
-                    <div
-                      key={index}
-                      className="relative rounded-lg border p-4 space-y-2"
-                    >
-                      <div className="aspect-video w-full overflow-hidden rounded-lg border">
-                        <img
-                          src={sig.signatureUrl}
-                          alt={sig.name}
-                          className="h-full w-full object-contain"
-                        />
-                      </div>
-                      <p className="text-sm font-medium">{sig.name}</p>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => handleSignatureRemove(sig.name)}
-                        disabled={isLoading}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Add New Signature */}
-              <div className="space-y-4">
-                <h4 className="font-medium">Add New Signature</h4>
-                <div className="space-y-4">
-                  <div>
-                    <Label>Signature Name</Label>
-                    <Input
-                      value={signatureName}
-                      onChange={(e) => setSignatureName(e.target.value)}
-                      placeholder="Enter signature name"
-                    />
-                  </div>
-                  <div>
-                    <Label>Signature Image</Label>
-                    <FileUpload
-                      onImageCropped={(image) => setNewSignature(image)}
-                      aspectRatio={16 / 9}
-                    />
-                    {newSignature && signatureName && (
-                      <Button
-                        onClick={handleSignatureAdd}
-                        disabled={isLoading}
-                        className="w-full mt-4"
-                      >
-                        {isLoading ? "Adding..." : "Add Signature"}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

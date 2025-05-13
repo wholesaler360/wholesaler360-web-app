@@ -1,5 +1,10 @@
 import { createContext, useState } from "react";
-import { axiosGet, axiosPut, axiosPost } from "@/constants/api-context";
+import {
+  axiosGet,
+  axiosPut,
+  axiosPost,
+  axiosDelete,
+} from "@/constants/api-context";
 import {
   fetchCompanyDetails,
   fetchCompanySignature,
@@ -127,28 +132,6 @@ export function CompanySettingsController({ children }) {
     }
   };
 
-  const uploadFavicon = async (formData) => {
-    try {
-      setIsLoading(true);
-      const response = await axiosPut(updateCompanyFavicon, formData);
-      if (response.data.success) {
-        showNotification.success("Favicon updated successfully");
-        // Update global favicon
-        if (response.data.value?.faviconUrl) {
-          updateFavicon(response.data.value.faviconUrl);
-        }
-        return response;
-      } else {
-        showNotification.error("Failed to update favicon");
-      }
-    } catch (error) {
-      showNotification.error("Failed to update favicon");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const addSignature = async (formData) => {
     try {
       setIsLoading(true);
@@ -170,7 +153,8 @@ export function CompanySettingsController({ children }) {
   const removeSignature = async (name) => {
     try {
       setIsLoading(true);
-      const response = await axiosPost(deleteCompanySignature, { name });
+      const response = await axiosDelete(deleteCompanySignature, { name });
+      console.log(response);
       if (response.data.success) {
         showNotification.success("Signature removed successfully");
         return response;
@@ -195,7 +179,6 @@ export function CompanySettingsController({ children }) {
         updateCompany,
         updateBankDetails,
         uploadLogo,
-        uploadFavicon,
         addSignature,
         removeSignature,
       }}

@@ -65,12 +65,22 @@ const axiosPut = async (endpoint = null, data = {}, config = {}) => {
   }
 };
 
-const axiosDelete = async (endpoint = null, data = {}) => {
+const axiosDelete = async (endpoint = null, data = {}, config = {}) => {
   try {
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
-    const response = await api.delete(endpoint, data); 
+    console.log("Data to be deleted:", data);
+    const response = await api.delete(endpoint, {
+      ...config,
+      data,
+      headers: {
+        ...(data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : { "Content-Type": "application/json" }),
+        ...config.headers,
+      },
+    });
     return response;
   } catch (error) {
     console.error("DELETE request error:", {
