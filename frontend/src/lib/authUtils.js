@@ -1,9 +1,12 @@
-import { RefreshTokenApi, FetchRolePermission, fetchCompanyDetails } from "@/constants/apiEndPoints";
+import {
+  RefreshTokenApi,
+  FetchRolePermission,
+  fetchCompanyDetails,
+} from "@/constants/apiEndPoints";
 import {
   ACCESS_TOKEN_KEY,
   USER_DATA_KEY,
   USER_PERMISSIONS_KEY,
-  COMPANY_DATA_KEY,
 } from "@/constants/globalConstants";
 import { jwtDecode } from "jwt-decode";
 import { axiosGet, axiosPost } from "@/constants/api-context";
@@ -58,7 +61,7 @@ export const refreshAccessToken = async () => {
   try {
     const data = await axiosGet(RefreshTokenApi);
     console.log(data);
-    return data.value.newAccessToken;
+    return data.data.value.newAccessToken;
   } catch (error) {
     console.error("Error refreshing access token:", error.message);
     return null; // Return null to indicate failure
@@ -108,13 +111,6 @@ export const setAuthData = async (authResponse) => {
       lastLoginAt: new Date().toISOString(),
     };
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
-
-    // Fetch company details separately
-    const companyResponse = await axiosGet(fetchCompanyDetails);
-    if (companyResponse.data.success) {
-      localStorage.setItem(COMPANY_DATA_KEY, JSON.stringify(companyResponse.data.value));
-    }
-
     // Fetch and store permissions
     const permissions = await fetchAndProcessPermissions(userData.role.name);
     if (permissions) {
@@ -139,22 +135,11 @@ export const getUserData = () => {
   }
 };
 
-export const getCompanyData = () => {
-  try {
-    const companyDataStr = localStorage.getItem(COMPANY_DATA_KEY);
-    return companyDataStr ? JSON.parse(companyDataStr) : null;
-  } catch (error) {
-    console.error("Error getting company data:", error.message);
-    return null;
-  }
-};
-
 export const clearAuthData = () => {
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USER_DATA_KEY);
     localStorage.removeItem(USER_PERMISSIONS_KEY);
-    localStorage.removeItem(COMPANY_DATA_KEY);
     return true;
   } catch (error) {
     console.error("Error clearing auth data:", error.message);

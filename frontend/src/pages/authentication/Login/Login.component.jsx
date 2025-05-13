@@ -12,8 +12,6 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoginContext } from "./Login.control";
-import { COMPANY_DATA_KEY } from "@/constants/globalConstants";
-import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -40,18 +38,6 @@ function LoginComponent({ className, ...props }) {
   const otpInputRefs = useRef([]);
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const [forgotPasswordError, setForgotPasswordError] = useState(null);
-
-  useEffect(() => {
-    // Try to get company data from localStorage
-    const storedCompanyData = localStorage.getItem(COMPANY_DATA_KEY);
-    if (storedCompanyData) {
-      try {
-        setCompanyData(JSON.parse(storedCompanyData));
-      } catch (e) {
-        console.error("Failed to parse company data", e);
-      }
-    }
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
@@ -251,8 +237,8 @@ function LoginComponent({ className, ...props }) {
           </Card>
 
           <p className="text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()}{" "}
-            {"Wholesaler 360"}. All rights reserved.
+            &copy; {new Date().getFullYear()} {"Wholesaler 360"}. All rights
+            reserved.
           </p>
         </div>
       </div>
