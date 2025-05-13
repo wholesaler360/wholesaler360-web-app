@@ -143,6 +143,7 @@ function RolesAndPermissionController({ children }) {
       header: "Edit Role",
       cell: ({ row }) => {
         const [open, setOpen] = useState(false);
+        const [isLoading, setIsLoading] = useState(false);
         const form = useForm({
           resolver: zodResolver(roleFormSchema),
           defaultValues: {
@@ -152,11 +153,14 @@ function RolesAndPermissionController({ children }) {
 
         const updateRole = async (oldName, newName) => {
           try {
+            setIsLoading(true);
             await axiosPut(UpdateRole, { name: oldName, newName });
             showNotification.success("Role updated successfully");
             setRefreshTrigger((prev) => prev + 1);
           } catch (error) {
             showNotification.error("Failed to update role");
+          } finally {
+            setIsLoading(false);
           }
         };
 
@@ -216,7 +220,9 @@ function RolesAndPermissionController({ children }) {
                     )}
                   />
                   <DialogFooter>
-                    <Button type="submit">Save changes</Button>
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? "Saving..." : "Save changes"}
+                    </Button>
                   </DialogFooter>
                 </form>
               </Form>
@@ -235,10 +241,15 @@ function RolesAndPermissionController({ children }) {
         const [rolePermissions, setRolePermissions] = useState(null);
         const [updatedPermissions, setUpdatedPermissions] = useState({});
         const [selectAll, setSelectAll] = useState(false);
+        const [isLoading, setIsLoading] = useState(false);
+        const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
 
         const fetchRolePermissions = useCallback(async () => {
           try {
-            const response = await axiosGet(`${FetchRolePermission}/${row.original.name}`);
+            setIsLoadingPermissions(true);
+            const response = await axiosGet(
+              `${FetchRolePermission}/${row.original.name}`
+            );
             if (response.status === 200) {
               setRolePermissions(response.data.value);
             } else {
@@ -246,6 +257,8 @@ function RolesAndPermissionController({ children }) {
             }
           } catch (error) {
             showNotification.error("Failed to fetch permissions");
+          } finally {
+            setIsLoadingPermissions(false);
           }
         }, [row.original.name]);
 
@@ -317,6 +330,7 @@ function RolesAndPermissionController({ children }) {
 
         const handleSubmit = async () => {
           try {
+            setIsLoading(true);
             const payload = {
               name: row.original.name,
               sections: rolePermissions.sections.map((section) => ({
@@ -335,6 +349,8 @@ function RolesAndPermissionController({ children }) {
             setOpen(false);
           } catch (error) {
             showNotification.error("Failed to update permissions");
+          } finally {
+            setIsLoading(false);
           }
         };
 
@@ -363,166 +379,176 @@ function RolesAndPermissionController({ children }) {
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="max-h-[60vh] overflow-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[200px]">Module</TableHead>
-                        <TableHead className="text-center">
-                          Select All
-                        </TableHead>
-                        <TableHead className="text-center">Read</TableHead>
-                        <TableHead className="text-center">Write</TableHead>
-                        <TableHead className="text-center">Update</TableHead>
-                        <TableHead className="text-center">Delete</TableHead>
-                      </TableRow>
-                      <TableRow>
-                        <TableHead>All Modules</TableHead>
-                        <TableHead className="text-center">
-                          <Checkbox
-                            checked={selectAll}
-                            onCheckedChange={handleSelectAll}
-                            className="mx-auto"
-                          />
-                        </TableHead>
-                        <TableHead colSpan={4} />
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {rolePermissions?.sections?.map((section) => {
-                        const permissions =
-                          updatedPermissions[section.module._id] || {};
-                        return (
-                          <TableRow key={section.module._id}>
-                            <TableCell className="font-medium capitalize">
-                              {section.module.name}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={
-                                  permissions.read &&
-                                  permissions.write &&
-                                  permissions.update &&
-                                  permissions.delete
-                                }
-                                onCheckedChange={(checked) =>
-                                  handleSelectAllForModule(
-                                    section.module._id,
-                                    checked
-                                  )
-                                }
-                                className="mx-auto"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                checked={permissions.read}
-                                onCheckedChange={() =>
-                                  handlePermissionChange(
-                                    section.module._id,
-                                    "read"
-                                  )
-                                }
-                                className="mx-auto"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div>
-                                      <Checkbox
-                                        checked={permissions.write}
-                                        onCheckedChange={() =>
-                                          handlePermissionChange(
-                                            section.module._id,
-                                            "write"
-                                          )
-                                        }
-                                        disabled={!permissions.read}
-                                        className="mx-auto"
-                                      />
-                                    </div>
-                                  </TooltipTrigger>
-                                  {!permissions.read && (
-                                    <TooltipContent>
-                                      <p>
-                                        Enable read permission first to assign
-                                        write permission
-                                      </p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div>
-                                      <Checkbox
-                                        checked={permissions.update}
-                                        onCheckedChange={() =>
-                                          handlePermissionChange(
-                                            section.module._id,
-                                            "update"
-                                          )
-                                        }
-                                        disabled={!permissions.read}
-                                        className="mx-auto"
-                                      />
-                                    </div>
-                                  </TooltipTrigger>
-                                  {!permissions.read && (
-                                    <TooltipContent>
-                                      <p>
-                                        Enable read permission first to assign
-                                        update permission
-                                      </p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div>
-                                      <Checkbox
-                                        checked={permissions.delete}
-                                        onCheckedChange={() =>
-                                          handlePermissionChange(
-                                            section.module._id,
-                                            "delete"
-                                          )
-                                        }
-                                        disabled={!permissions.read}
-                                        className="mx-auto"
-                                      />
-                                    </div>
-                                  </TooltipTrigger>
-                                  {!permissions.read && (
-                                    <TooltipContent>
-                                      <p>
-                                        Enable read permission first to assign
-                                        delete permission
-                                      </p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
+                {isLoadingPermissions ? (
+                  <div className="flex justify-center p-4">
+                    <span>Loading permissions...</span>
+                  </div>
+                ) : (
+                  <div className="max-h-[60vh] overflow-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[200px]">Module</TableHead>
+                          <TableHead className="text-center">
+                            Select All
+                          </TableHead>
+                          <TableHead className="text-center">Read</TableHead>
+                          <TableHead className="text-center">Write</TableHead>
+                          <TableHead className="text-center">Update</TableHead>
+                          <TableHead className="text-center">Delete</TableHead>
+                        </TableRow>
+                        <TableRow>
+                          <TableHead>All Modules</TableHead>
+                          <TableHead className="text-center">
+                            <Checkbox
+                              checked={selectAll}
+                              onCheckedChange={handleSelectAll}
+                              className="mx-auto"
+                            />
+                          </TableHead>
+                          <TableHead colSpan={4} />
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {rolePermissions?.sections?.map((section) => {
+                          const permissions =
+                            updatedPermissions[section.module._id] || {};
+                          return (
+                            <TableRow key={section.module._id}>
+                              <TableCell className="font-medium capitalize">
+                                {section.module.name}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={
+                                    permissions.read &&
+                                    permissions.write &&
+                                    permissions.update &&
+                                    permissions.delete
+                                  }
+                                  onCheckedChange={(checked) =>
+                                    handleSelectAllForModule(
+                                      section.module._id,
+                                      checked
+                                    )
+                                  }
+                                  className="mx-auto"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={permissions.read}
+                                  onCheckedChange={() =>
+                                    handlePermissionChange(
+                                      section.module._id,
+                                      "read"
+                                    )
+                                  }
+                                  className="mx-auto"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <TooltipProvider delayDuration={0}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div>
+                                        <Checkbox
+                                          checked={permissions.write}
+                                          onCheckedChange={() =>
+                                            handlePermissionChange(
+                                              section.module._id,
+                                              "write"
+                                            )
+                                          }
+                                          disabled={!permissions.read}
+                                          className="mx-auto"
+                                        />
+                                      </div>
+                                    </TooltipTrigger>
+                                    {!permissions.read && (
+                                      <TooltipContent>
+                                        <p>
+                                          Enable read permission first to assign
+                                          write permission
+                                        </p>
+                                      </TooltipContent>
+                                    )}
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <TooltipProvider delayDuration={0}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div>
+                                        <Checkbox
+                                          checked={permissions.update}
+                                          onCheckedChange={() =>
+                                            handlePermissionChange(
+                                              section.module._id,
+                                              "update"
+                                            )
+                                          }
+                                          disabled={!permissions.read}
+                                          className="mx-auto"
+                                        />
+                                      </div>
+                                    </TooltipTrigger>
+                                    {!permissions.read && (
+                                      <TooltipContent>
+                                        <p>
+                                          Enable read permission first to assign
+                                          update permission
+                                        </p>
+                                      </TooltipContent>
+                                    )}
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <TooltipProvider delayDuration={0}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div>
+                                        <Checkbox
+                                          checked={permissions.delete}
+                                          onCheckedChange={() =>
+                                            handlePermissionChange(
+                                              section.module._id,
+                                              "delete"
+                                            )
+                                          }
+                                          disabled={!permissions.read}
+                                          className="mx-auto"
+                                        />
+                                      </div>
+                                    </TooltipTrigger>
+                                    {!permissions.read && (
+                                      <TooltipContent>
+                                        <p>
+                                          Enable read permission first to assign
+                                          delete permission
+                                        </p>
+                                      </TooltipContent>
+                                    )}
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
 
                 <DialogFooter>
-                  <Button onClick={handleSubmit} type="button">
-                    Save permissions
+                  <Button
+                    onClick={handleSubmit}
+                    type="button"
+                    disabled={isLoading || isLoadingPermissions}
+                  >
+                    {isLoading ? "Saving..." : "Save permissions"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -536,11 +562,13 @@ function RolesAndPermissionController({ children }) {
       id: "deleteRole",
       header: "Delete Role",
       cell: ({ row }) => {
+        const [isLoading, setIsLoading] = useState(false);
         const data = {
           name: row.original.name,
         };
         const handleDelete = async () => {
           try {
+            setIsLoading(true);
             const response = await axiosDelete(deleteRole, { data });
             if (response.status === 204) {
               showNotification.success("Role deleted successfully");
@@ -550,6 +578,8 @@ function RolesAndPermissionController({ children }) {
             }
           } catch (error) {
             showNotification.error("Failed to delete role");
+          } finally {
+            setIsLoading(false);
           }
         };
 
@@ -562,8 +592,13 @@ function RolesAndPermissionController({ children }) {
                 className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                 permissionModule="role"
                 permissionAction="delete"
+                disabled={isLoading}
               >
-                <Trash2 className="h-4 w-4" />
+                {isLoading ? (
+                  <span className="h-4 w-4 animate-spin">⏳</span>
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -579,12 +614,15 @@ function RolesAndPermissionController({ children }) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={isLoading}>
+                  Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDelete}
                   className="bg-destructive hover:bg-destructive/90"
+                  disabled={isLoading}
                 >
-                  Delete
+                  {isLoading ? "Deleting..." : "Delete"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

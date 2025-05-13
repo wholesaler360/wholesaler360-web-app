@@ -99,7 +99,7 @@ function UserMenuComponent() {
                   onClick={handleClose}
                 >
                   <UserCog />
-                  Account Setting
+                  Account Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -112,7 +112,7 @@ function UserMenuComponent() {
                   onClick={handleClose}
                 >
                   <Building />
-                  Company Setting
+                  Company Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -125,7 +125,7 @@ function UserMenuComponent() {
                   onClick={handleClose}
                 >
                   <MonitorCog />
-                  App Setting
+                  App Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
