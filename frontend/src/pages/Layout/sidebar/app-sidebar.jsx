@@ -3,6 +3,7 @@ import {
   Box,
   Command,
   FileText,
+  LayoutDashboard,
   LifeBuoy,
   Send,
   ShoppingBag,
@@ -40,7 +41,7 @@ const data = {
     {
       title: "Dashboard",
       url: "/",
-      icon: Command,
+      icon: LayoutDashboard,
       isActive: true,
       permission: "dashboard",
     },
@@ -87,7 +88,6 @@ const data = {
       icon: ShoppingBag,
       isActive: false,
       items: [
-
         // {
         //   title: "Quotation",
         //   url: "/quotations",
