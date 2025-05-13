@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserMenu from "./userMenu/index.jsx";
-import { useBranding } from "@/context/BrandingContext";
 import { useNavigate } from "react-router-dom";
 
 const data = {
@@ -181,7 +180,6 @@ export function AppSidebar({ ...props }) {
   const location = useLocation();
   const currentPath = location.pathname;
   const { hasReadPermission } = usePermission();
-  const { logoUrl } = useBranding();
 
   // Simplified filterNavItems function using the permission property
   const filterNavItems = (items) => {

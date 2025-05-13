@@ -90,7 +90,7 @@ function LoginComponent({ className, ...props }) {
   // Handle verifying OTP
   const handleVerifyOTP = () => {
     // Check if any OTP digit is empty
-    if (otpDigits.some(digit => digit === "")) {
+    if (otpDigits.some((digit) => digit === "")) {
       setForgotPasswordError("Please enter the complete OTP");
       return;
     }
@@ -149,23 +149,23 @@ function LoginComponent({ className, ...props }) {
   const handlePaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
-    
+
     // Only process if the pasted content seems like an OTP
     if (/^\d+$/.test(pastedData)) {
       const digits = pastedData.slice(0, 6).split("");
       const newOtpDigits = [...otpDigits];
-      
+
       // Fill in the OTP digits array
       digits.forEach((digit, index) => {
         if (index < 6) {
           newOtpDigits[index] = digit;
         }
       });
-      
+
       setOtpDigits(newOtpDigits);
-      
+
       // Focus the next empty input or the last one
-      const nextEmptyIndex = newOtpDigits.findIndex(digit => digit === "");
+      const nextEmptyIndex = newOtpDigits.findIndex((digit) => digit === "");
       if (nextEmptyIndex !== -1 && nextEmptyIndex < 6) {
         otpInputRefs.current[nextEmptyIndex].focus();
       } else {
@@ -178,19 +178,9 @@ function LoginComponent({ className, ...props }) {
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-slate-50">
       <div className="w-full max-w-sm">
         <div className={cn("flex flex-col gap-6", className)} {...props}>
-          {/* Company Branding */}
           <div className="flex flex-col items-center justify-center space-y-2">
-            {companyData?.logoUrl && (
-              <div className="h-16 w-auto mb-2 overflow-hidden">
-                <img
-                  src={companyData.logoUrl}
-                  alt={companyData.name || "Company Logo"}
-                  className="h-full w-auto object-contain"
-                />
-              </div>
-            )}
             <h1 className="text-2xl font-bold tracking-tight text-center">
-              {companyData?.name || "Wholesaler 360"}
+              {"Wholesaler 360"}
             </h1>
           </div>
 
@@ -262,7 +252,7 @@ function LoginComponent({ className, ...props }) {
 
           <p className="text-center text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()}{" "}
-            {companyData?.name || "Wholesaler 360"}. All rights reserved.
+            {"Wholesaler 360"}. All rights reserved.
           </p>
         </div>
       </div>
@@ -301,8 +291,8 @@ function LoginComponent({ className, ...props }) {
             ) : (
               <div className="flex flex-col gap-4">
                 <Label htmlFor="otp">OTP</Label>
-                <div 
-                  className="flex justify-between gap-2" 
+                <div
+                  className="flex justify-between gap-2"
                   onPaste={handlePaste}
                 >
                   {otpDigits.map((digit, index) => (
