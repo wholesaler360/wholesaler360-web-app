@@ -18,6 +18,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/custom/FileUpload";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -25,14 +27,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function UpdateUserComponent() {
   const {
     userSchema,
     roles,
     isLoading,
+    isInitialLoading,
     fetchRoles,
     updateUserDetails,
     updateUserAvatar,
@@ -58,18 +60,20 @@ function UpdateUserComponent() {
   useEffect(() => {
     // Fetch roles when component mounts
     fetchRoles();
+  }, [fetchRoles]);
 
-    // Set form values when userData is available
+  // Update form when userData is available
+  useEffect(() => {
     if (userData) {
       form.reset({
         name: userData.name,
         email: userData.email,
         mobileNo: userData.mobileNo,
         newMobileNo: userData.mobileNo, // Initialize with current mobile
-        role: userData.role, // Role name is now directly available
+        role: userData.role.name, // Role name is now directly available
       });
     }
-  }, [fetchRoles, userData, form]);
+  }, [userData, form]);
 
   const onSubmit = async (values) => {
     try {
@@ -85,15 +89,72 @@ function UpdateUserComponent() {
     if (!croppedImage || !userData?.mobileNo) return;
 
     try {
+      const formData = new FormData();
+      formData.append("mobileNo", userData.mobileNo);
+
       const imageFile = new File([croppedImage], "avatar.jpg", {
         type: "image/jpeg",
       });
-      await updateUserAvatar(userData.mobileNo, imageFile);
+      formData.append("avatar", imageFile);
+
+      await updateUserAvatar(formData);
       navigate("/users");
     } catch (error) {
       console.error("Avatar update error:", error);
     }
   };
+
+  // Loading skeleton
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10" />
+          <div>
+            <Skeleton className="h-8 w-[200px]" />
+            <Skeleton className="h-4 w-[300px] mt-2" />
+          </div>
+        </div>
+        <Separator />
+        <div className="max-w-2xl">
+          <Card className="border-none shadow-md">
+            <CardContent className="p-6">
+              {/* Avatar Section Skeleton */}
+              <div className="mb-6">
+                <Skeleton className="h-5 w-[120px]" />
+                <div className="mt-4 flex items-center gap-6">
+                  <Skeleton className="h-20 w-20 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-8 w-[140px]" />
+                  </div>
+                </div>
+              </div>
+              <Separator className="my-6" />
+
+              {/* Form Skeleton */}
+              <div className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {Array(5)
+                    .fill(0)
+                    .map((_, idx) => (
+                      <div className="space-y-2" key={idx}>
+                        <Skeleton className="h-4 w-[80px]" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ))}
+                </div>
+                <div className="flex justify-end gap-4 pt-4">
+                  <Skeleton className="h-10 w-[80px]" />
+                  <Skeleton className="h-10 w-[120px]" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
@@ -126,19 +187,25 @@ function UpdateUserComponent() {
               <Label className="text-base font-semibold">Profile Picture</Label>
               <div className="mt-4 flex items-center gap-6">
                 <Avatar className="h-20 w-20">
-                  {(croppedImage || userData?.avatar) ? (
+                  {croppedImage || userData?.avatar ? (
                     <AvatarImage
-                      src={croppedImage ? URL.createObjectURL(croppedImage) : userData?.avatar}
+                      src={
+                        croppedImage
+                          ? URL.createObjectURL(croppedImage)
+                          : userData?.avatar
+                      }
                       alt="Preview"
                     />
                   ) : (
-                    <AvatarFallback>{userData?.name?.[0]?.toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {userData?.name?.[0]?.toUpperCase()}
+                    </AvatarFallback>
                   )}
                 </Avatar>
                 <div className="flex flex-col gap-4">
                   <FileUpload
                     onImageCropped={setCroppedImage}
-                    cropAspectRatio={1}
+                    aspectRatio={1}
                   />
                   {croppedImage && (
                     <Button
@@ -159,7 +226,10 @@ function UpdateUserComponent() {
 
             {/* User Details Form */}
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -196,10 +266,10 @@ function UpdateUserComponent() {
                       <FormItem>
                         <FormLabel>Current Mobile Number</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Current mobile number" 
+                          <Input
+                            placeholder="Current mobile number"
                             {...field}
-                            disabled 
+                            disabled
                           />
                         </FormControl>
                         <FormMessage />
@@ -214,11 +284,40 @@ function UpdateUserComponent() {
                       <FormItem>
                         <FormLabel>New Mobile Number</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Enter new mobile number" 
+                          <Input
+                            placeholder="Enter new mobile number"
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {roles.map((role) => (
+                              <SelectItem key={role._id} value={role.name}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}

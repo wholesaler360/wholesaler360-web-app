@@ -1,12 +1,25 @@
 import { createContext, useState, useCallback } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { axiosGet } from "@/constants/api-context";
-import { FetchAllUsers } from "@/constants/apiEndPoints";
-import { Edit, UserCog } from "lucide-react";
+import { axiosGet, axiosDelete } from "@/constants/api-context";
+import { FetchAllUsers, DeleteUser } from "@/constants/apiEndPoints";
+import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ButtonV2 } from "@/components/ui/button-v2";
 import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { showNotification } from "@/core/toaster/toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const UsersContext = createContext({});
 
@@ -17,6 +30,25 @@ function UsersController({ children }) {
   const getUsers = useCallback(async () => {
     const response = await axiosGet(FetchAllUsers);
     return response.data;
+  }, []);
+
+  const deleteUser = useCallback(async (mobileNo) => {
+    try {
+      const response = await axiosDelete(DeleteUser, { data: { mobileNo } });
+      if (response.status === 204) {
+        showNotification.success("User deleted successfully");
+        setRefreshTrigger((prev) => prev + 1);
+        return true;
+      } else {
+        showNotification.error(
+          response?.data?.message || "Failed to delete user"
+        );
+        return false;
+      }
+    } catch (error) {
+      showNotification.error("Error deleting user");
+      return false;
+    }
   }, []);
 
   const columnHelper = createColumnHelper();
@@ -89,6 +121,40 @@ function UsersController({ children }) {
             >
               <Edit className="h-4 w-4" />
             </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <ButtonV2
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  permissionModule="user"
+                  permissionAction="delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </ButtonV2>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete User</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the user
+                    {row.original.name && ` "${row.original.name}"`} and all
+                    associated data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deleteUser(row.original.mobileNo)}
+                    className="bg-destructive hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         );
       },
@@ -99,6 +165,7 @@ function UsersController({ children }) {
     <UsersContext.Provider
       value={{
         getUsers,
+        deleteUser,
         columns,
         refreshTrigger,
       }}
