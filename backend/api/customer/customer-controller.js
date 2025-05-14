@@ -294,6 +294,7 @@ const updateCustomerAvatar = asyncHandler(async (req, res, next) => {
     }
   }
 });
+
 const getTotalNoOfInvoice = async (customerId) => {
   const totalNoOfInvoice = await Invoice.countDocuments({ customerId });
 };
