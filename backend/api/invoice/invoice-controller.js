@@ -299,4 +299,5 @@ const fetchInvoiceById = asyncHandler(async (req, res, next) => {
         return next(ApiError.dataNotFound("Failed to fetch invoice"));
     }
 });
+
 export { createInvoice, fetchAll , fetchInvoiceById};

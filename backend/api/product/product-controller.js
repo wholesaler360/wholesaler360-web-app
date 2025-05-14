@@ -538,5 +538,6 @@ export {
   getDiscountTypes,
   fetchProductDropdown, 
   fetchProductDropdownForInvoice,
-  deleteProduct };
+  deleteProduct 
+};
 

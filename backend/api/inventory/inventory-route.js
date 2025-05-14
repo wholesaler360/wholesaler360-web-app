@@ -7,7 +7,4 @@ inventoryRouter.route('/fetch').get(fetchInventory);
 // inventoryRouter.route('/fetch').get(showLedger);
 
 
-
-
-
 export { inventoryRouter  }

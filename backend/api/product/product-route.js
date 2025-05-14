@@ -22,15 +22,16 @@ productRouter.route('/fetchProduct/:skuCode').get(getProduct);
 productRouter.route('/discountTypes').get(getDiscountTypes);
 
 productRouter.route('/createProduct').post(
-    upload([{name : 'productImg',maxCount : 1}])
-    ,createProduct)
+    upload([{name : 'productImg',maxCount : 1}]),
+    createProduct
+);
 
 productRouter.route('/updateProduct').put(updateProduct);
 
 productRouter.route('/updateProductImage').put(
-    upload([{name:'productImg',maxCount : 1}])
-    ,updateProductImage);
-
+    upload([{name:'productImg',maxCount : 1}]),
+    updateProductImage
+);
 
 productRouter.route('/fetchProductDropdown').get(fetchProductDropdown);
 
