@@ -80,7 +80,7 @@ const deleteCategory = asyncHandler(async(req,res,next)=>{
     const countOfUser = await countNoOfProductsHavingCategory(category._id);
     if(countOfUser > 0)
     {
-        return next(ApiError.validationFailed("Cannot delete category as it is assigned to some products"));
+        return next(ApiError.validationFailed(`Cannot delete category as it is assigned to ${countOfUser} products`));
     }
     try {
         category.isCategoryDeleted = true;
@@ -90,6 +90,7 @@ const deleteCategory = asyncHandler(async(req,res,next)=>{
         return next(ApiError.dataNotDeleted("Category not deleted"));
     }
 });
+
 const getCategory = asyncHandler(async(req,res,next)=>{
     let { name } = req.params;
     if(!(name?.trim())){
@@ -104,6 +105,7 @@ const getCategory = asyncHandler(async(req,res,next)=>{
     return res.status(200).json(ApiResponse.successRead(fetchCategory,"Category fetched successfully"));
     
 })
+
 const getAllCategories = asyncHandler(async(req,res,next)=>{
     const fetchCategories = await Category.aggregate([
                 {
@@ -139,4 +141,5 @@ const getAllCategories = asyncHandler(async(req,res,next)=>{
             return res.status(200).json(ApiResponse.successRead(fetchCategories[0], 'Categories fetched successfully'));
 
 });
+
 export {createCategory ,updateCategory ,deleteCategory , getCategory , getAllCategories};
