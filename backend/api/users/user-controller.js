@@ -249,4 +249,5 @@ const updateAvatar = asyncHandler(async(req,res,next)=>{
 const changePassword = asyncHandler(async(req,res,next)=>{
     
 })
-export {createUser, fetchUser, fetchAllUsers, updateUser, updateAvatar,deleteUser}
+
+export { createUser, fetchUser, fetchAllUsers, updateUser, updateAvatar, deleteUser }

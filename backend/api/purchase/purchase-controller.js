@@ -202,4 +202,5 @@ const fetchAll = asyncHandler(async (req, res, next) => {
     }
     res.status(200).json(ApiResponse.successRead(purchases, "Purchases fetched successfully"));
 })
+
 export { createPurchase, fetch, fetchAll };
