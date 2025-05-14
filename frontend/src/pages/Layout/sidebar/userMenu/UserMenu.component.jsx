@@ -1,20 +1,11 @@
 import {
-  BadgeCheck,
-  Bell,
   Building,
   ChevronsUpDown,
-  Cog,
-  CreditCard,
-  Key,
   LogOut,
   MonitorCog,
-  Settings,
   ShieldCheck,
-  Smartphone,
-  Sparkles,
   UserCog,
   UserPlus,
-  Users,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,7 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserMenuContext } from "./userMenu.control";
 import { Link } from "react-router-dom";
 import { getUserData } from "@/lib/authUtils";
@@ -42,15 +33,21 @@ function UserMenuComponent() {
   const { logout } = useContext(UserMenuContext);
   const { isMobile } = useSidebar();
   const user = getUserData();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
+    setIsOpen(false);
     logout();
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
   };
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -99,9 +96,10 @@ function UserMenuComponent() {
                 <Link
                   to="/account-settings"
                   className="flex items-center w-full gap-2"
+                  onClick={handleClose}
                 >
                   <UserCog />
-                  Account Setting
+                  Account Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -111,9 +109,10 @@ function UserMenuComponent() {
                 <Link
                   to="/company-settings"
                   className="flex items-center w-full gap-2"
+                  onClick={handleClose}
                 >
                   <Building />
-                  Company Setting
+                  Company Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -123,9 +122,10 @@ function UserMenuComponent() {
                 <Link
                   to="/app-settings"
                   className="flex items-center w-full gap-2"
+                  onClick={handleClose}
                 >
                   <MonitorCog />
-                  App Setting
+                  App Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -135,6 +135,7 @@ function UserMenuComponent() {
                 <Link
                   to="/users"
                   className="flex items-center w-full gap-2"
+                  onClick={handleClose}
                 >
                   <UserPlus />
                   Users
@@ -144,6 +145,7 @@ function UserMenuComponent() {
                 <Link
                   to="/roles-and-permissions"
                   className="flex items-center w-full gap-2"
+                  onClick={handleClose}
                 >
                   <ShieldCheck />
                   Roles & Permissions

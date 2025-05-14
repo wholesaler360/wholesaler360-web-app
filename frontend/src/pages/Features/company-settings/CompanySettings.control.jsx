@@ -1,5 +1,10 @@
 import { createContext, useState } from "react";
-import { axiosGet, axiosPut, axiosPost } from "@/constants/api-context";
+import {
+  axiosGet,
+  axiosPut,
+  axiosPost,
+  axiosDelete,
+} from "@/constants/api-context";
 import {
   fetchCompanyDetails,
   fetchCompanySignature,
@@ -14,7 +19,6 @@ import {
 import { showNotification } from "@/core/toaster/toast";
 import * as z from "zod";
 import { useBranding } from "@/context/BrandingContext";
-import { COMPANY_DATA_KEY } from "@/constants/globalConstants";
 
 export const CompanySettingsContext = createContext({});
 
@@ -39,28 +43,9 @@ const bankDetailsSchema = z.object({
   upiId: z.string().optional(),
 });
 
-const handleCompanyUpdate = async (data, companyData) => {
-  try {
-    const response = await updateCompany(data);
-    if (response?.data?.success) {
-      // Update local storage with new company data
-      localStorage.setItem(
-        COMPANY_DATA_KEY,
-        JSON.stringify({
-          ...companyData,
-          ...response.data.value,
-        })
-      );
-    }
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
-
 export function CompanySettingsController({ children }) {
   const [isLoading, setIsLoading] = useState(false);
-  const { updateLogo, updateFavicon } = useBranding();
+  const { updateLogo } = useBranding();
 
   const fetchCompanyData = async () => {
     try {
@@ -74,9 +59,6 @@ export function CompanySettingsController({ children }) {
       // Update global branding on initial load
       if (companyData.data.value?.logoUrl) {
         updateLogo(companyData.data.value.logoUrl);
-      }
-      if (companyData.data.value?.faviconUrl) {
-        updateFavicon(companyData.data.value.faviconUrl);
       }
 
       return {
@@ -150,28 +132,6 @@ export function CompanySettingsController({ children }) {
     }
   };
 
-  const uploadFavicon = async (formData) => {
-    try {
-      setIsLoading(true);
-      const response = await axiosPut(updateCompanyFavicon, formData);
-      if (response.data.success) {
-        showNotification.success("Favicon updated successfully");
-        // Update global favicon
-        if (response.data.value?.faviconUrl) {
-          updateFavicon(response.data.value.faviconUrl);
-        }
-        return response;
-      } else {
-        showNotification.error("Failed to update favicon");
-      }
-    } catch (error) {
-      showNotification.error("Failed to update favicon");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const addSignature = async (formData) => {
     try {
       setIsLoading(true);
@@ -193,8 +153,10 @@ export function CompanySettingsController({ children }) {
   const removeSignature = async (name) => {
     try {
       setIsLoading(true);
-      const response = await axiosPost(deleteCompanySignature, { name });
-      if (response.data.success) {
+      const data = { name };
+      const response = await axiosDelete(deleteCompanySignature, { data });
+      console.log(response);
+      if (response.status === 204) {
         showNotification.success("Signature removed successfully");
         return response;
       } else {
@@ -218,7 +180,6 @@ export function CompanySettingsController({ children }) {
         updateCompany,
         updateBankDetails,
         uploadLogo,
-        uploadFavicon,
         addSignature,
         removeSignature,
       }}

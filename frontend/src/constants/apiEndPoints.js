@@ -92,11 +92,14 @@ export const FetchAllUsers = "/user/fetchAll";
 export const CreateUser = "/user/createUser";
 export const UpdateUser = "/user/update";
 export const UpdateUserAvatar = "/user/updateAvatar";
+export const DeleteUser = "/user/delete";
+export const FetchUser = (mobileNo) => `/user/fetch/${mobileNo}`;
 
 // Dashboard
 export const FetchDashboard = "/dashboard/fetch";
 export const FetchAlertProductDashboard = "/dashboard/fetchAlert";
-export const FetchBestSellingProductDashboard = "/dashboard/fetchBestSellingProduct";
+export const FetchBestSellingProductDashboard =
+  "/dashboard/fetchBestSellingProduct";
 
 // App Settings
 export const fetchAppEmailSettings = "app-settings/emailSettings/fetch";

@@ -62,15 +62,17 @@ const axiosPut = async (endpoint = null, data = {}, config = {}) => {
       response: error.response,
       config: error.config,
     });
+    throw error;
   }
 };
 
-const axiosDelete = async (endpoint = null, data = {}) => {
+const axiosDelete = async (endpoint = null, config = {}) => {
   try {
     if (!endpoint || typeof endpoint !== "string") {
       throw new Error("Valid endpoint is required");
     }
-    const response = await api.delete(endpoint, data); 
+    console.log("Data to be deleted:", config.data);
+    const response = await api.delete(endpoint, config);
     return response;
   } catch (error) {
     console.error("DELETE request error:", {
@@ -78,6 +80,7 @@ const axiosDelete = async (endpoint = null, data = {}) => {
       response: error.response,
       config: error.config,
     });
+    throw error; // Rethrow the error so it can be caught by the calling function
   }
 };
 

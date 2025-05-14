@@ -3,6 +3,7 @@ import {
   Box,
   Command,
   FileText,
+  LayoutDashboard,
   LifeBuoy,
   Send,
   ShoppingBag,
@@ -28,7 +29,6 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UserMenu from "./userMenu/index.jsx";
-import { useBranding } from "@/context/BrandingContext";
 import { useNavigate } from "react-router-dom";
 
 const data = {
@@ -41,7 +41,7 @@ const data = {
     {
       title: "Dashboard",
       url: "/",
-      icon: Command,
+      icon: LayoutDashboard,
       isActive: true,
       permission: "dashboard",
     },
@@ -88,7 +88,6 @@ const data = {
       icon: ShoppingBag,
       isActive: false,
       items: [
-
         // {
         //   title: "Quotation",
         //   url: "/quotations",
@@ -181,7 +180,6 @@ export function AppSidebar({ ...props }) {
   const location = useLocation();
   const currentPath = location.pathname;
   const { hasReadPermission } = usePermission();
-  const { logoUrl } = useBranding();
 
   // Simplified filterNavItems function using the permission property
   const filterNavItems = (items) => {

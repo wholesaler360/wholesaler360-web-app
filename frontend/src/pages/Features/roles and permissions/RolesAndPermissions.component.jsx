@@ -49,6 +49,7 @@ function RolesAndPermissionsComponent() {
   );
   const [globalFilter, setGlobalFilter] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingRole, setIsAddingRole] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,9 +99,16 @@ function RolesAndPermissionsComponent() {
   });
 
   const onSubmitNewRole = async (value) => {
-    await addRole(value);
-    setOpen(false);
-    form.reset();
+    try {
+      setIsAddingRole(true);
+      await addRole(value);
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error("Error adding role:", error);
+    } finally {
+      setIsAddingRole(false);
+    }
   };
 
   return (
@@ -148,14 +156,16 @@ function RolesAndPermissionsComponent() {
                       <FormItem>
                         <FormLabel>Role Name</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled={isAddingRole} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <DialogFooter>
-                    <Button type="submit">Add Role</Button>
+                    <Button type="submit" disabled={isAddingRole}>
+                      {isAddingRole ? "Adding..." : "Add Role"}
+                    </Button>
                   </DialogFooter>
                 </form>
               </Form>

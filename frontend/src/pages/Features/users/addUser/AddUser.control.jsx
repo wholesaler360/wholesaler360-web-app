@@ -7,21 +7,20 @@ import * as z from "zod";
 
 export const AddUserContext = createContext({});
 
-const userSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  mobileNo: z.string().min(10, "Mobile number must be at least 10 digits"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-  role: z.string().min(1, "Please select a role"),
-  avatar: z
-    .any()
-    .refine((file) => file instanceof Blob, "Please upload an image")
-    .refine((file) => file.size <= 5242880, "Image must be less than 5MB"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const userSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    mobileNo: z.string().min(10, "Mobile number must be at least 10 digits"),
+    mobileNo: z.string().max(10, "Mobile number must be at most 10 digits"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+    role: z.string().min(1, "Please select a role"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export function AddUserController({ children }) {
   const navigate = useNavigate();
@@ -48,15 +47,18 @@ export function AddUserController({ children }) {
           "Content-Type": "multipart/form-data",
         },
       });
-      
       if (response.status === 201) {
         showNotification.success("User created successfully");
         navigate("/users");
       } else {
-        throw new Error(response.data.message || "Failed to create user");
+        throw new Error(
+          response.response.data.message || "Failed to create user"
+        );
       }
     } catch (error) {
-      showNotification.error(error.message || "Failed to create user");
+      showNotification.error(
+         error.response.data.message || "Failed to create user"
+      );
       throw error;
     }
   };
