@@ -39,6 +39,10 @@ export const UpdateCustomerImage = "/customer/updateImg";
 export const DeleteCustomer = "/customer/delete";
 export const FetchCustomerList = "customer/fetchCustomerDropdown";
 
+// Customer Ledger
+export const FetchCustomerLedgers = "/customer-ledger/show";
+export const CreateCustomerLedger = "/customer-ledger/create";
+
 //Vendor
 export const FetchAllVendors = "/vendor/fetchAll";
 export const FetchVendor = "/vendor/fetch";

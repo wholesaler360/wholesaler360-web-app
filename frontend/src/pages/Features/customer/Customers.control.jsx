@@ -2,7 +2,7 @@ import { createContext, useState, useCallback } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { axiosGet, axiosDelete } from "@/constants/api-context";
 import { FetchAllCustomers, DeleteCustomer } from "@/constants/apiEndPoints";
-import { MoreHorizontal, FileText } from "lucide-react";
+import { MoreHorizontal, BookIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,9 +56,7 @@ function CustomerController({ children }) {
             </Avatar>
           )}
           <div className="flex flex-col">
-            <span className="font-medium">
-              {row.original.name}
-            </span>
+            <span className="font-medium">{row.original.name}</span>
             <span className="text-xs text-muted-foreground">
               {row.original.email}
             </span>
@@ -147,12 +145,12 @@ function CustomerController({ children }) {
               variant="outline"
               effect="ringHover"
               size="sm"
-              onClick={() => navigate(`/invoice/new/${row.original.id}`)}
-              permissionModule="invoice"
+              onClick={() => navigate(`/customer/ledger/${row.original._id}`)}
+              permissionModule="customer"
               permissionAction="write"
             >
-              <FileText className="h-4 w-4" />
-              New Invoice
+              <BookIcon className="h-4 w-4" />
+              Ledger
             </ButtonV2>
 
             <DropdownMenu>

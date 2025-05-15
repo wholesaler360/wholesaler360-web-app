@@ -25,6 +25,7 @@ import AddUser from "@/pages/Features/users/addUser";
 import UpdateUser from "@/pages/Features/users/updateUser";
 import AppSettings from "@/pages/Features/app-settings";
 import ViewInvoice from "@/pages/Features/invoice/viewInvoice";
+import CustomerLedger from "@/pages/Features/customer-ledger";
 
 const authRoutes = [
   {
@@ -71,6 +72,11 @@ const authRoutes = [
     path: "/customer/edit",
     element: <UpdateCustomer />,
     permission: "customer",
+  },
+  {
+    path: "/customer/ledger/:id",
+    element: <CustomerLedger />,
+    permission: "customer-ledger",
   },
   {
     path: "/vendors",
