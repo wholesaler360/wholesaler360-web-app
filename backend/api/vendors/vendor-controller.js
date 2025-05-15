@@ -145,7 +145,7 @@ const fetchAllVendors = asyncHandler(async (req, res, next) => {
   );
 
   if (!vendors?.length) {
-    return next(ApiError.dataNotFound("No vendors found"));
+    return res.status(200).json(ApiResponse.successRead([], "No vendors found"));
   }
 
   return res
@@ -165,7 +165,7 @@ const fetchVendorsList = asyncHandler(async (req, res, next) => {
   );
 
   if (!vendors?.length) {
-    return next(ApiError.dataNotFound("No vendors found"));
+    return res.status(200).json(ApiResponse.successRead([], "No vendors found"));
   }
 
   return res

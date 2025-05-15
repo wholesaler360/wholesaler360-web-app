@@ -133,7 +133,7 @@ const showCustomerLedger = asyncHandler (async(req, res, next) => {
     ).sort({ createdAt: -1 }); // Latest first
 
     if (!ledger || ledger.length === 0) {
-        return next(ApiError.dataNotFound("No ledger found"));
+        return res.status(200).json(ApiResponse.successRead([], "No ledger found"));
     }
     
     return res.status(200).json(ApiResponse.successRead(ledger, "Customer ledger fetched successfully"));
