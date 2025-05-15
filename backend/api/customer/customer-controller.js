@@ -47,6 +47,7 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       !billingAddress.addressLine1 ||
       !billingAddress.city ||
       !billingAddress.state ||
+      !billingAddress.country ||
       !billingAddress.pincode
     ) {
       console.log(billingAddress);
@@ -58,13 +59,11 @@ const createCustomer = asyncHandler(async (req, res, next) => {
       !shippingAddress.addressLine1 ||
       !shippingAddress.city ||
       !shippingAddress.state ||
+      !shippingAddress.country ||
       !shippingAddress.pincode
     ) {
       return next(ApiError.validationFailed("Shipping Address is required"));
     }
-
-    console.log(billingAddress.pincode);
-    console.log(shippingAddress.pincode);
 
     const bankDetails = req.body.bankDetails;
     if (
@@ -172,6 +171,7 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
     !billingAddress.addressLine1 ||
     !billingAddress.city ||
     !billingAddress.state ||
+    !billingAddress.country ||
     !billingAddress.pincode
   ) {
     return next(ApiError.validationFailed("Billing Address is required"));
@@ -181,6 +181,7 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
     !shippingAddress.addressLine1 ||
     !shippingAddress.city ||
     !shippingAddress.state ||
+    !shippingAddress.country ||
     !shippingAddress.pincode
   ) {
     return next(ApiError.validationFailed("Shipping Address is required"));
