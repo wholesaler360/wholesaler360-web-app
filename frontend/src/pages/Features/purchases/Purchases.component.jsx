@@ -18,7 +18,8 @@ function PurchasesComponent() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
-  const { getPurchases, columns, refreshTrigger } = useContext(PurchasesContext);
+  const { getPurchases, columns, refreshTrigger } =
+    useContext(PurchasesContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +53,10 @@ function PurchasesComponent() {
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
   });
+
+  const handleRowClick = (row) => {
+    navigate(`/purchase/details/${row.original._id}`);
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -87,6 +92,7 @@ function PurchasesComponent() {
             table={table}
             globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
+            onRowClick={handleRowClick}
           />
         </div>
       )}

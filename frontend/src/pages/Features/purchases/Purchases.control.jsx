@@ -32,6 +32,7 @@ function PurchasesController({ children }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Vendor" />
       ),
+      id: "vendorName",
     }),
 
     columnHelper.accessor("purchaseDate", {
@@ -98,14 +99,14 @@ function PurchasesController({ children }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Payment Mode" />
       ),
-      cell: ({ getValue }) => (
-        <span className="capitalize">{getValue()}</span>
-      ),
+      cell: ({ getValue }) => <span className="capitalize">{getValue()}</span>,
     }),
   ];
 
   return (
-    <PurchasesContext.Provider value={{ getPurchases, columns, refreshTrigger }}>
+    <PurchasesContext.Provider
+      value={{ getPurchases, columns, refreshTrigger, setRefreshTrigger }}
+    >
       {children}
     </PurchasesContext.Provider>
   );

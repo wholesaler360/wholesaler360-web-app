@@ -17,6 +17,7 @@ import CompanySettings from "@/pages/Features/company-settings";
 import VendorLedger from "@/pages/Features/vendor-ledger";
 import Purchases from "@/pages/Features/purchases";
 import AddPurchase from "@/pages/Features/purchases/addPurchase";
+import PurchaseDetails from "@/pages/Features/purchases/PurchaseDetails";
 import Invoices from "@/pages/Features/invoice";
 import AddInvoice from "@/pages/Features/invoice/addInvoice";
 import Payments from "@/pages/Features/payments";
@@ -124,6 +125,11 @@ const authRoutes = [
     permission: "purchase",
   },
   {
+    path: "/purchase/details/:id",
+    element: <PurchaseDetails />,
+    permission: "purchase",
+  },
+  {
     path: "/invoices",
     element: <Invoices />,
     permission: "invoice",
@@ -137,11 +143,6 @@ const authRoutes = [
     path: "/payments",
     element: <Payments />,
     permission: "payment",
-  },
-  {
-    path: "/users",
-    element: <Users />,
-    permission: "user",
   },
   {
     path: "/users",

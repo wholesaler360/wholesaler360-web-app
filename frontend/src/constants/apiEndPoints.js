@@ -87,6 +87,8 @@ export const FetchTax = (name) => `/tax/getTax/${name}`;
 // Purchase
 export const FetchAllPurchases = "/purchase/fetchAll";
 export const CreatePurchase = "/purchase/create";
+export const FetchPurchase = "/purchase/fetch";
+export const FetchPurchaseById = (id) => `/purchase/fetch/${id}`;
 
 // Invoice
 export const FetchAllInvoices = "/invoice/fetchAll";
