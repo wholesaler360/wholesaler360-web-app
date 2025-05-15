@@ -295,6 +295,7 @@ const getProduct = asyncHandler(async (req, res, next) => {
         path: "taxRate",
         select: "-_id -isTaxDeleted -__v -createdAt -updatedAt",
       });
+      
     if (!product) {
       return next(ApiError.dataNotFound("Product does not exists"));
     }
@@ -401,7 +402,7 @@ const fetchProductDropdown = asyncHandler(async (req, res, next) => {
     },
   ]);
   if(products.length === 0){
-    return next(ApiError.dataNotFound("No products Exists"));
+    return res.status(200).json(ApiResponse.successRead([], "No products Exists"));
   }
   res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));
 });
@@ -522,7 +523,7 @@ const fetchProductDropdownForInvoice = asyncHandler(async (req, res, next) => {
   ]);
 
   if (products.length === 0) {
-    return next(ApiError.dataNotFound("No products exist"));
+    return res.status(200).json(ApiResponse.successRead([], "No products exist"));
   }
 
   res.status(200).json(ApiResponse.successRead(products[0], "Products fetched successfully"));

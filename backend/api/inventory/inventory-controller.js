@@ -296,7 +296,7 @@ const fetchInventory = asyncHandler(async (req, res, next) => {
     }
   ]);
   if(inventory.length === 0) {
-    return res.status(200).json(ApiResponse.successRead("No Products exists"));
+    return res.status(200).json(ApiResponse.successRead([], "No Products exists"));
   }
   res.status(200).json(ApiResponse.successRead(inventory[0], "Inventory fetched successfully"));
 });
