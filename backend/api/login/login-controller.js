@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { User } from '../users/user-model.js';
+import { CompanyDetails } from '../settings/company-settings/company-settings-model.js';
 import { ApiError } from '../../utils/api-error-utils.js';
 import { ApiResponse } from '../../utils/api-Responnse-utils.js';
 import { asyncHandler } from '../../utils/asyncHandler-utils.js';
@@ -17,10 +18,11 @@ const login = asyncHandler(async(req,res,next)=>{
     }
     
     // Checks if the user already exists
-    const user = await User.findOne({mobileNo : mobileNo}).
-    populate({path : "role" ,select : "name -_id"})
+    const user = await User.findOne({mobileNo : mobileNo})
+    .populate({path : "role" ,select : "-_id -__v -isRoleDeleted -createdAt -updatedAt"})
     .select("-otp -otpExpiration ");
     console.log(user);
+
     if(!user || user.isUserDeleted)
     {
         return next(ApiError.dataNotFound("User not found"));
@@ -52,10 +54,16 @@ const login = asyncHandler(async(req,res,next)=>{
         secure : true,
         sameSite : 'none'
     }
-    const { password : $password, refreshToken: $userRefreshToken, ...sanitizedUser } = user.toObject();
+
+    const companyDetails = await CompanyDetails.findOne({isDeleted : false})
+    .select("-_id -__v -createdAt -updatedAt -isDeleted");
+
+    const { password : $password, refreshToken: $userRefreshToken, isRoleDeleted : $isRoleDeleted , isUserDeleted ,...sanitizedUser } = user.toObject();
+
+
     res.status(200)
         .cookie('refreshToken',refreshToken,options)
-        .json(ApiResponse.successRead({user : sanitizedUser,accessToken},"User Logged In Successfully"));
+        .json(ApiResponse.successRead({user : sanitizedUser,accessToken,companyDetails},"User Logged In Successfully"));
 
 });
 
@@ -95,7 +103,7 @@ const refreshAccessToken = asyncHandler(async(req,res,next)=>{
         console.log("Access Token :",newAccessToken,"\n\n");
         console.log("----------------------------------------------------------------------");
         
-        const { password, refreshToken: userRefreshToken, ...sanitizedUser } = user.toObject();
+        const { password, refreshToken: userRefreshToken, isUserDeleted,...sanitizedUser } = user.toObject();
         console.log("----------------------------------------------------------------------");
         res.status(200).json(ApiResponse.successRead({user : sanitizedUser ,newAccessToken},"Token Refreshed Successfully"));
     } catch (error) {
