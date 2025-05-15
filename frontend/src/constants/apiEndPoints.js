@@ -1,5 +1,7 @@
 // Authentication API end points
 export const LoginApi = "/auth/login";
+export const ForgotPasswordApi = "/auth/forgotPassword";
+export const ValidateOtpApi = "/auth/validate";
 export const RefreshTokenApi = "/auth/refreshAccessToken";
 export const LogoutApi = "/auth/logout";
 
