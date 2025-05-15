@@ -1,5 +1,7 @@
 // Authentication API end points
 export const LoginApi = "/auth/login";
+export const ForgotPasswordApi = "/auth/forgotPassword";
+export const ValidateOtpApi = "/auth/validate";
 export const RefreshTokenApi = "/auth/refreshAccessToken";
 export const LogoutApi = "/auth/logout";
 
@@ -38,6 +40,10 @@ export const UpdateCustomer = "/customer/update";
 export const UpdateCustomerImage = "/customer/updateImg";
 export const DeleteCustomer = "/customer/delete";
 export const FetchCustomerList = "customer/fetchCustomerDropdown";
+
+// Customer Ledger
+export const FetchCustomerLedgers = "/customer-ledger/show";
+export const CreateCustomerLedger = "/customer-ledger/create";
 
 //Vendor
 export const FetchAllVendors = "/vendor/fetchAll";
@@ -83,6 +89,8 @@ export const FetchTax = (name) => `/tax/getTax/${name}`;
 // Purchase
 export const FetchAllPurchases = "/purchase/fetchAll";
 export const CreatePurchase = "/purchase/create";
+export const FetchPurchase = "/purchase/fetch";
+export const FetchPurchaseById = (id) => `/purchase/fetch/${id}`;
 
 // Invoice
 export const FetchAllInvoices = "/invoice/fetchAll";

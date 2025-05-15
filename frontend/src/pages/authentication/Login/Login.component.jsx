@@ -8,10 +8,10 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { useContext, useState, useEffect, useRef } from "react";
+import { useContext, useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoginContext } from "./Login.control";
+import { LoginContext } from "./login.control";
 import {
   Dialog,
   DialogContent,
@@ -27,21 +27,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { countryCodes } from "@/constants/countryCodes"; 
+import { countryCodes } from "@/constants/countryCodes";
 
 function LoginComponent({ className, ...props }) {
-  const { submitLoginForm } = useContext(LoginContext);
+  const { submitLoginForm, submitForgotPassword, verifyOtpAndResetPassword } =
+    useContext(LoginContext);
 
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [countryCode, setCountryCode] = useState("IN_+91"); // Default country code
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [companyData, setCompanyData] = useState(null);
 
   // Forgot password states
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
-  const [forgotPasswordStep, setForgotPasswordStep] = useState("phone"); // "phone" or "otp"
+  const [forgotPasswordStep, setForgotPasswordStep] = useState("phone"); // "phone", "otp", or "newPassword"
   const [forgotPasswordMobile, setForgotPasswordMobile] = useState("");
   const [forgotPasswordCountryCode, setForgotPasswordCountryCode] =
     useState("IN_+91"); // Default for forgot password
@@ -49,6 +49,8 @@ function LoginComponent({ className, ...props }) {
   const otpInputRefs = useRef([]);
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const [forgotPasswordError, setForgotPasswordError] = useState(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const extractPhoneCode = (combinedValue) => {
     return combinedValue.split("_")[1];
@@ -72,51 +74,70 @@ function LoginComponent({ className, ...props }) {
   };
 
   // Handle sending OTP for forgot password
-  const handleSendOTP = () => {
+  const handleSendOTP = async () => {
     if (!forgotPasswordMobile) {
       setForgotPasswordError("Please enter your mobile number");
       return;
     }
-    // Potentially validate forgotPasswordMobile as a number without country code here
 
     setForgotPasswordLoading(true);
     setForgotPasswordError(null);
 
-    // Simulating API call with country code
-    console.log(
-      "Sending OTP to:",
-      extractPhoneCode(forgotPasswordCountryCode) + forgotPasswordMobile
-    );
-    setTimeout(() => {
+    const fullMobileNumber =
+      extractPhoneCode(forgotPasswordCountryCode) + " " + forgotPasswordMobile;
+    const result = await submitForgotPassword(fullMobileNumber);
+
+    if (result) {
       setForgotPasswordStep("otp");
-      setForgotPasswordLoading(false);
-    }, 1500);
+    }
+
+    setForgotPasswordLoading(false);
   };
 
   // Handle verifying OTP
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = async () => {
     // Check if any OTP digit is empty
     if (otpDigits.some((digit) => digit === "")) {
       setForgotPasswordError("Please enter the complete OTP");
       return;
     }
 
+    // Move to new password step
+    setForgotPasswordStep("newPassword");
+  };
+
+  // Handle password reset
+  const handleResetPassword = async () => {
+    if (!newPassword) {
+      setForgotPasswordError("Please enter a new password");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setForgotPasswordError("Passwords do not match");
+      return;
+    }
+
     setForgotPasswordLoading(true);
     setForgotPasswordError(null);
 
-    // Simulating API call
-    setTimeout(() => {
-      // Close the dialog and reset states
-      setForgotPasswordOpen(false);
-      setForgotPasswordStep("phone");
-      setForgotPasswordMobile("");
-      setForgotPasswordCountryCode("IN_+91"); // Reset country code
-      setOtpDigits(["", "", "", "", "", ""]);
-      setForgotPasswordLoading(false);
+    const fullMobileNumber =
+      extractPhoneCode(forgotPasswordCountryCode) +
+    " " + forgotPasswordMobile;
+    const fullOtp = otpDigits.join("");
 
-      // Show success message
-      alert("Password reset link has been sent to your mobile number");
-    }, 1500);
+    const result = await verifyOtpAndResetPassword({
+      mobileNo: fullMobileNumber,
+      otp: fullOtp,
+      newPassword: newPassword,
+    });
+
+    if (result) {
+      // Reset all states and close dialog
+      handleForgotPasswordClose();
+    }
+
+    setForgotPasswordLoading(false);
   };
 
   // Handle dialog close - reset states
@@ -124,9 +145,11 @@ function LoginComponent({ className, ...props }) {
     setForgotPasswordOpen(false);
     setForgotPasswordStep("phone");
     setForgotPasswordMobile("");
-    setForgotPasswordCountryCode("IN_+91"); // Reset country code with combined format
+    setForgotPasswordCountryCode("IN_+91");
     setOtpDigits(["", "", "", "", "", ""]);
     setForgotPasswordError(null);
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   // Handle OTP input change
@@ -292,14 +315,18 @@ function LoginComponent({ className, ...props }) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {forgotPasswordStep === "phone" ? "Forgot Password" : "Enter OTP"}
+              {forgotPasswordStep === "phone"
+                ? "Forgot Password"
+                : forgotPasswordStep === "otp"
+                ? "Enter OTP"
+                : "Reset Password"}
             </DialogTitle>
             <DialogDescription>
               {forgotPasswordStep === "phone"
-                ? "Enter your registered mobile number to receive a verification code"
-                : `Enter the 6-digit OTP sent to ${extractPhoneCode(
-                    forgotPasswordCountryCode
-                  )}${forgotPasswordMobile}`}
+                ? "Enter your registered mobile number. We'll send a verification code to your registered email."
+                : forgotPasswordStep === "otp"
+                ? `Enter the 6-digit OTP sent to your registered email address`
+                : "Enter your new password"}
             </DialogDescription>
           </DialogHeader>
 
@@ -309,6 +336,21 @@ function LoginComponent({ className, ...props }) {
                 <div className="grid gap-2">
                   <Label htmlFor="forgotPasswordMobile">Mobile Number</Label>
                   <div className="flex gap-2">
+                    <Select
+                      value={forgotPasswordCountryCode}
+                      onValueChange={setForgotPasswordCountryCode}
+                    >
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="CC" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countryCodes.map((c) => (
+                          <SelectItem key={c.key} value={c.value}>
+                            {c.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
                       id="forgotPasswordMobile"
                       type="text"
@@ -317,14 +359,18 @@ function LoginComponent({ className, ...props }) {
                         setForgotPasswordMobile(
                           e.target.value.replace(/\D/g, "")
                         )
-                      } // Allow only digits
+                      }
                       placeholder="Enter mobile number"
                       className="flex-1"
                     />
                   </div>
                 </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Note: The OTP will be sent to the email address associated
+                  with this mobile number.
+                </p>
               </div>
-            ) : (
+            ) : forgotPasswordStep === "otp" ? (
               <div className="flex flex-col gap-4">
                 <Label htmlFor="otp">OTP</Label>
                 <div
@@ -345,6 +391,33 @@ function LoginComponent({ className, ...props }) {
                     />
                   ))}
                 </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Please check your email inbox for the OTP. It will expire in 5
+                  minutes.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                  />
+                </div>
               </div>
             )}
 
@@ -360,7 +433,11 @@ function LoginComponent({ className, ...props }) {
               type="submit"
               className="w-full"
               onClick={
-                forgotPasswordStep === "phone" ? handleSendOTP : handleVerifyOTP
+                forgotPasswordStep === "phone"
+                  ? handleSendOTP
+                  : forgotPasswordStep === "otp"
+                  ? handleVerifyOTP
+                  : handleResetPassword
               }
               disabled={forgotPasswordLoading}
             >
@@ -368,7 +445,9 @@ function LoginComponent({ className, ...props }) {
                 ? "Please wait..."
                 : forgotPasswordStep === "phone"
                 ? "Send OTP"
-                : "Verify OTP"}
+                : forgotPasswordStep === "otp"
+                ? "Verify OTP"
+                : "Reset Password"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,13 +1,15 @@
 import { createContext, useCallback } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { axiosGet } from "@/constants/api-context";
+import { axiosGet, axiosPost } from "@/constants/api-context";
 import { FetchAllInventories } from "@/constants/apiEndPoints";
 import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
+import { Button } from "@/components/ui/button";
+import { EyeIcon } from "lucide-react";
 
 const StockContext = createContext({});
 
 // Column definitions separated for better readability
-const defineColumns = () => {
+const defineColumns = (onProductClick) => {
   const columnHelper = createColumnHelper();
   return [
     // Product Name and SKU Column
@@ -74,6 +76,25 @@ const defineColumns = () => {
         );
       },
     }),
+
+    // Actions Column
+    columnHelper.display({
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex justify-start">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onProductClick(row.original)}
+            className="flex items-center gap-1"
+          >
+            <EyeIcon className="h-4 w-4" />
+            View Batches
+          </Button>
+        </div>
+      ),
+    }),
   ];
 };
 
@@ -84,13 +105,24 @@ function StockController({ children }) {
     return response.data;
   }, []);
 
-  // Get column definitions
-  const columns = defineColumns();
+  // Get all batches for a selected product
+  const getBatches = useCallback(async (productId) => {
+    const response = await axiosGet(`/batch/fetch/${productId}`);
+    return response.data;
+  }, []);
+
+  // Update batch selling price
+  const updateBatchPrice = useCallback(async (data) => {
+    const response = await axiosPost("/batch/changeSellPrice", data);
+    return response.data;
+  }, []);
 
   // Context provider value
   const contextValue = {
     getStock,
-    columns,
+    getBatches,
+    updateBatchPrice,
+    defineColumns,
   };
 
   return (

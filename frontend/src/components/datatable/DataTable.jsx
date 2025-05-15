@@ -10,23 +10,34 @@ import {
 import { flexRender } from "@tanstack/react-table";
 import DataTablePagination from "./DataTablePagination";
 import DataTableToolbar from "./DataTableToolbar";
-import {DataTableSkeleton }from "./DataTableSkeleton";
+import { DataTableSkeleton } from "./DataTableSkeleton";
 import React from "react";
 
-function DataTable({ table, children, globalFilter, setGlobalFilter, classNames, ...props }) {
+function DataTable({
+  table,
+  children,
+  globalFilter,
+  setGlobalFilter,
+  classNames,
+  onRowClick,
+  ...props
+}) {
   return (
     <div
       className={cn("w-full space-y-2.5 overflow-auto", classNames)}
       {...props}
     >
       {children}
-      <DataTableToolbar table={table} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
+      <DataTableToolbar
+        table={table}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => {
               return (
-                // Add return statement here
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
@@ -58,6 +69,8 @@ function DataTable({ table, children, globalFilter, setGlobalFilter, classNames,
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick && onRowClick(row)}
+                  className={onRowClick ? "cursor-pointer hover:bg-muted" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} style={{}}>
@@ -84,7 +97,7 @@ function DataTable({ table, children, globalFilter, setGlobalFilter, classNames,
       </div>
       <DataTablePagination table={table} />
     </div>
-    );
+  );
 }
 
 export { DataTable };

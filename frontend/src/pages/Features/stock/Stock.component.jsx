@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import { StockContext } from "./Stock.control";
 import { DataTable } from "@/components/datatable/DataTable";
 import { DataTableSkeleton } from "@/components/datatable/DataTableSkeleton";
@@ -10,12 +10,26 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { showNotification } from "@/core/toaster/toast";
+import { BatchList } from "./components/BatchList";
+import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon } from "lucide-react";
 
 export function StockComponent() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
-  const { getStock, columns } = useContext(StockContext);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const { getStock, defineColumns } = useContext(StockContext);
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleBackClick = () => {
+    setSelectedProduct(null);
+  };
+
+  const columns = defineColumns(handleProductClick);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +61,33 @@ export function StockComponent() {
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
   });
+
+  if (selectedProduct) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBackClick}
+            className="h-8 w-8"
+          >
+            <ArrowLeftIcon className="h-4 w-4" />
+          </Button>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              {selectedProduct.name}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              SKU: {selectedProduct.skuCode} | Category:{" "}
+              {selectedProduct.category}
+            </p>
+          </div>
+        </div>
+        <BatchList productId={selectedProduct.id} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
