@@ -3,9 +3,10 @@ import { z } from "zod";
 
 // RegEx Patterns
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const mobileRegex = /^[6-9]\d{9}$/;
+const mobileRegex = /^\+\d+\s\d+$/;
 const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-const pincodeRegex = /^[1-9][0-9]{5}$/;
+// const pincodeRegex = /^[1-9][0-9]{5}$/;
+const pincodeRegex = /^.*$/;
 const upiId = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z0-9]{2,64}$/;
 
 

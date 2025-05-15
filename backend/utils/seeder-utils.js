@@ -2,6 +2,7 @@ import { Module } from "../api/sections/module-model.js";
 import { Role } from "../api/roles/role-model.js";
 import { User } from "../api/users/user-model.js";
 import { CompanyDetails } from "../api/settings/company-settings/company-settings-model.js";
+import { AppEmailSettings } from "../api/settings/app-settings/app-settings-model.js";
 import { asyncHandler } from "./asyncHandler-utils.js";
 import Router from "express";
 import { ApiResponse } from "./api-Responnse-utils.js";
@@ -168,6 +169,34 @@ const setCompanyDetails = asyncHandler(async (req,res,next) => {
     }
 });
 
+const setEmailSettings = asyncHandler(async (req, res, next) => {
+    try {
+        const existingSettings = await AppEmailSettings.find();
+        
+        if (existingSettings.length > 0) {
+            return next(ApiError.valueAlreadyExists("Email settings already exists"));
+        }
+
+        const emailSettings = new AppEmailSettings({
+            email: "your-email@company.com",
+            credential: "your-default-password",
+            smtpHost: "smtp.gmail.com",
+            smtpPort: 587
+        });
+
+        const savedSettings = await emailSettings.save();
+        const { isDeleted, __v, _id, ...remaining } = savedSettings.toObject();
+
+        return res
+            .status(201)
+            .json(
+                ApiResponse.successCreated(remaining, "Email settings have been set successfully")
+            );
+    } catch (error) {
+        console.log(`Error setting email settings: ${error}`);
+        return next(ApiError.dataNotInserted("Error setting email settings", error));
+    }
+});
 
 // Create a super admin user
 const seederRouter = Router();
@@ -176,6 +205,7 @@ seederRouter.post("/create-super-admin-role", createSuperAdminRole);
 seederRouter.post("/create-super-admin-user", createUserSuperAdmin);
 seederRouter.post("/update-modules", updateExistingModulesName);
 seederRouter.post("/set-company-details", setCompanyDetails);
+seederRouter.post("/set-email-settings", setEmailSettings);
 
 export default seederRouter;
 
