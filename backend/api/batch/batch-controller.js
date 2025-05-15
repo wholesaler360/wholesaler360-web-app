@@ -121,17 +121,20 @@ const changeSellingPrice = asyncHandler(async(req,res,next)=>{
     }
 
     if(sellingPrice <= 0){
-      return res.status(200).json(ApiResponse.successRead(null,"Selling price cannot be negative or zero"));
+      return next(ApiError.validationFailed("Selling price cannot be negative or zero"));
     }
 
     try {
     const batch = await Batch.findOne({ _id: batchId , isDeleted : false});
+
     if(!batch){
         return next(ApiError.dataNotFound("Batch does not exists or deleted"));
     }
+
     if(batch.purchasePrice > sellingPrice){
-      return res.status(200).json(ApiResponse.successRead(null,"Selling price cannot be less than purchase price"));
+      return next(ApiError.dataNotFound("Selling price cannot be less than purchase price"));
     }
+
     batch.salePriceWithoutTax = sellingPrice;
     batch.isSalePriceEntered = true;
     await batch.save();
@@ -141,7 +144,6 @@ const changeSellingPrice = asyncHandler(async(req,res,next)=>{
   } catch (error) {
     return next(ApiError.dataNotFound("Failed to update selling price"));
   }
-
 });
 
 const stockAdd = asyncHandler(async(req,res,next)=>{
