@@ -15,6 +15,10 @@ import {
   addCompanySignature,
   deleteCompanySignature,
   updateCompanyFavicon,
+  FetchAllTaxes,
+  CreateTax,
+  UpdateTax,
+  DeleteTax,
 } from "@/constants/apiEndPoints";
 import { showNotification } from "@/core/toaster/toast";
 import * as z from "zod";
@@ -41,6 +45,11 @@ const bankDetailsSchema = z.object({
   accountHolderName: z.string().min(2, "Account holder name is required"),
   ifsc: z.string().min(11, "IFSC code must be 11 characters"),
   upiId: z.string().optional(),
+});
+
+const taxSchema = z.object({
+  name: z.string().min(1, "Tax name is required"),
+  percent: z.number().min(0, "Percent must be a positive number"),
 });
 
 export function CompanySettingsController({ children }) {
@@ -170,11 +179,91 @@ export function CompanySettingsController({ children }) {
     }
   };
 
+  const fetchTaxes = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axiosGet(FetchAllTaxes);
+      if (response.data.success) {
+        return response.data.value.taxes || [];
+      } else {
+        showNotification.error("Failed to fetch taxes");
+        return [];
+      }
+    } catch (error) {
+      showNotification.error("Failed to fetch taxes");
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addTax = async (data) => {
+    try {
+      setIsLoading(true);
+      const response = await axiosPost(CreateTax, data);
+      if (response.data.success) {
+        showNotification.success("Tax added successfully");
+        return response.data.value;
+      } else {
+        showNotification.error("Failed to add tax");
+      }
+    } catch (error) {
+      showNotification.error(
+        error.response?.data?.message || "Failed to add tax"
+      );
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateTax = async (data) => {
+    try {
+      setIsLoading(true);
+      const response = await axiosPut(UpdateTax, data);
+      if (response.data.success) {
+        showNotification.success("Tax updated successfully");
+        return response.data.value;
+      } else {
+        showNotification.error("Failed to update tax");
+      }
+    } catch (error) {
+      showNotification.error(
+        error.response?.data?.message || "Failed to update tax"
+      );
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const removeTax = async (name) => {
+    try {
+      setIsLoading(true);
+      const data = { name };
+      const response = await axiosDelete(DeleteTax, { data });
+      if (response.status === 204) {
+        showNotification.success("Tax removed successfully");
+        return true;
+      } else {
+        showNotification.error("Failed to remove tax");
+      }
+    } catch (error) {
+      showNotification.error(
+        error.response?.data?.message || "Failed to remove tax"
+      );
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <CompanySettingsContext.Provider
       value={{
         companyDetailsSchema,
         bankDetailsSchema,
+        taxSchema,
         isLoading,
         fetchCompanyData,
         updateCompany,
@@ -182,6 +271,10 @@ export function CompanySettingsController({ children }) {
         uploadLogo,
         addSignature,
         removeSignature,
+        fetchTaxes,
+        addTax,
+        updateTax,
+        removeTax,
       }}
     >
       {children}

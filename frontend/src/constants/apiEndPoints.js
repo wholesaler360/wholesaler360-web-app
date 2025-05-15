@@ -74,6 +74,12 @@ export const deleteCompanySignature = "/company-settings/signature/delete";
 export const updateCompanyFavicon =
   "/company-settings/companyDetails/updateFavicon";
 
+// Tax Management
+export const CreateTax = "/tax/createTax";
+export const UpdateTax = "/tax/updateTaxPercent";
+export const DeleteTax = "/tax/deleteTax";
+export const FetchTax = (name) => `/tax/getTax/${name}`;
+
 // Purchase
 export const FetchAllPurchases = "/purchase/fetchAll";
 export const CreatePurchase = "/purchase/create";
