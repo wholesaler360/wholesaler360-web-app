@@ -20,6 +20,14 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
 
 // State list from AddCustomer
 const statesList = [
@@ -57,6 +65,9 @@ function UpdateCustomerComponent() {
   const [customerData, setCustomerData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [countryCode, setCountryCode] = useState("IN_+91");
+  const [mobileWithoutCode, setMobileWithoutCode] = useState("");
+  const [newCountryCode, setNewCountryCode] = useState("IN_+91");
 
   const {
     customerSchema,
@@ -75,14 +86,46 @@ function UpdateCustomerComponent() {
     defaultValues: customerData,
   });
 
+  // Extract phone code from combined country code value
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
+
+  // Parse mobile number to separate country code and number
+  const parseMobileNumber = (fullNumber) => {
+    if (!fullNumber) return { code: "IN_+91", number: "" };
+
+    // Try to match the country code pattern
+    for (const cc of countryCodes) {
+      const code = cc.value.split("_")[1];
+      if (fullNumber.startsWith(code)) {
+        return {
+          code: cc.value,
+          number: fullNumber.substring(code.length).trim(),
+        };
+      }
+    }
+
+    // Default if no match found
+    return { code: "IN_+91", number: fullNumber };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetchCustomerDetails(customerMobileNo);
         setCustomerData(response);
+
+        // Parse the mobile number to get country code and number
+        const { code, number } = parseMobileNumber(response.mobileNo);
+        setCountryCode(code);
+        setNewCountryCode(code);
+        setMobileWithoutCode(number);
+
         form.reset({
           ...response,
-          newMobileNo: response.mobileNo,
+          mobileNo: response.mobileNo,
+          newMobileNo: number,
         });
       } catch (error) {
         console.error("Failed to fetch customer details", error);
@@ -97,7 +140,14 @@ function UpdateCustomerComponent() {
 
   const onSubmit = async (values) => {
     try {
-      await updateCustomer(values);
+      // Format the new mobile number with country code
+      const updatedValues = {
+        ...values,
+        mobileNo: values.mobileNo, // Keep original with country code
+        newMobileNo: extractPhoneCode(newCountryCode) +  " " + values.newMobileNo,
+      };
+
+      await updateCustomer(updatedValues);
     } catch (error) {
       console.error("Form submission error:", error);
     }
@@ -318,22 +368,46 @@ function UpdateCustomerComponent() {
                           )}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name="newMobileNo"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>New Mobile Number</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter new mobile number"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {/* New Mobile Number with Country Code */}
+                        <FormItem className="flex flex-col space-y-2.5">
+                          <FormLabel>New Mobile Number</FormLabel>
+                          <div className="flex gap-2">
+                            <Select
+                              value={newCountryCode}
+                              onValueChange={setNewCountryCode}
+                            >
+                              <SelectTrigger className="w-[100px]">
+                                <SelectValue placeholder="CC" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countryCodes.map((c) => (
+                                  <SelectItem key={c.key} value={c.value}>
+                                    {c.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormField
+                              control={form.control}
+                              name="newMobileNo"
+                              render={({ field }) => (
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter new mobile number"
+                                    className="flex-1"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        e.target.value.replace(/\D/g, "")
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                              )}
+                            />
+                          </div>
+                          <FormMessage />
+                        </FormItem>
 
                         {/* Email Field */}
                         <FormField

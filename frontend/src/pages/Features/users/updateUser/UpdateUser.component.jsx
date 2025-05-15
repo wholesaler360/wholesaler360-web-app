@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { countryCodes } from "@/constants/countryCodes";
 
 function UpdateUserComponent() {
   const {
@@ -45,6 +46,12 @@ function UpdateUserComponent() {
   const navigate = useNavigate();
   const location = useLocation();
   const [croppedImage, setCroppedImage] = useState(null);
+  const [mobileCountryCode, setMobileCountryCode] = useState("IN_+91"); // Default country code
+  const [newMobileCountryCode, setNewMobileCountryCode] = useState("IN_+91"); // Default country code for new mobile
+
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -65,19 +72,49 @@ function UpdateUserComponent() {
   // Update form when userData is available
   useEffect(() => {
     if (userData) {
-      form.reset({
-        name: userData.name,
-        email: userData.email,
-        mobileNo: userData.mobileNo,
-        newMobileNo: userData.mobileNo, // Initialize with current mobile
-        role: userData.role.name, // Role name is now directly available
-      });
+      // Extract country code from mobileNo if available
+      if (userData.mobileNo && userData.mobileNo.includes(" ")) {
+        const parts = userData.mobileNo.split(" ");
+        const code = parts[0].trim();
+        const number = parts[1].trim();
+
+        // Find the country code in our list
+        const foundCode = countryCodes.find((c) => c.value.endsWith(code));
+        if (foundCode) {
+          setMobileCountryCode(foundCode.value);
+          setNewMobileCountryCode(foundCode.value); // Also set for new mobile
+        }
+
+        form.reset({
+          name: userData.name,
+          email: userData.email,
+          mobileNo: userData.mobileNo,
+          newMobileNo: number, // Just the number part without code
+          role: userData.role.name,
+        });
+      } else {
+        form.reset({
+          name: userData.name,
+          email: userData.email,
+          mobileNo: userData.mobileNo,
+          newMobileNo: userData.mobileNo,
+          role: userData.role.name,
+        });
+      }
     }
   }, [userData, form]);
 
   const onSubmit = async (values) => {
     try {
-      const updatedUser = await updateUserDetails(values);
+      // Format the new mobile number with country code
+      const formattedValues = {
+        ...values,
+        newMobileNo: `${extractPhoneCode(newMobileCountryCode)} ${
+          values.newMobileNo
+        }`,
+      };
+
+      const updatedUser = await updateUserDetails(formattedValues);
       setUserData(updatedUser);
       navigate("/users");
     } catch (error) {
@@ -283,12 +320,35 @@ function UpdateUserComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>New Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter new mobile number"
-                            {...field}
-                          />
-                        </FormControl>
+                        <div className="flex gap-2">
+                          <Select
+                            value={newMobileCountryCode}
+                            onValueChange={setNewMobileCountryCode}
+                          >
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="CC" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((c) => (
+                                <SelectItem key={c.key} value={c.value}>
+                                  {c.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter new mobile number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, "")
+                                )
+                              }
+                              className="flex-1"
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

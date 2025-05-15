@@ -18,9 +18,15 @@ import { FileUpload } from "@/components/custom/FileUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-
 import { Skeleton } from "@/components/ui/skeleton";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
 
 function AccountSettingsComponent() {
   const {
@@ -35,9 +41,8 @@ function AccountSettingsComponent() {
 
   const [profileData, setProfileData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
-
+  const [countryCode, setCountryCode] = useState("IN_+91"); // Default country code
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
@@ -48,12 +53,35 @@ function AccountSettingsComponent() {
     resolver: zodResolver(passwordSchema),
   });
 
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
 
   const loadProfile = async () => {
     try {
       const data = await fetchProfile();
       setProfileData(data);
-      profileForm.reset(data);
+
+      // Handle country code extraction if mobileNo includes it
+      if (data.mobileNo && data.mobileNo.includes(" ")) {
+        const parts = data.mobileNo.split(" ");
+        const code = parts[0].trim();
+        const number = parts[1].trim();
+
+        // Find the country code in our list
+        const foundCode = countryCodes.find((c) => c.value.endsWith(code));
+        if (foundCode) {
+          setCountryCode(foundCode.value);
+        }
+
+        // Set the profile form with just the number part
+        profileForm.reset({
+          ...data,
+          mobileNo: number,
+        });
+      } else {
+        profileForm.reset(data);
+      }
     } catch (error) {
       console.error("Error loading profile:", error);
     } finally {
@@ -62,13 +90,18 @@ function AccountSettingsComponent() {
   };
 
   useEffect(() => {
-
     loadProfile();
   }, []);
 
   const handleProfileSubmit = async (data) => {
     try {
-      await updateProfile(data);
+      // Format the mobile number with country code
+      const formattedData = {
+        ...data,
+        mobileNo: `${extractPhoneCode(countryCode)} ${data.mobileNo}`,
+      };
+
+      await updateProfile(formattedData);
       const updatedProfile = await fetchProfile();
       setProfileData(updatedProfile);
     } catch (error) {
@@ -100,7 +133,6 @@ function AccountSettingsComponent() {
       console.error("Error updating avatar:", error);
     }
   };
-
 
   if (isInitialLoading) {
     return (
@@ -182,8 +214,6 @@ function AccountSettingsComponent() {
       <Separator />
 
       <div className="grid gap-6">
-
-
         <Card>
           <CardHeader>
             <CardTitle>Profile Details</CardTitle>
@@ -227,9 +257,35 @@ function AccountSettingsComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter mobile number" {...field} />
-                        </FormControl>
+                        <div className="flex gap-2">
+                          <Select
+                            value={countryCode}
+                            onValueChange={setCountryCode}
+                          >
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="CC" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((c) => (
+                                <SelectItem key={c.key} value={c.value}>
+                                  {c.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter mobile number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, "")
+                                )
+                              }
+                              className="flex-1"
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -246,7 +302,6 @@ function AccountSettingsComponent() {
         </Card>
 
         <div className="grid gap-6 lg:grid-cols-2">
-
           <Card className="border-none shadow-md">
             <CardHeader>
               <CardTitle>Profile Image</CardTitle>
@@ -299,7 +354,6 @@ function AccountSettingsComponent() {
               </div>
             </CardContent>
           </Card>
-
 
           <div className="lg:self-start">
             <Card className="border-none shadow-md">

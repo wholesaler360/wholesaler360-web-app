@@ -19,6 +19,14 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
 
 const statesList = [
   "Andhra Pradesh",
@@ -56,6 +64,7 @@ function AddCustomerComponent() {
     useContext(AddCustomerContext);
   const navigate = useNavigate();
   const [croppedImage, setCroppedImage] = useState(null);
+  const [countryCode, setCountryCode] = useState("IN_+91");
 
   const form = useForm({
     resolver: zodResolver(customerSchema),
@@ -88,6 +97,10 @@ function AddCustomerComponent() {
     },
   });
 
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
+
   const onSubmit = async (data) => {
     try {
       console.log("Starting form submission...");
@@ -95,14 +108,20 @@ function AddCustomerComponent() {
         console.error("Form data is empty");
         return;
       }
-      console.log("Form data:", data);
+
+      const formattedData = {
+        ...data,
+        mobileNo: extractPhoneCode(countryCode) + " " + data.mobileNo,
+      };
+
+      console.log("Form data:", formattedData);
 
       if (!createCustomer) {
         console.error("createCustomer function is not defined");
         return;
       }
 
-      const result = await createCustomer(data);
+      const result = await createCustomer(formattedData);
       console.log("Submission result:", result);
 
       // If successful, navigate to customers list
@@ -186,7 +205,7 @@ function AddCustomerComponent() {
                     <Card className="border shadow-sm">
                       <CardContent className="p-4">
                         <div className="grid gap-4 md:grid-cols-3">
-                          {/* Name, Mobile, Email, GSTIN fields */}
+                          {/* Name Field */}
                           <FormField
                             control={form.control}
                             name="name"
@@ -203,22 +222,49 @@ function AddCustomerComponent() {
                               </FormItem>
                             )}
                           />
-                          <FormField
-                            control={form.control}
-                            name="mobileNo"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Mobile Number</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Enter mobile number"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+
+                          {/* Mobile Number with Country Code */}
+                          <FormItem className="flex flex-col space-y-2.5">
+                            <FormLabel>Mobile Number</FormLabel>
+                            <div className="flex gap-2">
+                              <Select
+                                value={countryCode}
+                                onValueChange={setCountryCode}
+                              >
+                                <SelectTrigger className="w-[100px]">
+                                  <SelectValue placeholder="CC" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {countryCodes.map((c) => (
+                                    <SelectItem key={c.key} value={c.value}>
+                                      {c.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormField
+                                control={form.control}
+                                name="mobileNo"
+                                render={({ field }) => (
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Enter mobile number"
+                                      className="flex-1"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          e.target.value.replace(/\D/g, "")
+                                        )
+                                      }
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+
+                          {/* Rest of the fields */}
                           <FormField
                             control={form.control}
                             name="email"

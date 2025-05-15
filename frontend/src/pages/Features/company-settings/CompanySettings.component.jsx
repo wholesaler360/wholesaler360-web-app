@@ -17,8 +17,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { FileUpload } from "@/components/custom/FileUpload";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
 
 function CompanySettingsComponent() {
   const {
@@ -36,10 +43,11 @@ function CompanySettingsComponent() {
   const [companyData, setCompanyData] = useState(null);
   const [signatures, setSignatures] = useState([]);
   const [newLogo, setNewLogo] = useState(null);
-  const [newFavicon, setNewFavicon] = useState(null);
   const [newSignature, setNewSignature] = useState(null);
   const [signatureName, setSignatureName] = useState("");
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [companyMobileCountryCode, setCompanyMobileCountryCode] =
+    useState("IN_+91");
 
   const companyForm = useForm({
     resolver: zodResolver(companyDetailsSchema),
@@ -49,17 +57,38 @@ function CompanySettingsComponent() {
     resolver: zodResolver(bankDetailsSchema),
   });
 
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
+
   const refreshData = async () => {
     try {
       const data = await fetchCompanyData();
       setCompanyData(data.company);
       setSignatures(data.signatures);
 
-      // Reset forms with fresh data
-      companyForm.reset({
-        ...data.company,
-        ...data.company.address,
-      });
+      if (data.company.mobileNo && data.company.mobileNo.includes(" ")) {
+        const parts = data.company.mobileNo.split(" ");
+        const code = parts[0].trim();
+        const number = parts[1].trim();
+
+        const foundCode = countryCodes.find((c) => c.value.endsWith(code));
+        if (foundCode) {
+          setCompanyMobileCountryCode(foundCode.value);
+        }
+
+        companyForm.reset({
+          ...data.company,
+          ...data.company.address,
+          mobileNo: number,
+        });
+      } else {
+        companyForm.reset({
+          ...data.company,
+          ...data.company.address,
+        });
+      }
+
       bankForm.reset(data.bank);
     } catch (error) {
       console.error("Error refreshing data:", error);
@@ -70,8 +99,15 @@ function CompanySettingsComponent() {
 
   const handleCompanySubmit = async (data) => {
     try {
-      await updateCompany(data);
-      await refreshData(); // Refresh after update
+      const formattedData = {
+        ...data,
+        mobileNo: `${extractPhoneCode(companyMobileCountryCode)} ${
+          data.mobileNo
+        }`,
+      };
+
+      await updateCompany(formattedData);
+      await refreshData();
     } catch (error) {
       console.error("Error updating company details:", error);
     }
@@ -80,7 +116,7 @@ function CompanySettingsComponent() {
   const handleBankSubmit = async (data) => {
     try {
       await updateBankDetails(data);
-      await refreshData(); // Refresh after update
+      await refreshData();
     } catch (error) {
       console.error("Error updating bank details:", error);
     }
@@ -92,7 +128,7 @@ function CompanySettingsComponent() {
     formData.append("logo", newLogo);
     try {
       await uploadLogo(formData);
-      await refreshData(); // Refresh after update
+      await refreshData();
       setNewLogo(null);
     } catch (error) {
       console.error("Error updating logo:", error);
@@ -106,7 +142,7 @@ function CompanySettingsComponent() {
     formData.append("name", signatureName);
     try {
       await addSignature(formData);
-      await refreshData(); // Refresh after update
+      await refreshData();
       setNewSignature(null);
       setSignatureName("");
     } catch (error) {
@@ -117,7 +153,7 @@ function CompanySettingsComponent() {
   const handleSignatureRemove = async (name) => {
     try {
       await removeSignature(name);
-      await refreshData(); // Refresh after update
+      await refreshData();
     } catch (error) {
       console.error("Error removing signature:", error);
     }
@@ -138,7 +174,6 @@ function CompanySettingsComponent() {
         <Separator />
 
         <div className="grid gap-6">
-          {/* Company Details Skeleton */}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-[200px]" />
@@ -156,7 +191,6 @@ function CompanySettingsComponent() {
             </CardContent>
           </Card>
 
-          {/* Bank Details Skeleton */}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-[150px]" />
@@ -173,7 +207,6 @@ function CompanySettingsComponent() {
             </CardContent>
           </Card>
 
-          {/* Logo and Favicon Skeleton */}
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
@@ -196,7 +229,6 @@ function CompanySettingsComponent() {
             </Card>
           </div>
 
-          {/* Signatures Skeleton */}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-[120px]" />
@@ -230,7 +262,6 @@ function CompanySettingsComponent() {
       <Separator />
 
       <div className="grid gap-6">
-        {/* Company Details Section */}
         <Card>
           <CardHeader>
             <CardTitle>Company Details</CardTitle>
@@ -261,9 +292,35 @@ function CompanySettingsComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter mobile number" {...field} />
-                        </FormControl>
+                        <div className="flex gap-2">
+                          <Select
+                            value={companyMobileCountryCode}
+                            onValueChange={setCompanyMobileCountryCode}
+                          >
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="CC" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((c) => (
+                                <SelectItem key={c.key} value={c.value}>
+                                  {c.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter mobile number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, "")
+                                )
+                              }
+                              className="flex-1"
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -393,7 +450,6 @@ function CompanySettingsComponent() {
           </CardContent>
         </Card>
 
-        {/* Bank Details Section */}
         <Card>
           <CardHeader>
             <CardTitle>Bank Details</CardTitle>
@@ -487,7 +543,6 @@ function CompanySettingsComponent() {
           </CardContent>
         </Card>
 
-        {/* Logo and Signature Section */}
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -513,7 +568,7 @@ function CompanySettingsComponent() {
                 )}
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mt-4">
                 <Label>Current Logo</Label>
                 <div className="aspect-video w-full overflow-hidden rounded-lg border bg-muted">
                   {companyData?.logoUrl ? (
@@ -537,7 +592,6 @@ function CompanySettingsComponent() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* Add New Signature */}
                 <div className="space-y-4">
                   <h4 className="font-medium">Add New Signature</h4>
                   <div className="space-y-4">
@@ -567,44 +621,42 @@ function CompanySettingsComponent() {
                     </div>
                   </div>
                 </div>
-                {/* Existing Signatures */}
+
                 <div className="space-y-4">
-                <Label>Existing Signatures</Label>
-                {signatures.length > 0 && (
-                  <div className="grid gap-4 md:grid-cols-3">
-                    {signatures.map((sig, index) => (
-                      <div
-                        key={index}
-                        className="relative rounded-lg border p-4 space-y-2"
-                      >
-                        <div className="aspect-video w-full overflow-hidden rounded-lg border">
-                          <img
-                            src={sig.signatureUrl}
-                            alt={sig.name}
-                            className="h-full w-full object-contain"
-                          />
-                        </div>
-                        <p className="text-sm font-medium">{sig.name}</p>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="w-full"
-                          onClick={() => handleSignatureRemove(sig.name)}
-                          disabled={isLoading}
+                  <Label>Existing Signatures</Label>
+                  {signatures.length > 0 && (
+                    <div className="grid gap-4 md:grid-cols-3">
+                      {signatures.map((sig, index) => (
+                        <div
+                          key={index}
+                          className="relative rounded-lg border p-4 space-y-2"
                         >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                          <div className="aspect-video w-full overflow-hidden rounded-lg border">
+                            <img
+                              src={sig.signatureUrl}
+                              alt={sig.name}
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
+                          <p className="text-sm font-medium">{sig.name}</p>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handleSignatureRemove(sig.name)}
+                            disabled={isLoading}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Signatures Section */}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
 
 const statesList = [
   "Andhra Pradesh",
@@ -54,6 +62,7 @@ function AddVendorComponent() {
   const { vendorSchema, isLoading, createVendor } =
     useContext(AddVendorContext);
   const navigate = useNavigate();
+  const [countryCode, setCountryCode] = useState("IN_+91");
 
   const form = useForm({
     resolver: zodResolver(vendorSchema),
@@ -77,8 +86,17 @@ function AddVendorComponent() {
     },
   });
 
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
+
   const onSubmit = (data) => {
-    createVendor(data);
+    const formattedData = {
+      ...data,
+      mobileNo: extractPhoneCode(countryCode) + " " + data.mobileNo,
+    };
+
+    createVendor(formattedData);
   };
 
   return (
@@ -153,22 +171,48 @@ function AddVendorComponent() {
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={form.control}
-                          name="mobileNo"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mobile Number</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter mobile number"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+
+                        {/* Mobile Number with Country Code */}
+                        <FormItem className="flex flex-col space-y-2.5">
+                          <FormLabel>Mobile Number</FormLabel>
+                          <div className="flex gap-2">
+                            <Select
+                              value={countryCode}
+                              onValueChange={setCountryCode}
+                            >
+                              <SelectTrigger className="w-[100px]">
+                                <SelectValue placeholder="CC" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countryCodes.map((c) => (
+                                  <SelectItem key={c.key} value={c.value}>
+                                    {c.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormField
+                              control={form.control}
+                              name="mobileNo"
+                              render={({ field }) => (
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter mobile number"
+                                    className="flex-1"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        e.target.value.replace(/\D/g, "")
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                              )}
+                            />
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+
                         <FormField
                           control={form.control}
                           name="email"
