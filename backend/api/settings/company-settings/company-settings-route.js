@@ -28,14 +28,14 @@ companySettingsRouter.route('/signature/create').post(
     addCompanySignature
 );
 
-companySettingsRouter.route('/companyDetails/updateLogo').put(
-    upload([{name : 'logo', maxCount : 1}]), 
-    updateCompanyLogo
-);
+// companySettingsRouter.route('/companyDetails/updateLogo').put(
+//     upload([{name : 'logo', maxCount : 1}]), 
+//     updateCompanyLogo
+// );
 
-companySettingsRouter.route('/companyDetails/updateFavicon').put(
-    upload([{name : 'favicon', maxCount : 1}]), 
-    updateCompanyFavicon
-);
+// companySettingsRouter.route('/companyDetails/updateFavicon').put(
+//     upload([{name : 'favicon', maxCount : 1}]), 
+//     updateCompanyFavicon
+// );
 
 export { companySettingsRouter };
