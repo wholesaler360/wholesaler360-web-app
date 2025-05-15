@@ -54,6 +54,12 @@ const customerSchema = new mongoose.Schema({
             trim: true,
             lowercase: true,
         },
+        country : {
+            type: String,
+            required: true,
+            trim: true,
+            lowercase: true,
+        },
         pincode : {
             type: String,
             required: true,
@@ -76,6 +82,12 @@ const customerSchema = new mongoose.Schema({
             lowercase: true,
         },
         state : {
+            type: String,
+            required: true,
+            trim: true,
+            lowercase: true,
+        },
+        country : {
             type: String,
             required: true,
             trim: true,
