@@ -19,6 +19,14 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/custom/FileUpload";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
 
 const statesList = [
   "Andhra Pradesh",
@@ -55,25 +63,42 @@ function UpdateVendorComponent() {
   const [vendorData, setVendorData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [countryCode, setCountryCode] = useState("IN_+91");
+  const [mobileWithoutCode, setMobileWithoutCode] = useState("");
+  const [newCountryCode, setNewCountryCode] = useState("IN_+91");
 
-  const {
-    isLoading,
-    fetchVendorDetails,
-    updateVendor,
-    updateVendorAvatar,
-  } = useContext(UpdateVendorContext);
+  const { isLoading, fetchVendorDetails, updateVendor, updateVendorAvatar } =
+    useContext(UpdateVendorContext);
 
   const navigate = useNavigate();
   const location = useLocation();
   const vendorMobileNo = location.state?.mobileNo;
 
-  // Modify form setup to remove Zod resolver
   const form = useForm({
     defaultValues: vendorData,
     mode: "onChange",
   });
 
-  // Add this function to check for form errors
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
+
+  const parseMobileNumber = (fullNumber) => {
+    if (!fullNumber) return { code: "IN_+91", number: "" };
+
+    for (const cc of countryCodes) {
+      const code = cc.value.split("_")[1];
+      if (fullNumber.startsWith(code)) {
+        return {
+          code: cc.value,
+          number: fullNumber.substring(code.length).trim(),
+        };
+      }
+    }
+
+    return { code: "IN_+91", number: fullNumber };
+  };
+
   const checkFormErrors = () => {
     console.log("Form errors:", form.formState.errors);
     return Object.keys(form.formState.errors).length === 0;
@@ -84,9 +109,15 @@ function UpdateVendorComponent() {
       try {
         const response = await fetchVendorDetails(vendorMobileNo);
         setVendorData(response);
+
+        const { code, number } = parseMobileNumber(response.mobileNo);
+        setCountryCode(code);
+        setNewCountryCode(code);
+        setMobileWithoutCode(number);
+
         form.reset({
           ...response,
-          newMobileNo: response.mobileNo,
+          newMobileNo: number,
         });
       } catch (error) {
         console.error("Failed to fetch vendor details", error);
@@ -104,14 +135,12 @@ function UpdateVendorComponent() {
   const onSubmit = async (values) => {
     console.log("Form submitted with values:", values);
     try {
-      // Log form state for debugging
       console.log("Form state:", form.formState);
-      
-      // Create properly structured data for API
+
       const updateData = {
         name: values.name,
         mobileNo: values.mobileNo,
-        newMobileNo: values.newMobileNo,
+        newMobileNo: extractPhoneCode(newCountryCode) + " " + values.newMobileNo,
         email: values.email,
         gstin: values.gstin,
         address: {
@@ -120,19 +149,19 @@ function UpdateVendorComponent() {
           city: values.address?.city,
           state: values.address?.state,
           pincode: values.address?.pincode,
-          country: values.address?.country
+          country: values.address?.country,
         },
         bankDetails: {
           accountHolderName: values.bankDetails?.accountHolderName,
           bankName: values.bankDetails?.bankName,
           accountNumber: values.bankDetails?.accountNumber,
-          ifsc: values.bankDetails?.ifsc
-        }
+          ifsc: values.bankDetails?.ifsc,
+        },
       };
-      
+
       console.log("Sending to API:", updateData);
       await updateVendor(updateData);
-      
+
       if (croppedImage) {
         const formData = new FormData();
         formData.append("mobileNo", values.mobileNo);
@@ -164,7 +193,6 @@ function UpdateVendorComponent() {
   if (isInitialLoading) {
     return (
       <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
-        {/* Header Skeleton */}
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-10" />
           <div>
@@ -178,7 +206,6 @@ function UpdateVendorComponent() {
         <div className="container mx-auto max-w-[1200px]">
           <Card className="border-none shadow-md">
             <CardContent className="p-6">
-              {/* Basic Details Skeleton */}
               <section className="mb-8">
                 <div className="mb-4">
                   <Skeleton className="h-6 w-[150px]" />
@@ -198,7 +225,6 @@ function UpdateVendorComponent() {
                 </Card>
               </section>
 
-              {/* Address Skeleton */}
               <section>
                 <Card className="border shadow-sm">
                   <CardContent className="p-4">
@@ -214,7 +240,6 @@ function UpdateVendorComponent() {
                 </Card>
               </section>
 
-              {/* Bank Details Skeleton */}
               <section className="mt-8">
                 <Card className="border shadow-sm">
                   <CardContent className="p-4">
@@ -230,7 +255,6 @@ function UpdateVendorComponent() {
                 </Card>
               </section>
 
-              {/* Form Actions Skeleton */}
               <div className="flex justify-end gap-4 mt-8">
                 <Skeleton className="h-10 w-[100px]" />
                 <Skeleton className="h-10 w-[150px]" />
@@ -238,7 +262,6 @@ function UpdateVendorComponent() {
             </CardContent>
           </Card>
 
-          {/* Image Management Skeleton */}
           <div className="mt-8">
             <Skeleton className="h-6 w-[150px] mb-4" />
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -266,7 +289,6 @@ function UpdateVendorComponent() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
@@ -294,7 +316,6 @@ function UpdateVendorComponent() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                {/* Basic Details */}
                 <section>
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold">Vendor Details</h3>
@@ -335,22 +356,45 @@ function UpdateVendorComponent() {
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={form.control}
-                          name="newMobileNo"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>New Mobile Number</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter new mobile number"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <FormItem className="flex flex-col space-y-2.5">
+                          <FormLabel>New Mobile Number</FormLabel>
+                          <div className="flex gap-2">
+                            <Select
+                              value={newCountryCode}
+                              onValueChange={setNewCountryCode}
+                            >
+                              <SelectTrigger className="w-[100px]">
+                                <SelectValue placeholder="CC" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countryCodes.map((c) => (
+                                  <SelectItem key={c.key} value={c.value}>
+                                    {c.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormField
+                              control={form.control}
+                              name="newMobileNo"
+                              render={({ field }) => (
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter new mobile number"
+                                    className="flex-1"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        e.target.value.replace(/\D/g, "")
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                              )}
+                            />
+                          </div>
+                          <FormMessage />
+                        </FormItem>
                         <FormField
                           control={form.control}
                           name="email"
@@ -385,7 +429,6 @@ function UpdateVendorComponent() {
                   </Card>
                 </section>
 
-                {/* Address Details */}
                 <section>
                   <Card className="border shadow-sm">
                     <CardContent className="p-4">
@@ -489,7 +532,6 @@ function UpdateVendorComponent() {
                   </Card>
                 </section>
 
-                {/* Bank Details */}
                 <section>
                   <Card className="border shadow-sm">
                     <CardContent className="p-4">
@@ -563,7 +605,6 @@ function UpdateVendorComponent() {
                   </Card>
                 </section>
 
-                {/* Form Actions */}
                 <div className="flex justify-end gap-4">
                   <Button
                     type="button"
@@ -575,17 +616,21 @@ function UpdateVendorComponent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className={cn("min-w-[120px]", isLoading && "animate-pulse")}
+                    className={cn(
+                      "min-w-[120px]",
+                      isLoading && "animate-pulse"
+                    )}
                     onClick={() => {
                       console.log("Update button clicked");
-                      // Optional: Add direct button handler to debug
                       if (!form.formState.isSubmitting) {
                         const values = form.getValues();
                         if (checkFormErrors()) {
                           console.log("Form is valid, submitting manually");
                           onSubmit(values);
                         } else {
-                          console.log("Form has validation errors, can't submit");
+                          console.log(
+                            "Form has validation errors, can't submit"
+                          );
                         }
                       }
                     }}
@@ -598,7 +643,6 @@ function UpdateVendorComponent() {
           </CardContent>
         </Card>
 
-        {/* Image Management Section */}
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Vendor Image</h3>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -638,7 +682,6 @@ function UpdateVendorComponent() {
                     />
                   </div>
 
-                  {/* Image Update Button */}
                   {croppedImage && (
                     <div className="flex justify-end">
                       <Button
@@ -658,7 +701,6 @@ function UpdateVendorComponent() {
               </CardContent>
             </Card>
 
-            {/* Preview Card - Only shows when there's a new image */}
             {croppedImage && (
               <div className="lg:sticky lg:top-6">
                 <Card className="border-none shadow-md">

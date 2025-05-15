@@ -27,17 +27,23 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import { countryCodes } from "@/constants/countryCodes";
 
 function AddUserComponent() {
-  const { userSchema, createUser, roles, fetchRoles } = useContext(AddUserContext);
+  const { userSchema, createUser, roles, fetchRoles } =
+    useContext(AddUserContext);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [croppedImage, setCroppedImage] = useState(null);
+  const [mobileCountryCode, setMobileCountryCode] = useState("IN_+91"); // Default country code
 
   useEffect(() => {
     fetchRoles();
   }, [fetchRoles]);
+
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -57,10 +63,16 @@ function AddUserComponent() {
       setIsLoading(true);
       const formData = new FormData();
 
+      // Format mobile number with country code
+      const formattedValues = {
+        ...values,
+        mobileNo: `${extractPhoneCode(mobileCountryCode)} ${values.mobileNo}`,
+      };
+
       // Add all text fields
-      Object.keys(values).forEach((key) => {
+      Object.keys(formattedValues).forEach((key) => {
         if (key !== "avatar" && key !== "confirmPassword") {
-          formData.append(key, values[key]);
+          formData.append(key, formattedValues[key]);
         }
       });
 
@@ -107,7 +119,10 @@ function AddUserComponent() {
         <Card className="border-none shadow-md">
           <CardContent className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 {/* Avatar Upload */}
                 <div className="flex items-center gap-6">
                   <Avatar className="h-20 w-20">
@@ -175,9 +190,35 @@ function AddUserComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter mobile number" {...field} />
-                        </FormControl>
+                        <div className="flex gap-2">
+                          <Select
+                            value={mobileCountryCode}
+                            onValueChange={setMobileCountryCode}
+                          >
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="CC" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((c) => (
+                                <SelectItem key={c.key} value={c.value}>
+                                  {c.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter mobile number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, "")
+                                )
+                              }
+                              className="flex-1"
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

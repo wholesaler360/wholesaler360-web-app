@@ -20,12 +20,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes"; 
 
 function LoginComponent({ className, ...props }) {
   const { submitLoginForm } = useContext(LoginContext);
 
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
+  const [countryCode, setCountryCode] = useState("IN_+91"); // Default country code
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [companyData, setCompanyData] = useState(null);
@@ -34,10 +43,16 @@ function LoginComponent({ className, ...props }) {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [forgotPasswordStep, setForgotPasswordStep] = useState("phone"); // "phone" or "otp"
   const [forgotPasswordMobile, setForgotPasswordMobile] = useState("");
+  const [forgotPasswordCountryCode, setForgotPasswordCountryCode] =
+    useState("IN_+91"); // Default for forgot password
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const otpInputRefs = useRef([]);
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const [forgotPasswordError, setForgotPasswordError] = useState(null);
+
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
@@ -46,7 +61,7 @@ function LoginComponent({ className, ...props }) {
 
     try {
       await submitLoginForm({
-        mobile: mobile,
+        mobile: extractPhoneCode(countryCode) + " " + mobile, // Extract and prepend country code
         password: password,
       });
     } catch (err) {
@@ -62,11 +77,16 @@ function LoginComponent({ className, ...props }) {
       setForgotPasswordError("Please enter your mobile number");
       return;
     }
+    // Potentially validate forgotPasswordMobile as a number without country code here
 
     setForgotPasswordLoading(true);
     setForgotPasswordError(null);
 
-    // Simulating API call
+    // Simulating API call with country code
+    console.log(
+      "Sending OTP to:",
+      extractPhoneCode(forgotPasswordCountryCode) + forgotPasswordMobile
+    );
     setTimeout(() => {
       setForgotPasswordStep("otp");
       setForgotPasswordLoading(false);
@@ -90,6 +110,7 @@ function LoginComponent({ className, ...props }) {
       setForgotPasswordOpen(false);
       setForgotPasswordStep("phone");
       setForgotPasswordMobile("");
+      setForgotPasswordCountryCode("IN_+91"); // Reset country code
       setOtpDigits(["", "", "", "", "", ""]);
       setForgotPasswordLoading(false);
 
@@ -103,6 +124,7 @@ function LoginComponent({ className, ...props }) {
     setForgotPasswordOpen(false);
     setForgotPasswordStep("phone");
     setForgotPasswordMobile("");
+    setForgotPasswordCountryCode("IN_+91"); // Reset country code with combined format
     setOtpDigits(["", "", "", "", "", ""]);
     setForgotPasswordError(null);
   };
@@ -184,15 +206,34 @@ function LoginComponent({ className, ...props }) {
                 <div className="grid gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input
-                      id="mobile"
-                      type="text"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      placeholder="Enter your mobile number"
-                      required
-                      className="transition-all duration-200 focus:ring-2 focus:ring-offset-0"
-                    />
+                    <div className="flex gap-2">
+                      <Select
+                        value={countryCode}
+                        onValueChange={setCountryCode}
+                      >
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue placeholder="CC" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((c) => (
+                            <SelectItem key={c.key} value={c.value}>
+                              {c.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="mobile"
+                        type="text"
+                        value={mobile}
+                        onChange={(e) =>
+                          setMobile(e.target.value.replace(/\D/g, ""))
+                        } // Allow only digits
+                        placeholder="Enter mobile number"
+                        required
+                        className="transition-all duration-200 focus:ring-2 focus:ring-offset-0 flex-1"
+                      />
+                    </div>
                   </div>
                   <div className="grid gap-2">
                     <div className="flex items-center">
@@ -255,8 +296,10 @@ function LoginComponent({ className, ...props }) {
             </DialogTitle>
             <DialogDescription>
               {forgotPasswordStep === "phone"
-                ? "Enter your mobile number to receive a verification code"
-                : "Enter the 6-digit OTP sent to your mobile number"}
+                ? "Enter your registered mobile number to receive a verification code"
+                : `Enter the 6-digit OTP sent to ${extractPhoneCode(
+                    forgotPasswordCountryCode
+                  )}${forgotPasswordMobile}`}
             </DialogDescription>
           </DialogHeader>
 
@@ -265,13 +308,20 @@ function LoginComponent({ className, ...props }) {
               <div className="flex flex-col gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="forgotPasswordMobile">Mobile Number</Label>
-                  <Input
-                    id="forgotPasswordMobile"
-                    type="text"
-                    value={forgotPasswordMobile}
-                    onChange={(e) => setForgotPasswordMobile(e.target.value)}
-                    placeholder="Enter your mobile number"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="forgotPasswordMobile"
+                      type="text"
+                      value={forgotPasswordMobile}
+                      onChange={(e) =>
+                        setForgotPasswordMobile(
+                          e.target.value.replace(/\D/g, "")
+                        )
+                      } // Allow only digits
+                      placeholder="Enter mobile number"
+                      className="flex-1"
+                    />
+                  </div>
                 </div>
               </div>
             ) : (

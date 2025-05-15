@@ -17,13 +17,44 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { FileUpload } from "@/components/custom/FileUpload";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/countryCodes";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  PencilIcon,
+  PlusCircleIcon,
+  TrashIcon,
+  AlertTriangleIcon,
+} from "lucide-react";
 
 function CompanySettingsComponent() {
   const {
     companyDetailsSchema,
     bankDetailsSchema,
+    taxSchema,
     isLoading,
     fetchCompanyData,
     updateCompany,
@@ -31,15 +62,26 @@ function CompanySettingsComponent() {
     uploadLogo,
     addSignature,
     removeSignature,
+    fetchTaxes,
+    addTax,
+    updateTax,
+    removeTax,
   } = useContext(CompanySettingsContext);
 
   const [companyData, setCompanyData] = useState(null);
   const [signatures, setSignatures] = useState([]);
   const [newLogo, setNewLogo] = useState(null);
-  const [newFavicon, setNewFavicon] = useState(null);
   const [newSignature, setNewSignature] = useState(null);
   const [signatureName, setSignatureName] = useState("");
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [companyMobileCountryCode, setCompanyMobileCountryCode] =
+    useState("IN_+91");
+  const [taxes, setTaxes] = useState([]);
+  const [isAddTaxDialogOpen, setIsAddTaxDialogOpen] = useState(false);
+  const [isEditTaxDialogOpen, setIsEditTaxDialogOpen] = useState(false);
+  const [isDeleteTaxDialogOpen, setIsDeleteTaxDialogOpen] = useState(false);
+  const [currentTax, setCurrentTax] = useState(null);
+  const [taxToDelete, setTaxToDelete] = useState(null);
 
   const companyForm = useForm({
     resolver: zodResolver(companyDetailsSchema),
@@ -49,18 +91,55 @@ function CompanySettingsComponent() {
     resolver: zodResolver(bankDetailsSchema),
   });
 
+  const addTaxForm = useForm({
+    resolver: zodResolver(taxSchema),
+    defaultValues: {
+      name: "",
+      percent: 0,
+    },
+  });
+
+  const editTaxForm = useForm({
+    resolver: zodResolver(taxSchema),
+  });
+
+  const extractPhoneCode = (combinedValue) => {
+    return combinedValue.split("_")[1];
+  };
+
   const refreshData = async () => {
     try {
       const data = await fetchCompanyData();
       setCompanyData(data.company);
       setSignatures(data.signatures);
 
-      // Reset forms with fresh data
-      companyForm.reset({
-        ...data.company,
-        ...data.company.address,
-      });
+      if (data.company.mobileNo && data.company.mobileNo.includes(" ")) {
+        const parts = data.company.mobileNo.split(" ");
+        const code = parts[0].trim();
+        const number = parts[1].trim();
+
+        const foundCode = countryCodes.find((c) => c.value.endsWith(code));
+        if (foundCode) {
+          setCompanyMobileCountryCode(foundCode.value);
+        }
+
+        companyForm.reset({
+          ...data.company,
+          ...data.company.address,
+          mobileNo: number,
+        });
+      } else {
+        companyForm.reset({
+          ...data.company,
+          ...data.company.address,
+        });
+      }
+
       bankForm.reset(data.bank);
+
+      // Fetch taxes
+      const taxesData = await fetchTaxes();
+      setTaxes(taxesData);
     } catch (error) {
       console.error("Error refreshing data:", error);
     } finally {
@@ -70,8 +149,15 @@ function CompanySettingsComponent() {
 
   const handleCompanySubmit = async (data) => {
     try {
-      await updateCompany(data);
-      await refreshData(); // Refresh after update
+      const formattedData = {
+        ...data,
+        mobileNo: `${extractPhoneCode(companyMobileCountryCode)} ${
+          data.mobileNo
+        }`,
+      };
+
+      await updateCompany(formattedData);
+      await refreshData();
     } catch (error) {
       console.error("Error updating company details:", error);
     }
@@ -80,7 +166,7 @@ function CompanySettingsComponent() {
   const handleBankSubmit = async (data) => {
     try {
       await updateBankDetails(data);
-      await refreshData(); // Refresh after update
+      await refreshData();
     } catch (error) {
       console.error("Error updating bank details:", error);
     }
@@ -92,7 +178,7 @@ function CompanySettingsComponent() {
     formData.append("logo", newLogo);
     try {
       await uploadLogo(formData);
-      await refreshData(); // Refresh after update
+      await refreshData();
       setNewLogo(null);
     } catch (error) {
       console.error("Error updating logo:", error);
@@ -106,7 +192,7 @@ function CompanySettingsComponent() {
     formData.append("name", signatureName);
     try {
       await addSignature(formData);
-      await refreshData(); // Refresh after update
+      await refreshData();
       setNewSignature(null);
       setSignatureName("");
     } catch (error) {
@@ -117,10 +203,62 @@ function CompanySettingsComponent() {
   const handleSignatureRemove = async (name) => {
     try {
       await removeSignature(name);
-      await refreshData(); // Refresh after update
+      await refreshData();
     } catch (error) {
       console.error("Error removing signature:", error);
     }
+  };
+
+  const handleAddTaxSubmit = async (data) => {
+    try {
+      await addTax(data);
+      await refreshTaxes();
+      setIsAddTaxDialogOpen(false);
+      addTaxForm.reset({ name: "", percent: 0 });
+    } catch (error) {
+      console.error("Error adding tax:", error);
+    }
+  };
+
+  const handleEditTaxSubmit = async (data) => {
+    try {
+      await updateTax(data);
+      await refreshTaxes();
+      setIsEditTaxDialogOpen(false);
+      setCurrentTax(null);
+    } catch (error) {
+      console.error("Error updating tax:", error);
+    }
+  };
+
+  const handleDeleteTax = async (name) => {
+    try {
+      await removeTax(name);
+      await refreshTaxes();
+      setIsDeleteTaxDialogOpen(false);
+      setTaxToDelete(null);
+    } catch (error) {
+      console.error("Error removing tax:", error);
+    }
+  };
+
+  const openEditTaxDialog = (tax) => {
+    setCurrentTax(tax);
+    editTaxForm.reset({
+      name: tax.name,
+      percent: tax.percent,
+    });
+    setIsEditTaxDialogOpen(true);
+  };
+
+  const openDeleteTaxDialog = (tax) => {
+    setTaxToDelete(tax);
+    setIsDeleteTaxDialogOpen(true);
+  };
+
+  const refreshTaxes = async () => {
+    const taxesData = await fetchTaxes();
+    setTaxes(taxesData);
   };
 
   useEffect(() => {
@@ -138,7 +276,6 @@ function CompanySettingsComponent() {
         <Separator />
 
         <div className="grid gap-6">
-          {/* Company Details Skeleton */}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-[200px]" />
@@ -156,7 +293,6 @@ function CompanySettingsComponent() {
             </CardContent>
           </Card>
 
-          {/* Bank Details Skeleton */}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-[150px]" />
@@ -173,7 +309,6 @@ function CompanySettingsComponent() {
             </CardContent>
           </Card>
 
-          {/* Logo and Favicon Skeleton */}
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
@@ -196,7 +331,6 @@ function CompanySettingsComponent() {
             </Card>
           </div>
 
-          {/* Signatures Skeleton */}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-[120px]" />
@@ -230,7 +364,6 @@ function CompanySettingsComponent() {
       <Separator />
 
       <div className="grid gap-6">
-        {/* Company Details Section */}
         <Card>
           <CardHeader>
             <CardTitle>Company Details</CardTitle>
@@ -261,9 +394,35 @@ function CompanySettingsComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter mobile number" {...field} />
-                        </FormControl>
+                        <div className="flex gap-2">
+                          <Select
+                            value={companyMobileCountryCode}
+                            onValueChange={setCompanyMobileCountryCode}
+                          >
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="CC" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((c) => (
+                                <SelectItem key={c.key} value={c.value}>
+                                  {c.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter mobile number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, "")
+                                )
+                              }
+                              className="flex-1"
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -393,7 +552,6 @@ function CompanySettingsComponent() {
           </CardContent>
         </Card>
 
-        {/* Bank Details Section */}
         <Card>
           <CardHeader>
             <CardTitle>Bank Details</CardTitle>
@@ -487,7 +645,6 @@ function CompanySettingsComponent() {
           </CardContent>
         </Card>
 
-        {/* Logo and Signature Section */}
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -513,7 +670,7 @@ function CompanySettingsComponent() {
                 )}
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mt-4">
                 <Label>Current Logo</Label>
                 <div className="aspect-video w-full overflow-hidden rounded-lg border bg-muted">
                   {companyData?.logoUrl ? (
@@ -537,7 +694,6 @@ function CompanySettingsComponent() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* Add New Signature */}
                 <div className="space-y-4">
                   <h4 className="font-medium">Add New Signature</h4>
                   <div className="space-y-4">
@@ -567,44 +723,274 @@ function CompanySettingsComponent() {
                     </div>
                   </div>
                 </div>
-                {/* Existing Signatures */}
+
                 <div className="space-y-4">
-                <Label>Existing Signatures</Label>
-                {signatures.length > 0 && (
-                  <div className="grid gap-4 md:grid-cols-3">
-                    {signatures.map((sig, index) => (
-                      <div
-                        key={index}
-                        className="relative rounded-lg border p-4 space-y-2"
-                      >
-                        <div className="aspect-video w-full overflow-hidden rounded-lg border">
-                          <img
-                            src={sig.signatureUrl}
-                            alt={sig.name}
-                            className="h-full w-full object-contain"
-                          />
-                        </div>
-                        <p className="text-sm font-medium">{sig.name}</p>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="w-full"
-                          onClick={() => handleSignatureRemove(sig.name)}
-                          disabled={isLoading}
+                  <Label>Existing Signatures</Label>
+                  {signatures.length > 0 && (
+                    <div className="grid gap-4 md:grid-cols-3">
+                      {signatures.map((sig, index) => (
+                        <div
+                          key={index}
+                          className="relative rounded-lg border p-4 space-y-2"
                         >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                          <div className="aspect-video w-full overflow-hidden rounded-lg border">
+                            <img
+                              src={sig.signatureUrl}
+                              alt={sig.name}
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
+                          <p className="text-sm font-medium">{sig.name}</p>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handleSignatureRemove(sig.name)}
+                            disabled={isLoading}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Signatures Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Tax Management</CardTitle>
+              <Dialog
+                open={isAddTaxDialogOpen}
+                onOpenChange={setIsAddTaxDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button size="sm" className="flex items-center gap-1">
+                    <PlusCircleIcon size={16} /> Add Tax
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Tax</DialogTitle>
+                    <DialogDescription>
+                      Create a new tax for your products.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...addTaxForm}>
+                    <form
+                      onSubmit={addTaxForm.handleSubmit(handleAddTaxSubmit)}
+                      className="space-y-4"
+                    >
+                      <FormField
+                        control={addTaxForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tax Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter tax name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={addTaxForm.control}
+                        name="percent"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Percentage</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter percentage"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsAddTaxDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={isLoading}>
+                          {isLoading ? "Adding..." : "Add Tax"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={isEditTaxDialogOpen}
+                onOpenChange={setIsEditTaxDialogOpen}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Tax</DialogTitle>
+                    <DialogDescription>
+                      Update existing tax details.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...editTaxForm}>
+                    <form
+                      onSubmit={editTaxForm.handleSubmit(handleEditTaxSubmit)}
+                      className="space-y-4"
+                    >
+                      <FormField
+                        control={editTaxForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tax Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter tax name"
+                                {...field}
+                                disabled  
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={editTaxForm.control}
+                        name="percent"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Percentage</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter percentage"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsEditTaxDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={isLoading}>
+                          {isLoading ? "Updating..." : "Update Tax"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={isDeleteTaxDialogOpen}
+                onOpenChange={setIsDeleteTaxDialogOpen}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-destructive">
+                      <AlertTriangleIcon className="h-5 w-5" /> Delete Tax
+                    </DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to delete the tax "
+                      {taxToDelete?.name}"? This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="gap-2 sm:justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsDeleteTaxDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => handleDeleteTax(taxToDelete?.name)}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Deleting..." : "Delete Tax"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Percentage (%)</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {taxes.length > 0 ? (
+                    taxes.map((tax, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{tax.name}</TableCell>
+                        <TableCell>{tax.percent}%</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEditTaxDialog(tax)}
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openDeleteTaxDialog(tax)}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={3}
+                        className="text-center py-4 text-muted-foreground"
+                      >
+                        No taxes found. Add a tax to get started.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
