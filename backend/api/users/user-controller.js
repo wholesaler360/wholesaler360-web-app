@@ -10,9 +10,16 @@ const createUser = asyncHandler(async(req,res,next)=>{
 
     // take the values and validate it 
     const {name, email, mobileNo, password, role} = req.body;
-
+    
     if ([name, email, mobileNo, password, role ].some((field) => !field?.trim())) {
         return next(ApiError.validationFailed("Please provide all required fields"));
+    }
+    
+    // Checks if the avatar is uploaded or not
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
+    if(!avatarLocalPath)
+    {
+        return next(ApiError.validationFailed("Avatar is required"));
     }
 
     // Checks if the user already exists
@@ -22,26 +29,25 @@ const createUser = asyncHandler(async(req,res,next)=>{
 
     if(existingUser)
     {
-        deleteFromLocalPath(req.files?.avatar[0]?.path);
+        deleteFromLocalPath(avatarLocalPath);
         return next(ApiError.valueAlreadyExists("User Already Exists"))
     }
 
     // Checks if role exists or not and trim and convert to lower case
     role.trim().toLowerCase();
 
+    if(role === 'super admin'){
+        deleteFromLocalPath(avatarLocalPath);
+        return next(ApiError.validationFailed("Super admin role cannot be assigned"));
+    }
+
     const assignedRoleId = await Role.findOne({name : role})
     if(!assignedRoleId)
     {
-        deleteFromLocalPath(req.files?.avatar[0]?.path);
+        deleteFromLocalPath(avatarLocalPath);
         return next(ApiError.validationFailed("Please assign the role"))
     }
 
-    // Checks if the avatar is uploaded or not
-    const avatarLocalPath = req.files?.avatar?.[0]?.path;
-    if(!avatarLocalPath)
-    {
-        return next(ApiError.validationFailed("Avatar is required"));
-    }
 
     // Upload the avatar to cloudinary
     const avatar = await uploadFile(avatarLocalPath);
@@ -59,7 +65,7 @@ const createUser = asyncHandler(async(req,res,next)=>{
         res.status(201).json(ApiResponse.successCreated(userCreated, "User Created Successfully"))
 
     } catch (error) {
-        deleteFromLocalPath(req.files?.avatar[0]?.path);
+        deleteFromLocalPath(req.files?.avatar?.[0]?.path);
         return next(ApiError.dataNotInserted("User not created"));
     }
 });
@@ -78,7 +84,7 @@ const updateUser = asyncHandler(async(req,res,next)=>{
         return next(ApiError.validationFailed("Please provide the name and mobile number and email"));
     }
 
-    if(userComing.role.name !== 'super admin' && role === 'super admin'){
+    if(role.trim().toLowerCase() === 'super admin'){
         return next(ApiError.validationFailed("Super admin role cannot be assigned"));
     }
 

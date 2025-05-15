@@ -22,14 +22,11 @@ const createRole = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const fetchedModule = await Module.findOne({ name: "dashboard" });
-  if (!fetchedModule) {
-    return next(ApiError.dataNotFound("Default module 'dashboard' not found"));
-  }
+
   try {
     const role = new Role({
       name: roleName,
-      sections: [{ module: fetchedModule._id, permission: 8 }],
+      sections: [],
     });
 
     await role.save();
@@ -254,6 +251,7 @@ const fetchAllRole = asyncHandler(async (req, res, next) => {
 
       $match: {
         isRoleDeleted: false,
+        name: { $ne: "super admin" },
       },
     },
 

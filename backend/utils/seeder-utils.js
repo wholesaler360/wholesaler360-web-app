@@ -47,6 +47,7 @@ const updateExistingModulesName = asyncHandler(async (req,res,next) => {
         return next(ApiError.dataNotUpdated("Failed to update the data"))
     }
 });
+
 const saveAllModules = asyncHandler (async(req,res,next) => {
     // Finding all the existing modules and storing them in a set
         const allExistingModules = await Module.find();
