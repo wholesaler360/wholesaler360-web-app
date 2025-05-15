@@ -18,10 +18,10 @@ const createInvoice = asyncHandler(async (req, res, next) => {
     } = req.body;
     
     // Check if all the required fields are present or not
-    if (
-        [
-            bankDetails,
-            signature,
+    if ([   
+            invoiceDate, customerId, invoiceDueDate, 
+            transactionType, products, isRoundedOff, 
+            bankDetails, signature,
         ].some((field) =>
             // Apply trim only if field is a string
             typeof field === "string" ? !field.trim() : !field
