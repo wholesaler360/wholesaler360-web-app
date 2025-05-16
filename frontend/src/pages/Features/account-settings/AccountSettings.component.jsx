@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AccountSettingsContext } from "./AccountSettings.control";
+import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -39,18 +40,32 @@ function AccountSettingsComponent() {
     updatePassword,
   } = useContext(AccountSettingsContext);
 
+  const { updateUser } = useAuth();
+
   const [profileData, setProfileData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [countryCode, setCountryCode] = useState("IN_+91"); // Default country code
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isProfileUpdating, setIsProfileUpdating] = useState(false);
+  const [isPasswordUpdating, setIsPasswordUpdating] = useState(false);
+  const [isImageUpdating, setIsImageUpdating] = useState(false);
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
-    defaultValues: profileData,
+    defaultValues: {
+      name: "",
+      email: "",
+      mobileNo: "",
+    },
   });
 
   const passwordForm = useForm({
     resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      password: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   const extractPhoneCode = (combinedValue) => {
@@ -59,6 +74,7 @@ function AccountSettingsComponent() {
 
   const loadProfile = async () => {
     try {
+      setIsInitialLoading(true);
       const data = await fetchProfile();
       setProfileData(data);
 
@@ -95,26 +111,44 @@ function AccountSettingsComponent() {
 
   const handleProfileSubmit = async (data) => {
     try {
+      setIsProfileUpdating(true);
       // Format the mobile number with country code
       const formattedData = {
         ...data,
         mobileNo: `${extractPhoneCode(countryCode)} ${data.mobileNo}`,
       };
 
-      await updateProfile(formattedData);
-      const updatedProfile = await fetchProfile();
-      setProfileData(updatedProfile);
+      const response = await updateProfile(formattedData);
+      if (response?.data?.success) {
+        // Update the user data in context and localStorage
+        updateUser({
+          name: data.name,
+          email: data.email,
+          mobileNo: `${extractPhoneCode(countryCode)} ${data.mobileNo}`,
+        });
+      }
+
+      await loadProfile(); // Reload the profile data to get the updated information
     } catch (error) {
       console.error("Error updating profile:", error);
+    } finally {
+      setIsProfileUpdating(false);
     }
   };
 
   const handlePasswordSubmit = async (data) => {
     try {
+      setIsPasswordUpdating(true);
       await updatePassword(data);
-      passwordForm.reset();
+      passwordForm.reset({
+        password: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     } catch (error) {
       console.error("Error updating password:", error);
+    } finally {
+      setIsPasswordUpdating(false);
     }
   };
 
@@ -122,15 +156,24 @@ function AccountSettingsComponent() {
     try {
       if (!croppedImage) return;
 
+      setIsImageUpdating(true);
       const formData = new FormData();
       formData.append("avatar", croppedImage);
 
-      await updateAvatar(formData);
-      const updatedProfile = await fetchProfile();
-      setProfileData(updatedProfile);
+      const response = await updateAvatar(formData);
+      if (response?.data?.success && response?.data?.value?.avatar) {
+        // Update the user avatar in context and localStorage
+        updateUser({
+          avatar: response.data.value.avatar,
+        });
+      }
+
+      await loadProfile(); // Reload the profile data to get the updated information
       setCroppedImage(null);
     } catch (error) {
       console.error("Error updating avatar:", error);
+    } finally {
+      setIsImageUpdating(false);
     }
   };
 
@@ -292,8 +335,8 @@ function AccountSettingsComponent() {
                   />
                 </div>
                 <div className="flex justify-end">
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Updating..." : "Update Profile"}
+                  <Button type="submit" disabled={isProfileUpdating}>
+                    {isProfileUpdating ? "Updating..." : "Update Profile"}
                   </Button>
                 </div>
               </form>
@@ -341,13 +384,13 @@ function AccountSettingsComponent() {
                     <Button
                       type="button"
                       onClick={handleImageUpdate}
-                      disabled={isLoading}
+                      disabled={isImageUpdating}
                       className={cn(
                         "min-w-[120px]",
-                        isLoading && "animate-pulse"
+                        isImageUpdating && "animate-pulse"
                       )}
                     >
-                      {isLoading ? "Updating..." : "Update Image"}
+                      {isImageUpdating ? "Updating..." : "Update Image"}
                     </Button>
                   </div>
                 )}
@@ -367,7 +410,7 @@ function AccountSettingsComponent() {
                       Change Password
                     </h4>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Make sure your password is strong and unique
+                      Make sure your password is strong and secure
                     </p>
                   </div>
 
@@ -432,12 +475,20 @@ function AccountSettingsComponent() {
                         />
                       </div>
 
+                      <div className="text-sm text-muted-foreground mt-2 mb-4">
+                        Password must be at least 6 characters and contain
+                        uppercase, lowercase, number, and special character.
+                      </div>
+
                       <Button
                         type="submit"
-                        disabled={isLoading}
-                        className={cn("w-full", isLoading && "animate-pulse")}
+                        disabled={isPasswordUpdating}
+                        className={cn(
+                          "w-full",
+                          isPasswordUpdating && "animate-pulse"
+                        )}
                       >
-                        {isLoading ? "Updating..." : "Change Password"}
+                        {isPasswordUpdating ? "Updating..." : "Change Password"}
                       </Button>
                     </form>
                   </Form>

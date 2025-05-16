@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getUserData, clearAuthData } from "@/lib/authUtils";
+import { getUserData, clearAuthData, updateUserData } from "@/lib/authUtils";
 
 const AuthContext = createContext({
   user: null,
   isAuthenticated: false,
   setUser: () => {},
+  updateUser: () => {},
   logout: () => {},
 });
 
@@ -19,6 +20,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const updateUser = (updatedData) => {
+    // Update local storage and state
+    const newUserData = updateUserData(updatedData);
+    if (newUserData) {
+      setUser(newUserData);
+      return true;
+    }
+    return false;
+  };
+
   const logout = () => {
     clearAuthData();
     setUser(null);
@@ -30,6 +41,7 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated: !!user,
         setUser,
+        updateUser,
         logout,
       }}
     >
