@@ -27,37 +27,6 @@ import {
 } from "@/components/ui/select";
 import { countryCodes } from "@/constants/countryCodes";
 
-const statesList = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-];
-
 function AddVendorComponent() {
   const { vendorSchema, isLoading, createVendor } =
     useContext(AddVendorContext);
@@ -304,17 +273,7 @@ function AddVendorComponent() {
                             <FormItem>
                               <FormLabel>State</FormLabel>
                               <FormControl>
-                                <select
-                                  {...field}
-                                  className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                >
-                                  <option value="">Select State</option>
-                                  {statesList.map((state) => (
-                                    <option key={state} value={state}>
-                                      {state}
-                                    </option>
-                                  ))}
-                                </select>
+                                <Input placeholder="Enter state" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
