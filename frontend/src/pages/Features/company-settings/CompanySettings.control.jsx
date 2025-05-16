@@ -25,25 +25,31 @@ import * as z from "zod";
 import { useBranding } from "@/context/BrandingContext";
 
 export const CompanySettingsContext = createContext({});
+const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 const companyDetailsSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  mobileNo: z.string().min(10, "Mobile number must be 10 digits"),
-  gstin: z.string().min(15, "GSTIN must be 15 characters"),
+  mobileNo: z.string().min(1, "Mobile number is required"),
+  gstin: z
+    .string()
+    .regex(gstinRegex, "Invalid GSTIN format")
+    .optional()
+    .or(z.literal(null))
+    .or(z.literal("")),
   addressLine1: z.string().min(1, "Address Line 1 is required"),
   addressLine2: z.string().optional(),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
-  pincode: z.string().min(6, "Pincode must be 6 digits"),
+  pincode: z.string().min(1, "Pincode is required"),
   country: z.string().min(1, "Country is required"),
   termsAndConditions: z.string().optional(),
 });
 
 const bankDetailsSchema = z.object({
   bankName: z.string().min(1, "Bank name is required"),
-  accountNumber: z.string().min(9, "Account number must be at least 9 digits"),
+  accountNumber: z.string().min(1, "Account number is required"),
   accountHolderName: z.string().min(2, "Account holder name is required"),
-  ifsc: z.string().min(11, "IFSC code must be 11 characters"),
+  ifsc: z.string().min(1, "IFSC code is required"),
   upiId: z.string().optional(),
 });
 

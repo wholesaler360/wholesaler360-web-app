@@ -11,9 +11,8 @@ const userSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Invalid email address"),
-    mobileNo: z.string().min(10, "Mobile number must be at least 10 digits"),
-    mobileNo: z.string().max(10, "Mobile number must be at most 10 digits"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    mobileNo: z.string().min(1, "Mobile number is required"),
+    password: z.string().min(1, "Password is required"),
     confirmPassword: z.string(),
     role: z.string().min(1, "Please select a role"),
   })

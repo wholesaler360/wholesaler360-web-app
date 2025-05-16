@@ -9,7 +9,7 @@ export const AddCustomerContext = createContext({});
 
 const customerSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  mobileNo: z.string().min(10, "Valid mobile number required"),
+  mobileNo: z.string().min(1, "Mobile number is required"),
   email: z.string().email("Valid email required"),
   gstin: z.string().optional(),
   billingAddress: z.object({
@@ -17,7 +17,7 @@ const customerSchema = z.object({
     addressLine2: z.string().optional(),
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State is required"),
-    pincode: z.string().min(6, "Valid pincode required"),
+    pincode: z.string().min(1, "Pincode is required"),
     country: z.string().min(1, "Country is required"),
   }),
   shippingAddress: z.object({
@@ -25,7 +25,7 @@ const customerSchema = z.object({
     addressLine2: z.string().optional(),
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State is required"),
-    pincode: z.string().min(6, "Valid pincode required"),
+    pincode: z.string().min(1, "Pincode is required"),
     country: z.string().min(1, "Country is required"),
   }),
   bankDetails: z.object({

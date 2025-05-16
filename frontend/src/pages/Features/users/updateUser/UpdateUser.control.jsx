@@ -15,8 +15,8 @@ export const UpdateUserContext = createContext({});
 const userSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  mobileNo: z.string().min(10, "Mobile number must be at least 10 digits"),
-  newMobileNo: z.string().min(10, "Mobile number must be at least 10 digits"),
+  mobileNo: z.string().min(1, "Mobile number is required"),
+  newMobileNo: z.string().min(1, "New mobile number is required"),
   role: z.string().min(1, "Please select a role"),
 });
 

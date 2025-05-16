@@ -13,7 +13,7 @@ export const AccountSettingsContext = createContext({});
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  mobileNo: z.string().min(10, "Mobile number must be 10 digits"),
+  mobileNo: z.string().min(1, "Mobile number is required"),
   email: z.string().email("Invalid email address"),
 });
 
@@ -22,7 +22,7 @@ const passwordSchema = z
     password: z.string().min(1, "Current password is required"),
     newPassword: z
       .string()
-      .min(6, "New password must be at least 6 characters")
+      .min(8, "New password must be at least 8 characters")
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[a-z]/, "Password must contain at least one lowercase letter")
       .regex(/[0-9]/, "Password must contain at least one number")

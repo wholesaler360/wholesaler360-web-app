@@ -14,8 +14,8 @@ const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 const customerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  mobileNo: z.string().min(10, "Mobile number must be 10 digits"),
-  newMobileNo: z.string().min(10, "Mobile number must be 10 digits"),
+  mobileNo: z.string().min(1, "Mobile number is required"),
+  newMobileNo: z.string().min(1, "Mobile number is required"),
   email: z.string().email("Invalid email address"),
   gstin: z
     .string()
@@ -28,7 +28,7 @@ const customerSchema = z.object({
     addressLine2: z.string().optional(),
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
-    pincode: z.string().min(6, "Valid pincode is required"),
+    pincode: z.string().min(1, "Pincode is required"),
     country: z.string().min(2, "Country is required"),
   }),
   shippingAddress: z.object({
@@ -36,13 +36,13 @@ const customerSchema = z.object({
     addressLine2: z.string().optional(),
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
-    pincode: z.string().min(6, "Valid pincode is required"),
+    pincode: z.string().min(1, "Pincode is required"),
     country: z.string().min(2, "Country is required"),
   }),
   bankDetails: z.object({
     accountName: z.string().min(2, "Account name is required"),
-    ifscCode: z.string().min(11, "Valid IFSC code is required"),
-    accountNo: z.string().min(9, "Valid account number is required"),
+    ifscCode: z.string().min(1, "IFSC code is required"),
+    accountNo: z.string().min(1, "Account number is required"),
     bankName: z.string().min(2, "Bank name is required"),
   }),
 });
