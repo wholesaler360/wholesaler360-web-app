@@ -49,9 +49,23 @@ function CustomerLedgerController({ children }) {
   const columnHelper = createColumnHelper();
 
   const columns = [
+    columnHelper.accessor("createdAt", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Created At" />
+      ),
+      cell: ({ getValue }) => {
+        const date = new Date(getValue());
+        return date.toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      },
+    }),
+
     columnHelper.accessor("date", {
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Date" />
+        <DataTableColumnHeader column={column} title="Ledger Date" />
       ),
       cell: ({ getValue }) => {
         const date = new Date(getValue());
@@ -118,6 +132,8 @@ function CustomerLedgerController({ children }) {
         <DataTableColumnHeader column={column} title="Description" />
       ),
     }),
+
+    
   ];
 
   return (

@@ -1,7 +1,10 @@
 import { createContext, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { axiosGet, axiosPost } from "@/constants/api-context";
-import { FetchVendorLedgers, CreateVendorLedger } from "@/constants/apiEndPoints";
+import {
+  FetchVendorLedgers,
+  CreateVendorLedger,
+} from "@/constants/apiEndPoints";
 import { showNotification } from "@/core/toaster/toast";
 import DataTableColumnHeader from "@/components/datatable/DataTableColumnHeader";
 
@@ -16,7 +19,9 @@ function VendorLedgerController({ children }) {
       if (response.data.success) {
         return response.data;
       } else {
-        throw new Error(response.data.message || "Failed to fetch vendor ledger");
+        throw new Error(
+          response.data.message || "Failed to fetch vendor ledger"
+        );
       }
     } catch (error) {
       throw new Error(error.message || "Failed to fetch vendor ledger");
@@ -28,10 +33,12 @@ function VendorLedgerController({ children }) {
       const response = await axiosPost(CreateVendorLedger, data);
       if (response.data?.success) {
         showNotification.success("Ledger entry created successfully");
-        setRefreshTrigger(prev => prev + 1);
+        setRefreshTrigger((prev) => prev + 1);
         return response.data;
       } else {
-        throw new Error(response.data?.message || "Failed to create ledger entry");
+        throw new Error(
+          response.data?.message || "Failed to create ledger entry"
+        );
       }
     } catch (error) {
       showNotification.error(error.message || "Failed to create ledger entry");
@@ -42,9 +49,27 @@ function VendorLedgerController({ children }) {
   const columnHelper = createColumnHelper();
 
   const columns = [
+    columnHelper.accessor("createdAt", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Created At" />
+      ),
+      cell: ({ getValue }) => {
+        const date = new Date(getValue());
+        return date.toLocaleString("en-US", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      },
+    }),
+
+
     columnHelper.accessor("date", {
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Date" />
+        <DataTableColumnHeader column={column} title="Ledger Date" />
       ),
       cell: ({ getValue }) => {
         const date = new Date(getValue());
@@ -92,9 +117,7 @@ function VendorLedgerController({ children }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Payment Mode" />
       ),
-      cell: ({ getValue }) => (
-        <span className="capitalize">{getValue()}</span>
-      ),
+      cell: ({ getValue }) => <span className="capitalize">{getValue()}</span>,
     }),
 
     columnHelper.accessor("payableBalance", {
@@ -113,15 +136,18 @@ function VendorLedgerController({ children }) {
         <DataTableColumnHeader column={column} title="Description" />
       ),
     }),
+
   ];
 
   return (
-    <VendorLedgerContext.Provider value={{ 
-      getLedgerEntries, 
-      columns, 
-      createLedgerEntry,
-      refreshTrigger 
-    }}>
+    <VendorLedgerContext.Provider
+      value={{
+        getLedgerEntries,
+        columns,
+        createLedgerEntry,
+        refreshTrigger,
+      }}
+    >
       {children}
     </VendorLedgerContext.Provider>
   );
