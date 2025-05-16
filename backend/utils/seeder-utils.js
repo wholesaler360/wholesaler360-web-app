@@ -105,7 +105,7 @@ const createUserSuperAdmin = asyncHandler(async (req,res,next) => {
         // Check if the super admin user already exists
         const getId = await Role.findOne({ name: "super admin" });
         const count = await User.countDocuments(
-            { name : "super admin",email: "super@mail.com",mobileNo: "9999999999", }
+            { name : "super admin",email: "super@mail.com",mobileNo: "+91 9999999999", }
         );
 
         if(count > 0) {
@@ -116,7 +116,7 @@ const createUserSuperAdmin = asyncHandler(async (req,res,next) => {
             const user = await User.create({
                 name: "super admin",
                 email: "super@mail.com",
-                mobileNo: "9999999999",
+                mobileNo: "+91 9999999999",
                 password: "Ram@1234",
                 role : getId._id,
         })
