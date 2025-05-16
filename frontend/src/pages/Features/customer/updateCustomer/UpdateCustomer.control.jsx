@@ -29,6 +29,7 @@ const customerSchema = z.object({
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
     pincode: z.string().min(6, "Valid pincode is required"),
+    country: z.string().min(2, "Country is required"),
   }),
   shippingAddress: z.object({
     addressLine1: z.string().min(5, "Address is required"),
@@ -36,6 +37,7 @@ const customerSchema = z.object({
     city: z.string().min(2, "City is required"),
     state: z.string().min(2, "State is required"),
     pincode: z.string().min(6, "Valid pincode is required"),
+    country: z.string().min(2, "Country is required"),
   }),
   bankDetails: z.object({
     accountName: z.string().min(2, "Account name is required"),

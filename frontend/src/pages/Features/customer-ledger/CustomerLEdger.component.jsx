@@ -118,7 +118,7 @@ function CustomerLedgerComponent() {
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     initialState: {
-      sorting: [{ id: "date", desc: true }],
+      sorting: [{ id: "createdAt", desc: true }],
       pagination: {
         pageSize: 10,
         pageIndex: 0,

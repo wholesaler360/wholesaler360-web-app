@@ -105,12 +105,13 @@ export const setAuthData = async (authResponse) => {
     // Store token first to use it in subsequent requests
     localStorage.setItem(ACCESS_TOKEN_KEY, authResponse.value.accessToken);
 
-    // Store user data
+    // Store user data - ensure we're maintaining the proper structure
     const userData = {
       ...authResponse.value.user,
       lastLoginAt: new Date().toISOString(),
     };
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+
     // Fetch and store permissions
     const permissions = await fetchAndProcessPermissions(userData.role.name);
     if (permissions) {
@@ -131,6 +132,35 @@ export const getUserData = () => {
     return userDataStr ? JSON.parse(userDataStr) : null;
   } catch (error) {
     console.error("Error getting user data:", error.message);
+    return null;
+  }
+};
+
+export const updateUserData = (updatedData) => {
+  try {
+    // Get existing user data
+    const currentUserData = getUserData();
+    if (!currentUserData) {
+      throw new Error("No existing user data found");
+    }
+
+    // Update only the fields that are provided
+    const newUserData = {
+      ...currentUserData,
+      ...updatedData,
+      // Preserve these fields from the original data
+      role: currentUserData.role,
+      _id: currentUserData._id,
+      __v: currentUserData.__v,
+      // Update the updatedAt timestamp
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save the updated user data
+    localStorage.setItem(USER_DATA_KEY, JSON.stringify(newUserData));
+    return newUserData;
+  } catch (error) {
+    console.error("Error updating user data:", error.message);
     return null;
   }
 };

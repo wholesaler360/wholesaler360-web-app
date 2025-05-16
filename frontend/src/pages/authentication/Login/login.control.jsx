@@ -30,11 +30,23 @@ function LoginController({ children }) {
       const response = await axiosPost(LoginApi, formData);
 
       if (response?.status === 200 && response?.data?.success) {
+        // Ensure the user data has the expected format
+        const userData = {
+          ...response.data.value.user,
+          lastLoginAt: new Date().toISOString(),
+        };
+
         // Store auth data in localStorage
-        await setAuthData(response.data);
+        await setAuthData({
+          ...response.data,
+          value: {
+            ...response.data.value,
+            user: userData,
+          },
+        });
 
         // Update auth context
-        setUser(response.data.value.user);
+        setUser(userData);
 
         showNotification.success(response.data.message || "Login successful");
         navigate("/");

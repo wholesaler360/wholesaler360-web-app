@@ -144,7 +144,8 @@ function UpdateCustomerComponent() {
       const updatedValues = {
         ...values,
         mobileNo: values.mobileNo, // Keep original with country code
-        newMobileNo: extractPhoneCode(newCountryCode) +  " " + values.newMobileNo,
+        newMobileNo:
+          extractPhoneCode(newCountryCode) + " " + values.newMobileNo,
       };
 
       await updateCustomer(updatedValues);
@@ -468,6 +469,7 @@ function UpdateCustomerComponent() {
                           "city",
                           "state",
                           "pincode",
+                          "country",
                         ].map((field) => (
                           <FormField
                             key={field}
@@ -480,24 +482,10 @@ function UpdateCustomerComponent() {
                                     field.slice(1)}
                                 </FormLabel>
                                 <FormControl>
-                                  {field === "state" ? (
-                                    <select
-                                      {...fieldProps}
-                                      className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                    >
-                                      <option value="">Select State</option>
-                                      {statesList.map((state) => (
-                                        <option key={state} value={state}>
-                                          {state}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  ) : (
-                                    <Input
-                                      placeholder={`Enter ${field}`}
-                                      {...fieldProps}
-                                    />
-                                  )}
+                                  <Input
+                                    placeholder={`Enter ${field}`}
+                                    {...fieldProps}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -532,6 +520,7 @@ function UpdateCustomerComponent() {
                           "city",
                           "state",
                           "pincode",
+                          "country",
                         ].map((field) => (
                           <FormField
                             key={field}
@@ -544,24 +533,10 @@ function UpdateCustomerComponent() {
                                     field.slice(1)}
                                 </FormLabel>
                                 <FormControl>
-                                  {field === "state" ? (
-                                    <select
-                                      {...fieldProps}
-                                      className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                    >
-                                      <option value="">Select State</option>
-                                      {statesList.map((state) => (
-                                        <option key={state} value={state}>
-                                          {state}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  ) : (
-                                    <Input
-                                      placeholder={`Enter ${field}`}
-                                      {...fieldProps}
-                                    />
-                                  )}
+                                  <Input
+                                    placeholder={`Enter ${field}`}
+                                    {...fieldProps}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

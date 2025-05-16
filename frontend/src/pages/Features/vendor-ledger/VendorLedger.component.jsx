@@ -43,7 +43,11 @@ import {
 import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 
 const addLedgerSchema = z.object({
@@ -64,7 +68,8 @@ function VendorLedgerComponent() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getLedgerEntries, columns, createLedgerEntry, refreshTrigger } = useContext(VendorLedgerContext);
+  const { getLedgerEntries, columns, createLedgerEntry, refreshTrigger } =
+    useContext(VendorLedgerContext);
 
   const form = useForm({
     resolver: zodResolver(addLedgerSchema),
@@ -80,7 +85,7 @@ function VendorLedgerComponent() {
   useEffect(() => {
     if (!vendorId) {
       showNotification.error("Vendor ID is missing");
-      navigate('/vendors');
+      navigate("/vendors");
       return;
     }
 
@@ -113,7 +118,7 @@ function VendorLedgerComponent() {
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     initialState: {
-      sorting: [{ id: "date", desc: true }],
+      sorting: [{ id: "createdAt", desc: true }],
       pagination: {
         pageSize: 10,
         pageIndex: 0,
@@ -182,7 +187,10 @@ function VendorLedgerComponent() {
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="amount"
@@ -243,7 +251,10 @@ function VendorLedgerComponent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Transaction Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select transaction type" />
@@ -265,7 +276,10 @@ function VendorLedgerComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Payment Mode</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select payment mode" />

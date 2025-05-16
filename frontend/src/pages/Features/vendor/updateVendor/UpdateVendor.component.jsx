@@ -28,37 +28,6 @@ import {
 } from "@/components/ui/select";
 import { countryCodes } from "@/constants/countryCodes";
 
-const statesList = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-];
-
 function UpdateVendorComponent() {
   const [vendorData, setVendorData] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
@@ -117,6 +86,16 @@ function UpdateVendorComponent() {
 
         form.reset({
           ...response,
+          addressLine1: response.address?.addressLine1,
+          addressLine2: response.address?.addressLine2,
+          city: response.address?.city,
+          state: response.address?.state,
+          pincode: response.address?.pincode,
+          country: response.address?.country,
+          accountHolderName: response.bankDetails?.accountHolderName,
+          bankName: response.bankDetails?.bankName,
+          accountNumber: response.bankDetails?.accountNumber,
+          ifsc: response.bankDetails?.ifsc,
           newMobileNo: number,
         });
       } catch (error) {
@@ -140,23 +119,20 @@ function UpdateVendorComponent() {
       const updateData = {
         name: values.name,
         mobileNo: values.mobileNo,
-        newMobileNo: extractPhoneCode(newCountryCode) + " " + values.newMobileNo,
+        newMobileNo:
+          extractPhoneCode(newCountryCode) + " " + values.newMobileNo,
         email: values.email,
         gstin: values.gstin,
-        address: {
-          addressLine1: values.address?.addressLine1,
-          addressLine2: values.address?.addressLine2,
-          city: values.address?.city,
-          state: values.address?.state,
-          pincode: values.address?.pincode,
-          country: values.address?.country,
-        },
-        bankDetails: {
-          accountHolderName: values.bankDetails?.accountHolderName,
-          bankName: values.bankDetails?.bankName,
-          accountNumber: values.bankDetails?.accountNumber,
-          ifsc: values.bankDetails?.ifsc,
-        },
+        addressLine1: values.addressLine1,
+        addressLine2: values.addressLine2,
+        city: values.city,
+        state: values.state,
+        pincode: values.pincode,
+        country: values.country,
+        accountHolderName: values.accountHolderName,
+        bankName: values.bankName,
+        accountNumber: values.accountNumber,
+        ifsc: values.ifsc,
       };
 
       console.log("Sending to API:", updateData);
@@ -435,7 +411,7 @@ function UpdateVendorComponent() {
                       <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
-                          name="address.addressLine1"
+                          name="addressLine1"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Address Line 1</FormLabel>
@@ -451,7 +427,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="address.addressLine2"
+                          name="addressLine2"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Address Line 2 (Optional)</FormLabel>
@@ -467,7 +443,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="address.city"
+                          name="city"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>City</FormLabel>
@@ -480,22 +456,12 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="address.state"
+                          name="state"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>State</FormLabel>
                               <FormControl>
-                                <select
-                                  {...field}
-                                  className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                >
-                                  <option value="">Select State</option>
-                                  {statesList.map((state) => (
-                                    <option key={state} value={state}>
-                                      {state}
-                                    </option>
-                                  ))}
-                                </select>
+                                <Input placeholder="Enter state" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -503,7 +469,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="address.pincode"
+                          name="pincode"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Pincode</FormLabel>
@@ -516,7 +482,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="address.country"
+                          name="country"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Country</FormLabel>
@@ -538,7 +504,7 @@ function UpdateVendorComponent() {
                       <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
-                          name="bankDetails.accountHolderName"
+                          name="accountHolderName"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Account Holder Name</FormLabel>
@@ -554,7 +520,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="bankDetails.bankName"
+                          name="bankName"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Bank Name</FormLabel>
@@ -570,7 +536,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="bankDetails.accountNumber"
+                          name="accountNumber"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Account Number</FormLabel>
@@ -586,7 +552,7 @@ function UpdateVendorComponent() {
                         />
                         <FormField
                           control={form.control}
-                          name="bankDetails.ifsc"
+                          name="ifsc"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>IFSC Code</FormLabel>
