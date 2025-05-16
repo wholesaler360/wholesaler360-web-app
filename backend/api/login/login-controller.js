@@ -18,9 +18,17 @@ const login = asyncHandler(async(req,res,next)=>{
     }
     
     // Checks if the user already exists
-    const user = await User.findOne({mobileNo : mobileNo})
-    .populate({path : "role" ,select : "-_id -__v -isRoleDeleted -createdAt -updatedAt"})
-    .select("-otp -otpExpiration ");
+    
+    const user = await User.findOne({ mobileNo: mobileNo })
+        .populate({
+            path: "role",
+            select: "name sections -_id",
+            populate: {
+                path: "sections.module",
+                select: "name -_id"
+            }
+        })
+        .select("-otp -otpExpiration -refreshToken");
     console.log(user);
 
     if(!user || user.isUserDeleted)
@@ -58,12 +66,29 @@ const login = asyncHandler(async(req,res,next)=>{
     const companyDetails = await CompanyDetails.findOne({isDeleted : false})
     .select("-_id -__v -createdAt -updatedAt -isDeleted");
 
-    const { password : $password, refreshToken: $userRefreshToken, isRoleDeleted : $isRoleDeleted , isUserDeleted ,...sanitizedUser } = user.toObject();
 
+    const userDetails = {
+      "_id" : user._id,
+      "name" : user.name,
+      "email" : user.email,
+      "mobileNo" : user.mobileNo,
+      "avatar" : user.avatar,
+      "role" : {
+        "name" : user.role.name,
+        "sections" : user.role.sections.map((section) => ({
+          "module" : section.module.name,
+           "permission" : section.permission,
+          }))
+        },
+        "createdAt" : user.createdAt,
+        "updatedAt" : user.updatedAt,
+        "__v": 0,
+      }
+    
 
     res.status(200)
         .cookie('refreshToken',refreshToken,options)
-        .json(ApiResponse.successRead({user : sanitizedUser,accessToken,companyDetails},"User Logged In Successfully"));
+        .json(ApiResponse.successRead({user : userDetails,accessToken,companyDetails},"User Logged In Successfully"));
 
 });
 
