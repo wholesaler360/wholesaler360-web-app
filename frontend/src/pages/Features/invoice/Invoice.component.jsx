@@ -54,7 +54,7 @@ function InvoiceComponent() {
   });
 
   const handleRowClick = (row) => {
-    navigate(`/invoice/view/${row._id}`);
+    navigate(`/invoice/view/${row.original._id}`);
   };
 
   return (
