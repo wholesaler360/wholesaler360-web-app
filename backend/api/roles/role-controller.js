@@ -22,11 +22,22 @@ const createRole = asyncHandler(async (req, res, next) => {
     );
   }
 
+  const accountSetting = await Module.findOne({ name: "account-settings" });
+
+  if (!accountSetting) {
+    return next(ApiError.dataNotFound("Module not found"));
+  }
+  
 
   try {
     const role = new Role({
       name: roleName,
-      sections: [],
+      sections: [
+        {
+          module: accountSetting._id,
+          permission: 15,
+        },
+      ],
     });
 
     await role.save();
