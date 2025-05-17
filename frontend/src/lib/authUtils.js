@@ -1,15 +1,12 @@
-import {
-  RefreshTokenApi,
-  FetchRolePermission,
-  fetchCompanyDetails,
-} from "@/constants/apiEndPoints";
+import { RefreshTokenApi } from "@/constants/apiEndPoints";
 import {
   ACCESS_TOKEN_KEY,
   USER_DATA_KEY,
   USER_PERMISSIONS_KEY,
+  COMPANY_DETAILS_KEY,
 } from "@/constants/globalConstants";
 import { jwtDecode } from "jwt-decode";
-import { axiosGet, axiosPost } from "@/constants/api-context";
+import { axiosGet } from "@/constants/api-context";
 import { getPermissionsFromNumber } from "./roleUtils";
 
 export const getAccessToken = () => {
@@ -68,24 +65,6 @@ export const refreshAccessToken = async () => {
   }
 };
 
-const fetchAndProcessPermissions = async (roleName) => {
-  try {
-    const response = await axiosGet(`${FetchRolePermission}/${roleName}`);
-    if (!response.data.success)
-      throw new Error("Failed to fetch role permissions");
-
-    const processedPermissions = {};
-    response.data.value.sections.forEach(({ module, permission }) => {
-      processedPermissions[module.name] = getPermissionsFromNumber(permission);
-    });
-
-    return processedPermissions;
-  } catch (error) {
-    console.error("Error processing permissions:", error.message);
-    return null;
-  }
-};
-
 export const getStoredPermissions = () => {
   try {
     const permissionsStr = localStorage.getItem(USER_PERMISSIONS_KEY);
@@ -96,26 +75,60 @@ export const getStoredPermissions = () => {
   }
 };
 
+export const getCompanyDetails = () => {
+  try {
+    const companyDetailsStr = localStorage.getItem(COMPANY_DETAILS_KEY);
+    return companyDetailsStr ? JSON.parse(companyDetailsStr) : null;
+  } catch (error) {
+    console.error("Error getting company details:", error.message);
+    return null;
+  }
+};
+
+export const setCompanyDetails = (companyDetails) => {
+  try {
+    if (!companyDetails) {
+      throw new Error("Invalid company details");
+    }
+    localStorage.setItem(COMPANY_DETAILS_KEY, JSON.stringify(companyDetails));
+    return true;
+  } catch (error) {
+    console.error("Error setting company details:", error.message);
+    return false;
+  }
+};
+
 export const setAuthData = async (authResponse) => {
   try {
     if (!authResponse?.value?.accessToken || !authResponse?.value?.user) {
       throw new Error("Invalid auth response");
     }
 
-    // Store token first to use it in subsequent requests
+    // Store token
     localStorage.setItem(ACCESS_TOKEN_KEY, authResponse.value.accessToken);
 
-    // Store user data - ensure we're maintaining the proper structure
+    // Store user data
     const userData = {
       ...authResponse.value.user,
       lastLoginAt: new Date().toISOString(),
     };
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
 
-    // Fetch and store permissions
-    const permissions = await fetchAndProcessPermissions(userData.role.name);
-    if (permissions) {
-      localStorage.setItem(USER_PERMISSIONS_KEY, JSON.stringify(permissions));
+    // Store company details if available
+    if (authResponse.value.companyDetails) {
+      setCompanyDetails(authResponse.value.companyDetails);
+    }
+
+    // Extract and store permissions directly from user object
+    if (userData.role && userData.role.sections) {
+      const processedPermissions = {};
+      userData.role.sections.forEach(({ module, permission }) => {
+        processedPermissions[module] = getPermissionsFromNumber(permission);
+      });
+      localStorage.setItem(
+        USER_PERMISSIONS_KEY,
+        JSON.stringify(processedPermissions)
+      );
     }
 
     return true;
@@ -170,6 +183,7 @@ export const clearAuthData = () => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USER_DATA_KEY);
     localStorage.removeItem(USER_PERMISSIONS_KEY);
+    localStorage.removeItem(COMPANY_DETAILS_KEY);
     return true;
   } catch (error) {
     console.error("Error clearing auth data:", error.message);
