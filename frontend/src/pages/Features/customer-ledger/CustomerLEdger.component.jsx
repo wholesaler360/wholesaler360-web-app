@@ -100,8 +100,8 @@ function CustomerLedgerComponent() {
         }
       } catch (error) {
         showNotification.error(
-          error.message || "Failed to fetch customer ledger entries"
-        );
+          error.response?.data?.message || "Failed to fetch customer ledger entries"
+        );  
         setData([]);
       } finally {
         setIsLoading(false);
