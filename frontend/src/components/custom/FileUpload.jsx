@@ -192,7 +192,7 @@ export function FileUpload({
       reader.readAsDataURL(response.data);
       showNotification.success("AI image generated successfully!");
     } catch (error) {
-      showNotification.error(error.message || "Failed to generate image");
+      showNotification.error(error.response.data.message || "Failed to generate image");
     } finally {
       setIsGenerating(false);
     }

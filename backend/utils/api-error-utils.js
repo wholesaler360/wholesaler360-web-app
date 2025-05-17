@@ -8,11 +8,18 @@ class ApiError extends Error {
         this.errors = errors;
         this.success = false;
 
-        if (stack) {
-            this.stack = stack;
+        // Not to emit stack trace in production
+        if (process.env.NODE_ENV === "development") {
+            if (stack) {
+                this.stack = stack;
+            } else {
+                Error.captureStackTrace(this, this.constructor);
+            }
         } else {
-            Error.captureStackTrace(this, this.constructor);
+            this.stack = "";
         }
+        
+        
     }
 
     /**
@@ -112,7 +119,7 @@ class ApiError extends Error {
         return new ApiError(404,message,errors)
     }
 
-    static imageNotGenerated(message="image not generated",errors = []) {
+    static imageNotGenerated(message="image not generated", errors = []) {
         return new ApiError(417,message,errors)
     }
 
