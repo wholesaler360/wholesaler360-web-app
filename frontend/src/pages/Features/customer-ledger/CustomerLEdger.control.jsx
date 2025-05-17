@@ -41,7 +41,7 @@ function CustomerLedgerController({ children }) {
         );
       }
     } catch (error) {
-      showNotification.error(error.message || "Failed to create ledger entry");
+      showNotification.error(error.response?.data?.message || "Failed to create ledger entry");
       throw error;
     }
   };

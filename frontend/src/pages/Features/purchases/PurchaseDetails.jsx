@@ -27,7 +27,7 @@ function PurchaseDetails() {
         }
       } catch (error) {
         showNotification.error(
-          error.message || "Failed to load purchase details"
+          error.response?.data?.message || "Failed to load purchase details"
         );
       } finally {
         setLoading(false);
