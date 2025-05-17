@@ -60,12 +60,31 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
+    try {
+      // Check if response is a Blob (usually happens when responseType is 'blob')
+      if (
+        error.response?.data instanceof Blob &&
+        error.response?.data.type === "application/json"
+      ) {
+        const text = await error.response.data.text();
+        const json = JSON.parse(text);
 
+        // Replace blob with parsed JSON for downstream access
+        error.response.data = json;
+      } 
+      
+    } catch (e) {
+      showNotification.error("Unexpected error");
+      console.error("Error while handling API error:", e);
+    }
+
+    // Handle unauthorized (401)
     if (error.response?.status === 401) {
       clearAccessToken();
       showNotification.error("Please login to continue");
