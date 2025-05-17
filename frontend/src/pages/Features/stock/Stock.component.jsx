@@ -39,7 +39,7 @@ export function StockComponent() {
         setData(response?.value?.product || []);
       } catch (error) {
         console.error("Failed to fetch stock:", error);
-        showNotification.error("Failed to fetch stock");
+        showNotification.error(error.response?.data?.message || "Failed to fetch stock");
         setData([]);
       } finally {
         setIsLoading(false);

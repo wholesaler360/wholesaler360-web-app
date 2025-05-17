@@ -82,7 +82,7 @@ export function CompanySettingsController({ children }) {
         bank: bankData.data.value,
       };
     } catch (error) {
-      showNotification.error("Failed to fetch company details");
+      showNotification.error(error.response?.data?.message || "Failed to fetch company details");
       throw error;
     } finally {
       setIsLoading(false);
@@ -100,7 +100,7 @@ export function CompanySettingsController({ children }) {
         showNotification.error("Failed to update company details");
       }
     } catch (error) {
-      showNotification.error("Failed to update company details");
+      showNotification.error(error.response?.data?.message || "Failed to update company details");
       throw error;
     } finally {
       setIsLoading(false);
@@ -118,7 +118,7 @@ export function CompanySettingsController({ children }) {
         showNotification.error("Failed to update bank details ");
       }
     } catch (error) {
-      showNotification.error("Failed to update bank details");
+      showNotification.error(error.response?.data?.message || "Failed to update bank details");
       throw error;
     } finally {
       setIsLoading(false);
@@ -140,7 +140,7 @@ export function CompanySettingsController({ children }) {
         showNotification.error("Failed to update company logo");
       }
     } catch (error) {
-      showNotification.error("Failed to update company logo");
+      showNotification.error(error.response?.data?.message || "Failed to update company logo");
       throw error;
     } finally {
       setIsLoading(false);
@@ -158,7 +158,7 @@ export function CompanySettingsController({ children }) {
         showNotification.error("Failed to add signature");
       }
     } catch (error) {
-      showNotification.error("Failed to add signature");
+      showNotification.error(error.response?.data?.message || "Failed to add signature");
       throw error;
     } finally {
       setIsLoading(false);
@@ -178,7 +178,7 @@ export function CompanySettingsController({ children }) {
         showNotification.error("Failed to remove signature");
       }
     } catch (error) {
-      showNotification.error("Failed to remove signature");
+      showNotification.error(error.response?.data?.message || "Failed to remove signature");
       throw error;
     } finally {
       setIsLoading(false);
@@ -196,7 +196,7 @@ export function CompanySettingsController({ children }) {
         return [];
       }
     } catch (error) {
-      showNotification.error("Failed to fetch taxes");
+      showNotification.error(error.response?.data?.message || "Failed to fetch taxes");
       return [];
     } finally {
       setIsLoading(false);

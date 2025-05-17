@@ -129,7 +129,7 @@ function VendorController({ children }) {
               setRefreshTrigger((prev) => prev + 1);
             }
           } catch (error) {
-            showNotification.error("Failed to delete vendor");
+            showNotification.error(error.response?.data?.message || "Failed to delete vendor");
           }
         };
 

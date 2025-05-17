@@ -33,7 +33,7 @@ function PurchasesComponent() {
           throw new Error(response.message);
         }
       } catch (error) {
-        showNotification.error(error.message || "Failed to fetch purchases");
+        showNotification.error(error.response?.data?.message || "Failed to fetch purchases");
         setData([]);
       } finally {
         setIsLoading(false);

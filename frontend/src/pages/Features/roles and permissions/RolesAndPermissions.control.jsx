@@ -103,7 +103,7 @@ function RolesAndPermissionController({ children }) {
         showNotification.error("Failed to add role");
       }
     } catch (error) {
-      showNotification.error("Failed to add role");
+      showNotification.error(error.response?.data?.message || "Failed to add role");
     }
   };
 
@@ -158,7 +158,7 @@ function RolesAndPermissionController({ children }) {
             showNotification.success("Role updated successfully");
             setRefreshTrigger((prev) => prev + 1);
           } catch (error) {
-            showNotification.error("Failed to update role");
+            showNotification.error(error.response?.data?.message || "Failed to update role");
           } finally {
             setIsLoading(false);
           }
@@ -256,7 +256,7 @@ function RolesAndPermissionController({ children }) {
               showNotification.error("Failed to fetch permissions");
             }
           } catch (error) {
-            showNotification.error("Failed to fetch permissions");
+            showNotification.error(error.response?.data?.message || "Failed to fetch permissions");
           } finally {
             setIsLoadingPermissions(false);
           }
@@ -348,7 +348,7 @@ function RolesAndPermissionController({ children }) {
             }
             setOpen(false);
           } catch (error) {
-            showNotification.error("Failed to update permissions");
+            showNotification.error(error.response?.data?.message || "Failed to update permissions");
           } finally {
             setIsLoading(false);
           }
@@ -577,7 +577,7 @@ function RolesAndPermissionController({ children }) {
               showNotification.error("Failed to delete role");
             }
           } catch (error) {
-            showNotification.error("Failed to delete role");
+            showNotification.error(error.response?.data?.message || "Failed to delete role");
           } finally {
             setIsLoading(false);
           }

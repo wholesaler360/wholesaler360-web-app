@@ -53,7 +53,7 @@ function AddVendorControl({ children }) {
         navigate("/vendors");
       }
     } catch (error) {
-      showNotification.error(error.message || "Failed to create vendor");
+      showNotification.error(error.response?.data?.message || "Failed to create vendor");
     } finally {
       setIsLoading(false);
     }

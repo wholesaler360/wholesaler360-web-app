@@ -40,14 +40,14 @@ export function AddProductController({ children }) {
         throw new Error(response.status || "Failed to fetch categories");
       }
     } catch (error) {
-      if (parseInt(error.message) === 404) {
+      if (parseInt(error.response?.status ) === 404) {
         navigate("/products");
         showNotification.error(
           "No categories found. Please add a category first"
         );
       } else {
         navigate("/products");
-        showNotification.error("Failed to fetch categories");
+        showNotification.error(error.response?.data?.message || "Failed to fetch categories");
       }
     }
   }, []);
@@ -59,7 +59,7 @@ export function AddProductController({ children }) {
         setTaxes(response.data.value.taxes);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch tax options");
+      showNotification.error(error.response?.data?.message || "Failed to fetch tax options");
     }
   }, []);
 
@@ -80,7 +80,7 @@ export function AddProductController({ children }) {
         throw new Error(response.data.message || "Failed to create product");
       }
     } catch (error) {
-      showNotification.error(error.message);
+      showNotification.error(error.response?.data?.message || "Failed to create product");
     } finally {
       setIsLoading(false);
     }

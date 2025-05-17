@@ -20,8 +20,7 @@ const UserMenuController = ({ children }) => {
       navigate("/login");
       showNotification.success("Logged out successfully");
     } else {
-      console.error("Logout failed:", response);
-      showNotification.error("Logout Failed");
+      showNotification.error(response.data?.message || "Logout Failed");
     }
   };
 

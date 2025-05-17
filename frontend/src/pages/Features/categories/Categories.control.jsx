@@ -65,7 +65,7 @@ function CategoriesController({ children }) {
     try {
       const response = await axiosPost(CreateCategory, {
         name: value.categoryName,
-      }); // Replace with your endpoint
+      }); 
       if (response.status === 201) {
         showNotification.success("Category added successfully");
         setRefreshTrigger((prev) => prev + 1);
@@ -75,7 +75,7 @@ function CategoriesController({ children }) {
         throw new Error("Failed to add category");
       }
     } catch (error) {
-      showNotification.error("Failed to add category");
+      showNotification.error(error.response?.data?.message || "Failed to add category");
     }
   };
 
@@ -90,7 +90,7 @@ function CategoriesController({ children }) {
         setRefreshTrigger((prev) => prev + 1);
       }
     } catch (error) {
-      showNotification.error("Failed to update category");
+      showNotification.error(error.response?.data?.message || "Failed to update category");
     }
   };
 
@@ -154,7 +154,7 @@ function CategoriesController({ children }) {
               setRefreshTrigger((prev) => prev + 1);
             }
           } catch (error) {
-            showNotification.error("Failed to delete category");
+            showNotification.error(error.response?.data?.message || "Failed to delete category");
           }
         };
 

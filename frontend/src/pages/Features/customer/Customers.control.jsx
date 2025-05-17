@@ -135,7 +135,7 @@ function CustomerController({ children }) {
               setRefreshTrigger((prev) => prev + 1);
             }
           } catch (error) {
-            showNotification.error("Can not delete customer");
+            showNotification.error(error.response?.data?.message || "Can not delete customer");
           }
         };
 

@@ -20,7 +20,7 @@ function UpdateVendorController({ children }) {
       const response = await axiosGet(`${FetchVendor}/${mobileNo}`);
       return response.data.value;
     } catch (error) {
-      showNotification.error("Failed to fetch vendor details");
+      showNotification.error(error.response?.data?.message || "Failed to fetch vendor details");
       throw error;
     } finally {
       setIsLoading(false);
@@ -39,7 +39,7 @@ function UpdateVendorController({ children }) {
       return response;
     } catch (error) {
       console.error("API error:", error);
-      showNotification.error(error.message || "Failed to update vendor");
+      showNotification.error(error.response?.data?.message || "Failed to update vendor");
       throw error;
     } finally {
       setIsLoading(false);
@@ -59,7 +59,7 @@ function UpdateVendorController({ children }) {
       throw new Error(response.data?.message || "Failed to update image");
     } catch (error) {
       console.error("Image upload error:", error);
-      showNotification.error(error.message || "Failed to update vendor image");
+      showNotification.error(error.response?.data?.message || "Failed to update vendor image");
       return { success: false, error };
     } finally {
       setIsLoading(false);

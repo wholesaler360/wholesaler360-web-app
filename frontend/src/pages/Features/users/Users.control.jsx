@@ -46,7 +46,7 @@ function UsersController({ children }) {
         return false;
       }
     } catch (error) {
-      showNotification.error("Error deleting user");
+      showNotification.error(error.response?.data?.message || "Error deleting user");
       return false;
     }
   }, []);

@@ -15,6 +15,7 @@ const axiosGet = async (endpoint = null) => {
       response: error.response,
       config: error.config,
     });
+    throw error; 
   }
 };
 
@@ -80,7 +81,7 @@ const axiosDelete = async (endpoint = null, config = {}) => {
       response: error.response,
       config: error.config,
     });
-    throw error; // Rethrow the error so it can be caught by the calling function
+    throw error; 
   }
 };
 

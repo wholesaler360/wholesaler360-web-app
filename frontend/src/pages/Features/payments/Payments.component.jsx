@@ -32,7 +32,7 @@ function PaymentsComponent() {
           throw new Error(response.message);
         }
       } catch (error) {
-        showNotification.error(error.message || "Failed to fetch payments");
+        showNotification.error(error.response?.data?.message || "Failed to fetch payments");
         setData([]);
       } finally {
         setIsLoading(false);

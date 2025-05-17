@@ -60,7 +60,7 @@ function CategoriesComponent() {
           setData([]); // Ensure data is always an array
         }
       } catch (error) {
-        showNotification.error("Failed to fetch categories");
+        showNotification.error(error.response?.data?.message || "Failed to fetch categories");
         setData([]); // Set empty array on error
       } finally {
         setIsLoading(false);

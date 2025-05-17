@@ -89,8 +89,7 @@ export function UpdateUserController({ children }) {
         throw new Error("Failed to fetch roles");
       }
     } catch (error) {
-      console.error("Failed to fetch roles:", error);
-      showNotification.error("Failed to fetch roles");
+      showNotification.error(error.response?.data?.message || "Failed to fetch roles");
     }
   }, []);
 
