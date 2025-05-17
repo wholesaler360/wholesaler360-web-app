@@ -206,7 +206,7 @@ function LoginComponent({ className, ...props }) {
   };
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-slate-50">
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-slate-1000">
       <div className="w-full max-w-sm">
         <div className={cn("flex flex-col gap-6", className)} {...props}>
           <div className="flex flex-col items-center justify-center space-y-2">
@@ -215,7 +215,7 @@ function LoginComponent({ className, ...props }) {
             </h1>
           </div>
 
-          <Card className="border-none shadow-lg">
+          <Card className="border border-slate-100 dark:border-white shadow-lg ">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl text-center">
                 Welcome Back
@@ -255,6 +255,7 @@ function LoginComponent({ className, ...props }) {
                         placeholder="Enter mobile number"
                         required
                         className="transition-all duration-200 focus:ring-2 focus:ring-offset-0 flex-1"
+                        autoComplete="tel"
                       />
                     </div>
                   </div>
@@ -280,6 +281,7 @@ function LoginComponent({ className, ...props }) {
                       placeholder="Enter your password"
                       required
                       className="transition-all duration-200 focus:ring-2 focus:ring-offset-0"
+                      autoComplete="current-password"
                     />
                   </div>
                   {error && (
@@ -362,6 +364,7 @@ function LoginComponent({ className, ...props }) {
                       }
                       placeholder="Enter mobile number"
                       className="flex-1"
+                      autoComplete="tel"
                     />
                   </div>
                 </div>

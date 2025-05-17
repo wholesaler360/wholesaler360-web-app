@@ -5,6 +5,7 @@
 @layer base {
   /* Root variables */
   :root {
+    --autofill-text-color: #000; /* Light mode: black text */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -47,6 +48,7 @@
 
   /* Dark theme variables */
   .dark {
+    --autofill-text-color: #fff; /* Dark mode: white text */
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
@@ -114,4 +116,16 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: var(--autofill-text-color) !important;
+  caret-color: var(--autofill-text-color) !important;
+  background-color: transparent !important;
+  transition: background-color 9999s ease-in-out 0s;
 }

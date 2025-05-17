@@ -158,7 +158,7 @@ function CustomerController({ children }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 p-0 hover:bg-slate-100"
+                  className="h-8 w-8 p-0"
                 >
                   <MoreHorizontal className="h-4 w-4" />
                   <span className="sr-only">Open menu</span>

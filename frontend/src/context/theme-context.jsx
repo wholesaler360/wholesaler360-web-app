@@ -1,21 +1,24 @@
+import { getCurrentTheme, setNewTheme } from "@/lib/authUtils";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const themeContext = createContext({});
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(getCurrentTheme());
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("theme") || "light";
+    const storedTheme = getCurrentTheme();
     setTheme(storedTheme);
     document.documentElement.classList.add(storedTheme);
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
+    const newThemeName = getCurrentTheme() === "light" ? "dark" : "light";
+    const newTheme = newThemeName;
     document.documentElement.classList.remove(theme);
     document.documentElement.classList.add(newTheme);
     setTheme(newTheme);
+    setNewTheme(newThemeName);
   };
 
   return (
