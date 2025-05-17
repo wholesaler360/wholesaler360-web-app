@@ -928,7 +928,7 @@ function AddInvoiceComponent() {
                         control={form.control}
                         name="isRoundedOff"
                         render={({ field }) => (
-                          <FormItem className="flex items-center gap-2">
+                          <FormItem className="flex items-center gap-2 mr-4">
                             <FormLabel className="mt-1.5">Round Off</FormLabel>
                             <FormControl>
                               <Switch
