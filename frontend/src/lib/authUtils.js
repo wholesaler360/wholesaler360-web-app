@@ -48,7 +48,7 @@ export const isAccessTokenExpired = async () => {
     const { exp } = jwtDecode(token); // Decode the token to extract expiry
     const currentTime = Math.floor(new Date().getTime() / 1000);
 
-    return exp < currentTime; // Return true if expired, false otherwise
+    return exp < ( currentTime + 10 ) ; // Return true if expired, false otherwise
   } catch (error) {
     console.error("Error checking token expiry:", error.message);
     return true; // Assume expired if there's any issue

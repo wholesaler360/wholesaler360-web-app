@@ -40,8 +40,7 @@ export function BatchList({ productId }) {
           });
         }
       } catch (error) {
-        console.error("Failed to fetch batches:", error);
-        showNotification.error("Failed to fetch batches");
+        showNotification.error(error?.response?.data?.message || "Failed to fetch batches");
       } finally {
         setIsLoading(false);
       }
@@ -90,8 +89,7 @@ export function BatchList({ productId }) {
         showNotification.error("Failed to update selling price");
       }
     } catch (error) {
-      console.error("Failed to update price:", error);
-      showNotification.error("Failed to update selling price");
+      showNotification.error(error?.response?.data?.message || "Failed to update selling price");
     } finally {
       setIsUpdating(false);
     }

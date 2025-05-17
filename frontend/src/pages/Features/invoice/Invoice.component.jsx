@@ -48,6 +48,9 @@ function InvoiceComponent() {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      sorting: [{ id: "invoiceDate", desc: true }]
+    },
     state: { globalFilter },
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",

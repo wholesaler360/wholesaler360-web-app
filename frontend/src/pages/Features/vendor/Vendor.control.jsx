@@ -139,7 +139,10 @@ function VendorController({ children }) {
               variant="outline"
               effect="ringHover"
               size="sm"
-              onClick={() => navigate(`/vendor/ledger/${row.original._id}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/vendor/ledger/${row.original._id}`);
+              }}
               permissionModule="vendor"
               permissionAction="write"
             >
@@ -149,31 +152,38 @@ function VendorController({ children }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 p-0"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 p-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem
-                  onClick={handleEdit}
-                  permissionModule="vendor"
-                  permissionAction="update"
-                >
-                  Edit Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                  onClick={handleDelete}
-                  permissionModule="vendor"
-                  permissionAction="delete"
-                >
-                  Delete Profile
-                </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit();
+            }}
+            permissionModule="vendor"
+            permissionAction="update"
+          >
+            Edit Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+            permissionModule="vendor"
+            permissionAction="delete"
+          >
+            Delete Profile
+          </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

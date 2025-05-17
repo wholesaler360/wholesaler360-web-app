@@ -54,6 +54,10 @@ function VendorComponent() {
     globalFilterFn: "includesString",
   });
 
+  const handleRowClick = (row) => {
+    navigate(`/vendor/details/${row.original.mobileNo}`);
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
@@ -88,6 +92,7 @@ function VendorComponent() {
             table={table}
             globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
+            onRowClick={handleRowClick}
           />
         </div>
       )}
