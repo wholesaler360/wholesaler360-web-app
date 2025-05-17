@@ -289,7 +289,6 @@ function ViewInvoiceComponent() {
               variant="ghost"
               size="icon"
               onClick={() => navigate("/invoices")}
-              className="hover:bg-gray-100 dark:hover:bg-zinc-800"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>

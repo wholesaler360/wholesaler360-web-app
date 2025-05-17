@@ -201,7 +201,6 @@ function UpdateUserComponent() {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/users")}
-          className="hover:bg-gray-100"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
