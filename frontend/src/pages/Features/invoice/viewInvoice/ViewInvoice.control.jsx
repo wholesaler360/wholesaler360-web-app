@@ -20,7 +20,7 @@ function ViewInvoiceController({ children }) {
         throw new Error(response.data.message);
       }
     } catch (error) {
-      showNotification.error(error.message || "Failed to fetch invoice");
+      showNotification.error(error.response?.data?.message || "Failed to fetch invoice");
     } finally {
       setIsLoading(false);
     }
@@ -36,7 +36,7 @@ function ViewInvoiceController({ children }) {
       }
     } catch (error) {
       showNotification.error(
-        error.message || "Failed to fetch company details"
+        error.response?.data?.message || "Failed to fetch company details"
       );
     }
   }, []);

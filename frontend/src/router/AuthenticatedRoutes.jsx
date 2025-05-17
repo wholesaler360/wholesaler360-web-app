@@ -35,9 +35,9 @@ function AuthenticatedRoutes({ children, permission }) {
         }
 
         setIsAuthenticated(true);
-      } catch (e) {
+      } catch (error) {
         setIsAuthenticated(false);
-        showNotification.error("Something went wrong. Please login again.");
+        showNotification.error(error.response?.data?.message || "Something went wrong. Please login again.");
       } finally {
         setIsLoading(false);
       }

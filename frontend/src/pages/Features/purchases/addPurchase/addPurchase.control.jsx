@@ -45,7 +45,7 @@ function AddPurchaseControl({ children }) {
         setVendors(response.data.value);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch vendors");
+      showNotification.error(error.response?.data?.message || "Failed to fetch vendors");
     }
   }, []);
 
@@ -56,7 +56,7 @@ function AddPurchaseControl({ children }) {
         setProducts(response.data.value.product);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch products");
+      showNotification.error(error.response?.data?.message || "Failed to fetch products");
     }
   }, []);
 

@@ -118,7 +118,7 @@ function ProductsController({ children }) {
               throw new Error("Failed to delete product");
             }
           } catch (error) {
-            showNotification.error("Failed to delete product");
+            showNotification.error(error.response?.data?.message || "Failed to delete product");
           }
         };
 

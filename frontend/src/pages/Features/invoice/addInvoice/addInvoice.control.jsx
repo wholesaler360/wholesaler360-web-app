@@ -67,7 +67,7 @@ function AddInvoiceControl({ children }) {
         setCustomers(response.data.value);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch customers");
+      showNotification.error(error.response?.data?.message || "Failed to fetch customers");
     }
   }, []);
 
@@ -88,7 +88,7 @@ function AddInvoiceControl({ children }) {
         setProducts(mappedProducts);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch products");
+      showNotification.error(error.response?.data?.message || "Failed to fetch products");
     }
   }, []);
 
@@ -99,7 +99,7 @@ function AddInvoiceControl({ children }) {
         setBankDetails(response.data.value);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch bank details");
+      showNotification.error(error.response?.data?.message || "Failed to fetch bank details");
     }
   }, []);
 
@@ -110,7 +110,7 @@ function AddInvoiceControl({ children }) {
         setSignatures(response.data.value);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch signatures");
+      showNotification.error(error.response?.data?.message || "Failed to fetch signatures");
     }
   }, []);
 

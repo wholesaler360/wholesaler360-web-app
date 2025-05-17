@@ -33,7 +33,7 @@ function VendorComponent() {
           throw new Error(response.message);
         }
       } catch (error) {
-        showNotification.error(error.message || "Failed to fetch vendors");
+        showNotification.error(error.response?.data?.message || "Failed to fetch vendors");
         setData([]);
       } finally {
         setIsLoading(false);

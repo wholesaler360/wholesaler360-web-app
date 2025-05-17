@@ -32,7 +32,7 @@ function CustomerComponent() {
           throw new Error(response.message);
         }
       } catch (error) {
-        showNotification.error(error.message || "Failed to fetch customers");
+        showNotification.error(error.response?.data?.message || "Failed to fetch customers");
         setData([]);
       } finally {
         setIsLoading(false);

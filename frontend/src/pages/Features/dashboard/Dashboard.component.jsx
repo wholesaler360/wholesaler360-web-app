@@ -104,7 +104,7 @@ function DashboardComponent() {
           setSelectedYear(salesRes.value[0]?.year);
         }
       } catch (error) {
-        showNotification.error("Failed to fetch dashboard data");
+        showNotification.error(error.response?.data?.message || "Failed to fetch dashboard data");
       }
     };
     fetchData();

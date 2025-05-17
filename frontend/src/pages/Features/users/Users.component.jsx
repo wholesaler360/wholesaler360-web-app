@@ -28,8 +28,7 @@ export function UsersComponent() {
         const response = await getUsers();
         setData(response?.value || []);
       } catch (error) {
-        console.error(error);
-        showNotification.error("Failed to fetch users");
+        showNotification.error(error.response?.data?.message || "Failed to fetch users");
         setData([]);
       } finally {
         setIsLoading(false);

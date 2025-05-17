@@ -66,7 +66,7 @@ function AccountSettingsController({ children }) {
         );
       }
     } catch (error) {
-      showNotification.error(error.message || "Failed to update profile");
+      showNotification.error(error.response?.data?.message || "Failed to update profile");
       throw error;
     } finally {
       setIsLoading(false);
@@ -80,7 +80,7 @@ function AccountSettingsController({ children }) {
       showNotification.success("Profile image updated successfully");
       return response;
     } catch (error) {
-      showNotification.error(error.message || "Failed to update profile image");
+      showNotification.error(error.response?.data?.message || "Failed to update profile image");
       throw error;
     } finally {
       setIsLoading(false);
@@ -94,7 +94,7 @@ function AccountSettingsController({ children }) {
       showNotification.success("Password updated successfully");
       return response;
     } catch (error) {
-      showNotification.error(error.message || "Failed to update password");
+      showNotification.error(error.response?.data?.message || "Failed to update password");
       throw error;
     } finally {
       setIsLoading(false);

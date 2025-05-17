@@ -33,7 +33,7 @@ export function ProductsComponent() {
         setData(productsData);
       } catch (error) {
         console.log(error);
-        showNotification.error("Failed to fetch products");
+        showNotification.error(error.response?.data?.message || "Failed to fetch products");
         setData([]); // Ensure data is always an array
       } finally {
         setIsLoading(false);

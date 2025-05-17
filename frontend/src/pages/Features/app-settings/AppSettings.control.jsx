@@ -34,7 +34,7 @@ export function AppSettingsController({ children }) {
         return null;
       }
     } catch (error) {
-      showNotification.error("Failed to fetch email settings");
+      showNotification.error(error.response?.data?.message || "Failed to fetch email settings");
       throw error;
     } finally {
       setIsLoading(false);
@@ -54,7 +54,7 @@ export function AppSettingsController({ children }) {
         return null;
       }
     } catch (error) {
-      showNotification.error("Failed to update email settings");
+      showNotification.error(error.response?.data?.message || "Failed to update email settings");
       throw error;
     } finally {
       setIsLoading(false);

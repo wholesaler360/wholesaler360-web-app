@@ -34,7 +34,7 @@ export function AddUserController({ children }) {
         throw new Error(response.data.message || "Failed to fetch roles");
       }
     } catch (error) {
-      showNotification.error("Failed to fetch roles");
+      showNotification.error(error.response?.data?.message || "Failed to fetch roles");
       navigate("/users");
     }
   }, [navigate]);
@@ -56,7 +56,7 @@ export function AddUserController({ children }) {
       }
     } catch (error) {
       showNotification.error(
-         error.response.data.message || "Failed to create user"
+         error.response?.data?.message || "Failed to create user"
       );
       throw error;
     }

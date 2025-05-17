@@ -36,7 +36,7 @@ function UpdateProductController({ children }) {
             
       return response.data.value;
     } catch (error) {
-      showNotification.error("Failed to fetch product details");
+      showNotification.error(error.response?.data?.message || "Failed to fetch product details");
       throw error;
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ function UpdateProductController({ children }) {
         setCategories(response.data.value.categories);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch categories");
+      showNotification.error(error.response?.data?.message || "Failed to fetch categories");
     }
   }, []);
 
@@ -61,7 +61,7 @@ function UpdateProductController({ children }) {
         setTaxes(response.data.value.taxes);
       }
     } catch (error) {
-      showNotification.error("Failed to fetch tax options");
+      showNotification.error(error.response?.data?.message || "Failed to fetch tax options");
     }
   }, []);
 
@@ -73,7 +73,7 @@ function UpdateProductController({ children }) {
       navigate("/products");
       return response;
     } catch (error) {
-      showNotification.error(error.message || "Failed to update product");
+      showNotification.error(error.response?.data?.message || "Failed to update product");
       throw error;
     } finally {
       setIsLoading(false);
@@ -100,7 +100,7 @@ function UpdateProductController({ children }) {
       throw new Error(response.data?.message || "Failed to update image");
     } catch (error) {
       console.error('Image upload error:', error);
-      showNotification.error(error.message || "Failed to update product image");
+      showNotification.error(error.response?.data?.message || "Failed to update product image");
       return { success: false, error };
     } finally {
       setIsLoading(false);

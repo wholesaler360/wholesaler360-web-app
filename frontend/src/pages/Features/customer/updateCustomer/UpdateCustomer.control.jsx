@@ -77,7 +77,7 @@ function UpdateCustomerController({ children }) {
       }
       return response;
     } catch (error) {
-      showNotification.error(error.message || "Failed to update customer");
+      showNotification.error(error.response?.data?.message || "Failed to update customer");
       throw error;
     } finally {
       setIsLoading(false);
@@ -96,9 +96,8 @@ function UpdateCustomerController({ children }) {
 
       throw new Error(response.data?.message || "Failed to update image");
     } catch (error) {
-      console.error("Image upload error:", error);
       showNotification.error(
-        error.message || "Failed to update customer image"
+        error.response?.data?.message || "Failed to update customer image"
       );
       return { success: false, error };
     } finally {

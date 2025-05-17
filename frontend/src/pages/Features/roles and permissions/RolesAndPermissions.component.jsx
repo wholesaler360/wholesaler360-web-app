@@ -60,7 +60,7 @@ function RolesAndPermissionsComponent() {
           setData(response.value.roles);
         }
       } catch (error) {
-        showNotification.error("Failed to fetch roles:");
+        showNotification.error(error.response?.data?.message || "Failed to fetch roles:");
       } finally {
         setIsLoading(false);
       }

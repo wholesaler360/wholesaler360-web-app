@@ -100,7 +100,7 @@ function VendorLedgerComponent() {
         }
       } catch (error) {
         showNotification.error(
-          error.message || "Failed to fetch vendor ledger entries"
+          error.response?.data?.message || "Failed to fetch vendor ledger entries"
         );
         setData([]);
       } finally {

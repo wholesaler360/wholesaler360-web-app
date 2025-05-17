@@ -32,7 +32,7 @@ function InvoiceComponent() {
           throw new Error(response.message);
         }
       } catch (error) {
-        showNotification.error(error.message || "Failed to fetch invoices");
+        showNotification.error(error.response?.data?.message || "Failed to fetch invoices");
         setData([]);
       } finally {
         setIsLoading(false);
