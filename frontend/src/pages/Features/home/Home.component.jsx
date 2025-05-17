@@ -102,7 +102,7 @@ function HomeComponent() {
     // Timer to update current time every minute
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000);
+    }, 2000);
 
     // Select random quote
     const randomQuote =
@@ -163,7 +163,7 @@ function HomeComponent() {
         type: "spring",
         stiffness: 100,
         damping: 10,
-        delay: 0.5,
+        delay: 0.2,
       },
     },
   };
@@ -182,7 +182,7 @@ function HomeComponent() {
 
   return (
     <motion.div
-      className="flex flex-1 flex-col gap-8 p-6 bg-white dark:bg-gray-950"
+      className="flex flex-1 flex-col gap-8 p-6 bg-white dark:bg-black"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -223,8 +223,8 @@ function HomeComponent() {
       {/* Quote of the day card with animation */}
       <motion.div
         variants={quoteVariants}
-        whileHover={{ scale: 1.02 }}
-        transition={{ duration: 0.2 }}
+        whileHover={{ scale: 1.008 }}
+        transition={{ duration: 0.3 }}
       >
         <Card className="border-2 border-black/10 dark:border-white/10 overflow-hidden relative">
           <CardHeader className="pb-2">
