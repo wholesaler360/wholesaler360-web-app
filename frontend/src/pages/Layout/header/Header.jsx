@@ -26,7 +26,7 @@ function Header() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink as={Link} to="/">
-                  Dashboard
+                  Wholesaler360
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {breadcrumbs.map((breadcrumb, index) => (

@@ -27,10 +27,16 @@ import UpdateUser from "@/pages/Features/users/updateUser";
 import AppSettings from "@/pages/Features/app-settings";
 import ViewInvoice from "@/pages/Features/invoice/viewInvoice";
 import CustomerLedger from "@/pages/Features/customer-ledger";
+import Home from "@/pages/Features/home";
 
 const authRoutes = [
   {
     path: "/",
+    element: <Home />,
+    permission: "account-settings", // Default route
+  },
+  {
+    path: "/dashboard",
     element: <Dashboard />,
     permission: "dashboard", // Dashboard permission
   },
