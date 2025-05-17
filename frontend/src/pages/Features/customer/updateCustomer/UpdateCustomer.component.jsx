@@ -299,7 +299,6 @@ function UpdateCustomerComponent() {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/customers")}
-          className="hover:bg-gray-100"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>

@@ -264,13 +264,12 @@ function UpdateVendorComponent() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50">
+    <div className="flex flex-1 flex-col gap-6 p-6 bg-gray-50/50 dark:bg-zinc-950">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigate("/vendors")}
-          className="hover:bg-gray-100"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
