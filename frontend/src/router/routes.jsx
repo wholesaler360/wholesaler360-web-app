@@ -28,6 +28,8 @@ import AppSettings from "@/pages/Features/app-settings";
 import ViewInvoice from "@/pages/Features/invoice/viewInvoice";
 import CustomerLedger from "@/pages/Features/customer-ledger";
 import Home from "@/pages/Features/home";
+import VendorDetails from "@/pages/Features/vendor/VendorDetails";
+import CustomerDetails from "@/pages/Features/customer/CustomersDetails";
 
 const authRoutes = [
   {
@@ -81,6 +83,11 @@ const authRoutes = [
     permission: "customer",
   },
   {
+    path: "/customer/details/:mobileNo",
+    element: <CustomerDetails />,
+    permission: "customer",
+  },
+  {
     path: "/customer/ledger/:id",
     element: <CustomerLedger />,
     permission: "customer-ledger",
@@ -88,6 +95,11 @@ const authRoutes = [
   {
     path: "/vendors",
     element: <Vendors />,
+    permission: "vendor",
+  },
+  {
+    path: "/vendor/details/:mobileNo",
+    element: <VendorDetails />,
     permission: "vendor",
   },
   {

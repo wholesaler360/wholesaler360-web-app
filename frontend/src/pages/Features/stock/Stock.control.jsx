@@ -12,18 +12,25 @@ const StockContext = createContext({});
 const defineColumns = (onProductClick) => {
   const columnHelper = createColumnHelper();
   return [
-    // Product Name and SKU Column
+    // Product Name Column
     columnHelper.accessor("name", {
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Product Name" />
+      <DataTableColumnHeader column={column} title="Product Name" />
       ),
       cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="font-medium">{row.original.name}</span>
-          <span className="text-sm text-muted-foreground">
-            {row.original.skuCode}
-          </span>
-        </div>
+      <div className="flex flex-col">
+        <span className="font-medium">{row.original.name}</span>
+      </div>
+      ),
+    }),
+
+    // SKU Code Column
+    columnHelper.accessor("skuCode", {
+      header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="SKU Code" />
+      ),
+      cell: ({ getValue }) => (
+      <span className="text-sm">{getValue()}</span>
       ),
     }),
 

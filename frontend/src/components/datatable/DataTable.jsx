@@ -70,7 +70,7 @@ function DataTable({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => onRowClick && onRowClick(row)}
-                  className={onRowClick ? "cursor-pointer hover:bg-muted" : ""}
+                  className={onRowClick ? "cursor-pointer" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} style={{}}>
