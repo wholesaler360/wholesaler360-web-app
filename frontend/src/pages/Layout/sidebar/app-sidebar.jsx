@@ -40,7 +40,7 @@ const data = {
   NavItems: [
     {
       title: "Dashboard",
-      url: "/",
+      url: "/dashboard",
       icon: LayoutDashboard,
       isActive: true,
       permission: "dashboard",

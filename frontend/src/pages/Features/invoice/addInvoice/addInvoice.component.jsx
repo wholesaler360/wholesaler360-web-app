@@ -117,11 +117,13 @@ function AddInvoiceComponent() {
       .includes(customerSearch.toLowerCase())
   );
 
-  // Filter products by name or SKU
-  const filteredProducts = products.filter((prod) =>
-    (prod.name + prod.skuCode)
-      .toLowerCase()
-      .includes(productSearch.toLowerCase())
+  // Filter products by name or SKU, and ensure they are in stock
+  const filteredProducts = products.filter(
+    (prod) =>
+      prod.totalQuantity > 0 && // Add this condition to check stock
+      (prod.name + prod.skuCode)
+        .toLowerCase()
+        .includes(productSearch.toLowerCase())
   );
 
   useEffect(() => {
@@ -927,7 +929,7 @@ function AddInvoiceComponent() {
                         control={form.control}
                         name="isRoundedOff"
                         render={({ field }) => (
-                          <FormItem className="flex items-center gap-2">
+                          <FormItem className="flex items-center gap-2 mr-4">
                             <FormLabel className="mt-1.5">Round Off</FormLabel>
                             <FormControl>
                               <Switch
