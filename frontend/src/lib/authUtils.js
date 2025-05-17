@@ -4,6 +4,7 @@ import {
   USER_DATA_KEY,
   USER_PERMISSIONS_KEY,
   COMPANY_DETAILS_KEY,
+  THEME,
 } from "@/constants/globalConstants";
 import { jwtDecode } from "jwt-decode";
 import { axiosGet } from "@/constants/api-context";
@@ -188,5 +189,17 @@ export const clearAuthData = () => {
   } catch (error) {
     console.error("Error clearing auth data:", error.message);
     return false;
+  }
+};
+
+export const getCurrentTheme = () => {
+  return localStorage.getItem(THEME) || "light";
+};
+
+export const setNewTheme = (themeName) => {
+  try {
+   localStorage.setItem(THEME, themeName);
+  } catch {
+    console.log("Error setting theme on local storage");
   }
 };
