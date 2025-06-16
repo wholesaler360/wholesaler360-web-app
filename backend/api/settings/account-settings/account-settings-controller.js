@@ -61,6 +61,17 @@ const editProfile = asyncHandler(async (req, res, next) => {
       )
     );
   }
+
+  if(process.env.NODE_ENV === "demoproduction") {
+    if(name === "super admin" || email === "superadmin@mail.com" || mobileNo === "+91 9999999999") {
+      return next(
+        ApiError.validationFailed(
+          "You cannot change the super admin profile in demo mode"
+        )
+      );
+    }
+  }
+
   const condition = [];
   if (oldMobileNo !== mobileNo) {
     condition.push({ mobileNo });
