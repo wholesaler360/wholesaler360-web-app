@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from "react";
-import Header from "./header/header";
+import Header from "./header/Header";
 import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
