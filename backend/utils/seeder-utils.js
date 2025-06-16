@@ -115,9 +115,9 @@ const createUserSuperAdmin = asyncHandler(async (req,res,next) => {
             // Create the super admin user if it doesn't exist
             const user = await User.create({
                 name: "super admin",
-                email: "super@mail.com",
+                email: "superadmin@mail.com",
                 mobileNo: "+91 9999999999",
-                password: "Ram@1234",
+                password: "Admin@1234",
                 role : getId._id,
         })
         return res.status(201).json(ApiResponse.successCreated(user, "Super admin user created successfully"));};
