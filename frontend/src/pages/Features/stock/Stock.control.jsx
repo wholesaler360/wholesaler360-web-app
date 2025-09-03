@@ -67,8 +67,11 @@ const defineColumns = (onProductClick) => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Stock Quantity" />
       ),
-      cell: ({ getValue }) => {
+      cell: ({ row, getValue }) => {
         const quantity = getValue();
+        const quantityType = row.original.quantityType || "PCS"; // Default to "PCS" if not provided
+        const formattedQuantity =
+          quantityType === "KG" ? quantity.toFixed(3) : Math.floor(quantity); // Format based on quantityType
         const colorClass =
           quantity === 0
             ? "bg-red-50 text-red-700 ring-red-600/20"
@@ -78,11 +81,23 @@ const defineColumns = (onProductClick) => {
           <span
             className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${colorClass}`}
           >
-            {quantity}
+            {formattedQuantity}
           </span>
         );
       },
     }),
+
+        // PER column for quantityType (before alertQuantity)
+        columnHelper.accessor("quantityType", {
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Quanity" />
+          ),
+          cell: ({ getValue }) => (
+            <span className="text-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-800 ring-1 ring-inset ring-purple-600/20">
+              {getValue()}
+            </span>
+          ),
+        }),
 
     // Actions Column
     columnHelper.display({

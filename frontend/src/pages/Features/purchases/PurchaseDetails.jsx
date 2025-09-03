@@ -174,7 +174,8 @@ function PurchaseDetails() {
                 <tr className="border-b">
                   <th className="px-4 py-2 text-left">Product</th>
                   <th className="px-4 py-2 text-left">Quantity</th>
-                  <th className="px-4 py-2 text-left">Unit Price</th>
+                  <th className="px-4 py-2 text-left">Price</th>
+                  <th className="px-4 py-2 text-left">PER</th>
                   <th className="px-4 py-2 text-left">Tax Rate</th>
                   <th className="px-4 py-2 text-left">Tax Amount</th>
                   <th className="px-4 py-2 text-left">Total</th>
@@ -188,6 +189,11 @@ function PurchaseDetails() {
                     <td className="px-4 py-3">
                       ₹{product.unitPrice?.toLocaleString("en-IN")}
                     </td>
+                    <td className="px-4 py-3">
+                      
+                        {product.quantityType}
+                    
+                    </td>
                     <td className="px-4 py-3">{product.taxRate}%</td>
                     <td className="px-4 py-3">
                       ₹{product.taxAmount?.toLocaleString("en-IN")}
@@ -200,7 +206,7 @@ function PurchaseDetails() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan="4" className="px-4 py-2 text-right font-medium">
+                  <td colSpan="5" className="px-4 py-2 text-right font-medium">
                     Total Tax:
                   </td>
                   <td className="px-4 py-2 font-medium">
@@ -209,7 +215,7 @@ function PurchaseDetails() {
                   <td></td>
                 </tr>
                 <tr>
-                  <td colSpan="5" className="px-4 py-2 text-right font-medium">
+                  <td colSpan="6" className="px-4 py-2 text-right font-medium">
                     Grand Total:
                   </td>
                   <td className="px-4 py-2 font-bold">

@@ -50,6 +50,13 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const CategoriesContext = createContext({});
 
@@ -65,6 +72,7 @@ function CategoriesController({ children }) {
     try {
       const response = await axiosPost(CreateCategory, {
         name: value.categoryName,
+        quantityType: value.quantityType,
       }); 
       if (response.status === 201) {
         showNotification.success("Category added successfully");
@@ -79,11 +87,12 @@ function CategoriesController({ children }) {
     }
   };
 
-  const updateCategory = async (oldName, newName) => {
+  const updateCategory = async (oldName, newName, quantityType) => {
     try {
       const response = await axiosPut(UpdateCategory, {
         name: oldName,
         newName,
+        quantityType,
       });
       if (response.status === 200) {
         showNotification.success("Category updated successfully");
@@ -110,6 +119,15 @@ function CategoriesController({ children }) {
         </div>
       ),
     }),
+    columnHelper.accessor("quantityType", {
+      id: "quantityType",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Quantity Type" />
+      ),
+      cell: ({ row }) => (
+        <span className="font-semibold">{row.original.quantityType}</span>
+      ),
+    }),
     columnHelper.accessor("createdAt", {
       id: "createdOn",
       header: ({ column }) => (
@@ -126,6 +144,7 @@ function CategoriesController({ children }) {
           resolver: zodResolver(categoryFormSchema),
           defaultValues: {
             categoryName: row.original.name,
+            quantityType: row.original.quantityType || "",
           },
         });
 
@@ -133,12 +152,17 @@ function CategoriesController({ children }) {
           if (open) {
             form.reset({
               categoryName: row.original.name,
+              quantityType: row.original.quantityType || "",
             });
           }
-        }, [open, row.original.name, form]);
+        }, [open, row.original.name, row.original.quantityType, form]);
 
         const onSubmitEdit = async (values) => {
-          await updateCategory(row.original.name, values.categoryName);
+          await updateCategory(
+            row.original.name,
+            values.categoryName,
+            values.quantityType
+          );
           setOpen(false);
           form.reset();
         };
@@ -176,7 +200,7 @@ function CategoriesController({ children }) {
                 <DialogHeader>
                   <DialogTitle>Edit Category</DialogTitle>
                   <DialogDescription>
-                    Make changes to the category name.
+                    Make changes to the category name and quantity type.
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -192,6 +216,30 @@ function CategoriesController({ children }) {
                           <FormLabel>Category Name</FormLabel>
                           <FormControl>
                             <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="quantityType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Quantity Type</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="PCS">PCS</SelectItem>
+                                <SelectItem value="KG">KG</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -260,6 +308,9 @@ function CategoriesController({ children }) {
 const categoryFormSchema = z.object({
   categoryName: z.string().min(2, {
     message: "Category name must be at least 2 characters.",
+  }),
+  quantityType: z.enum(["PCS", "KG"], {
+    errorMap: () => ({ message: "Quantity type must be either PCS or KG." }),
   }),
 });
 

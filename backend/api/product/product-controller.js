@@ -341,6 +341,7 @@ const fetchAllProduct = asyncHandler(async (req, res, next) => {
           discountType: "$discountType",
           discountValue: "$discountValue",
           category: { $arrayElemAt: ["$category.name", 0] },
+          quantityType : {$arrayElemAt: ["$category.quantityType", 0]},
           taxRate: { $arrayElemAt: ["$taxRate.percent", 0] },
         },
       },
@@ -385,6 +386,7 @@ const fetchProductDropdown = asyncHandler(async (req, res, next) => {
           name: "$name",
           skuCode: "$skuCode",
           category: { $arrayElemAt: ["$category.name", 0] },
+          quantityType : {$arrayElemAt: ["$category.quantityType", 0]},
         }
       }
     },
@@ -484,6 +486,7 @@ const fetchProductDropdownForInvoice = asyncHandler(async (req, res, next) => {
             name: "$name",
             skuCode: "$skuCode",
             category: { $arrayElemAt: ["$category.name", 0] },
+            quantityType : {$arrayElemAt: ["$category.quantityType", 0]},
             taxRate: { $arrayElemAt: ["$tax.percent", 0] },
             discountType: "$discountType",
             discountValue: "$discountValue",

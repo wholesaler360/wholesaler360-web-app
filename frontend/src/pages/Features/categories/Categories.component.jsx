@@ -33,10 +33,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const addCategorySchema = z.object({
   categoryName: z.string().min(2, {
     message: "Category name must be at least 2 characters.",
+  }),
+  quantityType: z.enum(["PCS", "KG"], {
+    errorMap: () => ({ message: "Quantity type must be either PCS or KG." }),
   }),
 });
 
@@ -60,7 +70,9 @@ function CategoriesComponent() {
           setData([]); // Ensure data is always an array
         }
       } catch (error) {
-        showNotification.error(error.response?.data?.message || "Failed to fetch categories");
+        showNotification.error(
+          error.response?.data?.message || "Failed to fetch categories"
+        );
         setData([]); // Set empty array on error
       } finally {
         setIsLoading(false);
@@ -73,6 +85,7 @@ function CategoriesComponent() {
     resolver: zodResolver(addCategorySchema),
     defaultValues: {
       categoryName: "",
+      quantityType: "",
     },
   });
 
@@ -140,6 +153,30 @@ function CategoriesComponent() {
                         <FormLabel>Category Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="quantityType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quantity Type</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PCS">PCS</SelectItem>
+                              <SelectItem value="KG">KG</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

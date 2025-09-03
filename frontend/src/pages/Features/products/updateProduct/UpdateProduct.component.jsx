@@ -330,7 +330,7 @@ function UpdateProductComponent() {
                                     key={category.name}
                                     value={category.name}
                                   >
-                                    {category.name}
+                                    {category.name} ({category.quantityType})
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -346,7 +346,7 @@ function UpdateProductComponent() {
                         name="salePrice"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Sale Price</FormLabel>
+                            <FormLabel>Default Sale Price Per PCS/KG</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <span className="absolute left-3 top-2.5 text-gray-500">

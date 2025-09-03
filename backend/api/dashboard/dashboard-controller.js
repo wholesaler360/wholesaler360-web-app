@@ -190,7 +190,7 @@ const getData = asyncHandler(async (req, res, next) => {
 });
 
 const getAlertProduct = asyncHandler(async (req, res, next) => {
-    const alertProducts = await Inventory.aggregate([
+    let alertProducts = await Inventory.aggregate([
         {
             $lookup: {
                 from: "products",
@@ -201,13 +201,11 @@ const getAlertProduct = asyncHandler(async (req, res, next) => {
         },
         {
             $addFields: {
-
                 productName : { $arrayElemAt: ["$product.name", 0] },
                 alert: {
-                        $lte: ["$totalQuantity", { $arrayElemAt: ["$product.alertQuantity", 0] }]
+                    $lte: ["$totalQuantity", { $arrayElemAt: ["$product.alertQuantity", 0] }]
                 },
                 quantity : "$totalQuantity"
-                
             }
         },
         {
@@ -219,6 +217,14 @@ const getAlertProduct = asyncHandler(async (req, res, next) => {
             }
         }
     ]);
+
+    // Round off quantity to 3 decimals only if it's a float
+    alertProducts = alertProducts.map(prod => ({
+        ...prod,
+        quantity: Number.isInteger(prod.quantity)
+            ? prod.quantity
+            : Number(parseFloat(prod.quantity).toFixed(3))
+    }));
 
     if(!alertProducts?.length) {
         return res.status(200).json(ApiResponse.successRead([],"No alert products found"));
@@ -389,7 +395,7 @@ const getFinancialMetrics = asyncHandler(async (req, res, next) => {
                         totalQuantity: { $sum: "$batchDetails.currentQuantity" }
                     }
                 },
-            ]),
+    ]),
 
             Purchase.aggregate([
                 {

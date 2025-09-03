@@ -85,6 +85,18 @@ function ProductsController({ children }) {
       ),
     }),
 
+    // PER column for quantityType (before alertQuantity)
+    columnHelper.accessor("quantityType", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="PER" />
+      ),
+      cell: ({ getValue }) => (
+        <span className="text-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-800 ring-1 ring-inset ring-purple-600/20">
+          {getValue()}
+        </span>
+      ),
+    }),
+
     columnHelper.accessor("alertQuantity", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Alert Qty" />

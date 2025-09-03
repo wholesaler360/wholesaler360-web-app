@@ -75,14 +75,14 @@ const createInvoice = asyncHandler(async (req, res, next) => {
         }
 
         // Validate products
-
         const productIds = [];
         for (const element of products) {
             if (
                 element.id &&
                 element.quantity > 0 &&
                 element.unitPrice > 0 &&
-                ( element.taxRate >= 0 && element.taxRate <= 100 )
+                element.taxRate >= 0 &&
+                element.taxRate <= 100
             ) {
                 productIds.push(element.id);
             } else {
@@ -94,34 +94,53 @@ const createInvoice = asyncHandler(async (req, res, next) => {
 
         const fetchedProducts = await Product.find(
             { _id: { $in: productIds }, isProductDeleted: false },
-            { _id : 1, discountType: 1, discountValue: 1 }
-        ).session(session);
+            { _id: 1, discountType: 1, discountValue: 1, category: 1 }
+        ).populate("category", "quantityType").session(session);
 
-        if (fetchedProducts.length !== products.length ) {
+        if (fetchedProducts.length !== products.length) {
             await session.abortTransaction();
             session.endSession();
             return next(ApiError.validationFailed("Invalid product data"));
         }
 
-        // Calculate tax and amount for each product and total tax, total amount and total discount
+        // Calculate tax and amount for each product and total tax, total amount, and total discount
 
-        let totalDiscount = 0, totalTax = 0, totalAmount = 0;
+        let totalDiscount = 0,
+            totalTax = 0,
+            totalAmount = 0;
         products.forEach((product) => {
+            const fetchedProduct = fetchedProducts.find(
+                (p) => p._id.toString() === product.id
+            );
+            const quantityType = fetchedProduct.category.quantityType;
 
-            const fetchedProduct = fetchedProducts.find((p) => p._id.toString() === product.id);
-            const basePrice = product.unitPrice * product.quantity;
-            
-            product.discountAmount = fetchedProduct.discountType === "fixed" ?
-                fetchedProduct.discountValue:
-                parseFloat((basePrice * fetchedProduct.discountValue / 100).toFixed(2));
+            // Format quantity based on quantityType
+            const formattedQuantity =
+                quantityType === "KG"
+                    ? parseFloat(product.quantity.toFixed(3))
+                    : Math.floor(product.quantity);
 
-            product.taxAmount = parseFloat(((basePrice - product.discountAmount) * product.taxRate / 100).toFixed(2));
-            product.amount = parseFloat((basePrice + product.taxAmount - product.discountAmount).toFixed(2));
-            
+            const basePrice = product.unitPrice * formattedQuantity;
+
+            product.discountAmount =
+                fetchedProduct.discountType === "fixed"
+                    ? fetchedProduct.discountValue
+                    : parseFloat(
+                        ((basePrice * fetchedProduct.discountValue) / 100).toFixed(2)
+                      );
+
+            product.taxAmount = parseFloat(
+              (((basePrice - product.discountAmount) * product.taxRate) / 100).toFixed(
+                2
+              )
+            );
+            product.amount = parseFloat(
+              (basePrice + product.taxAmount - product.discountAmount).toFixed(2)
+            );
+
             totalDiscount += product.discountAmount;
             totalTax += product.taxAmount;
             totalAmount += product.amount;
-
         });
 
         if (initialPayment > totalAmount) {
@@ -285,7 +304,14 @@ const fetchInvoiceById = asyncHandler(async (req, res, next) => {
     try {
         const invoice = await Invoice.findById(invoiceId)
             .populate({ path: "customerId", select: "-_id name" })
-            .populate({ path: "products.id", select: "name" })
+            .populate({ 
+                path: "products.id", 
+                select: "name category",
+                populate: { 
+                    path: "category", 
+                    select: "quantityType" 
+                }
+            })
             .populate({ path: "bankDetails", select: "bankName accountNumber" })
             .populate({ path: "signature", select: "name designation" });
 

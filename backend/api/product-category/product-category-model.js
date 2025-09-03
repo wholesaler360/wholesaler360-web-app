@@ -9,6 +9,14 @@ const categorySchema = new Schema(
       lowercase: true,
       index: true,
     },
+    quantityType:{
+      type: String,
+      enum: ["PCS", "KG"],
+      required: true,
+      trim: true,
+      uppercase: true,
+      default: "PCS"
+    },
     isCategoryDeleted: {
       type: Boolean,
       default: false,

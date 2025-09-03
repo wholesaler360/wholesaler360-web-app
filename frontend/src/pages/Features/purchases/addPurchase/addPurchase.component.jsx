@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
+import WeighingPanel from "@/components/custom/WeighScale";
 
 function AddPurchaseComponent() {
   const {
@@ -46,13 +47,68 @@ function AddPurchaseComponent() {
 
   const watchTransactionType = form.watch("transactionType");
   const selectedProductIds = form.watch("products").map(product => product.id).filter(Boolean);
+  const [showWeighPanel, setShowWeighPanel] = useState(false);
+  const [weighProductIndex, setWeighProductIndex] = useState(null);
+  const [capturedWeightForWeighPanel, setCapturedWeightForWeighPanel] = useState(0);
 
   useEffect(() => {
     fetchVendors();
     fetchProducts();
   }, [fetchVendors, fetchProducts]);
 
+  // Watch products array for changes and update quantity defaults
+  useEffect(() => {
+    const productsInForm = form.getValues("products");
+    productsInForm.forEach((product, index) => {
+      const selectedProduct = products.find(p => p.id === product.id);
+      const quantityType = selectedProduct?.quantityType || "PCS";
+      const rawQuantity = product.quantity;
+
+      // Set default quantity based on quantityType
+      if (selectedProduct) {
+        if (quantityType === "KG" && rawQuantity !== 0) {
+          form.setValue(`products.${index}.quantity`, 0);
+        }
+        if (quantityType !== "KG" && rawQuantity !== 1) {
+          form.setValue(`products.${index}.quantity`, 1);
+        }
+      }
+    });
+    // eslint-disable-next-line
+  }, [form.watch("products"), products]);
+
+  // Validate quantity before submit (PCS: >=1, KG: >0)
+  const validateQuantity = (index, value) => {
+    const productId = form.getValues(`products.${index}.id`);
+    const selectedProduct = products.find(p => p.id === productId);
+    const quantityType = selectedProduct?.quantityType || "PCS";
+    const quantity = Number(value);
+
+    if (quantityType === "PCS" && quantity < 1) {
+      form.setError(`products.${index}.quantity`, {
+        type: "manual",
+        message: "Quantity must be at least 1 for PCS products",
+      });
+      return false;
+    }
+    if (quantityType === "KG" && quantity <= 0) {
+      form.setError(`products.${index}.quantity`, {
+        type: "manual",
+        message: "Quantity must be greater than 0 for KG products",
+      });
+      return false;
+    }
+    form.clearErrors(`products.${index}.quantity`);
+    return true;
+  };
+
   const onSubmit = async (values) => {
+    // Validate all product quantities before sending request
+    const invalidQuantity = values.products.some(
+      (product, index) => !validateQuantity(index, product.quantity)
+    );
+    if (invalidQuantity) return;
+
     try {
       // Convert string values to numbers for the products array
       const formattedValues = {
@@ -69,6 +125,32 @@ function AddPurchaseComponent() {
     } catch (error) {
       // Error is handled in createPurchase
     }
+  };
+
+  // Handler to open weigh panel for a specific product row
+  const handleOpenWeighPanel = (index) => {
+    const selectedProductId = form.watch(`products.${index}.id`);
+    const selectedProduct = products.find(p => p.id === selectedProductId);
+    const quantityType = selectedProduct?.quantityType || "PCS";
+    // For KG products, initialize capturedWeight with current quantity (default 0)
+    if (quantityType === "KG") {
+      const currentQty = parseFloat(form.watch(`products.${index}.quantity`)) || 0;
+      setWeighProductIndex(index);
+      setCapturedWeightForWeighPanel(currentQty); // new state for capturedWeight
+      setShowWeighPanel(true);
+    } else {
+      setWeighProductIndex(index);
+      setCapturedWeightForWeighPanel(null);
+      setShowWeighPanel(true);
+    }
+  };
+
+  // Handler to set quantity from weigh panel
+  const handleWeighSave = (capturedWeight) => {
+    form.setValue(`products.${weighProductIndex}.quantity`, capturedWeight);
+    setShowWeighPanel(false);
+    setWeighProductIndex(null);
+    setCapturedWeightForWeighPanel(0);
   };
 
   return (
@@ -253,7 +335,12 @@ function AddPurchaseComponent() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        append({ id: "", quantity: 1, unitPrice: 0, taxRate: 0 })
+                        append({
+                          id: "",
+                          quantity: 1,
+                          unitPrice: 0,
+                          taxRate: 0
+                        })
                       }
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -267,7 +354,8 @@ function AddPurchaseComponent() {
                         <tr className="border-b bg-gray-50/50 dark:bg-zinc-800/50">
                           <th className="p-3 text-left font-medium">Product</th>
                           <th className="p-3 text-left font-medium">Quantity</th>
-                          <th className="p-3 text-left font-medium">Unit Price</th>
+                          <th className="p-3 text-left font-medium">Price</th>
+                          <th className="p-3 text-left font-medium">PER</th>
                           <th className="p-3 text-left font-medium">Tax Rate (%)</th>
                           <th className="p-3 text-left font-medium">Total Amount</th>
                           <th className="p-3 text-right font-medium">Actions</th>
@@ -275,10 +363,17 @@ function AddPurchaseComponent() {
                       </thead>
                       <tbody>
                         {fields.map((field, index) => {
-                          const quantity = form.watch(`products.${index}.quantity`) || 0;
+                          const selectedProductId = form.watch(`products.${index}.id`);
+                          const selectedProduct = products.find(p => p.id === selectedProductId);
+                          const quantityType = selectedProduct?.quantityType || "PCS";
+                          const isKG = quantityType === "KG";
+                          let rawQuantity = form.watch(`products.${index}.quantity`);
+
+                          const quantity = isKG
+                            ? parseFloat(rawQuantity || 0)
+                            : parseInt(rawQuantity || 1, 10);
                           const unitPrice = form.watch(`products.${index}.unitPrice`) || 0;
                           const taxRate = form.watch(`products.${index}.taxRate`) || 0;
-                          
                           const subtotal = quantity * unitPrice;
                           const taxAmount = (subtotal * taxRate) / 100;
                           const total = subtotal + taxAmount;
@@ -292,7 +387,15 @@ function AddPurchaseComponent() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <Select
-                                        onValueChange={field.onChange}
+                                        onValueChange={value => {
+                                          field.onChange(value);
+                                          const selected = products.find(p => p.id === value);
+                                          if (selected?.quantityType === "KG") {
+                                            form.setValue(`products.${index}.quantity`, 0);
+                                          } else {
+                                            form.setValue(`products.${index}.quantity`, 1);
+                                          }
+                                        }}
                                         value={field.value}
                                       >
                                         <FormControl>
@@ -318,7 +421,7 @@ function AddPurchaseComponent() {
                                   )}
                                 />
                               </td>
-                              <td className="p-3">
+                              <td className="p-3 flex items-center gap-2">
                                 <FormField
                                   control={form.control}
                                   name={`products.${index}.quantity`}
@@ -326,12 +429,20 @@ function AddPurchaseComponent() {
                                     <FormItem>
                                       <FormControl>
                                         <Input
-                                          type="number"
+                                          type={isKG ? "number" : "number"}
+                                          step={isKG ? "0.001" : "1"}
                                           placeholder="Qty"
                                           {...field}
+                                          value={isKG ? (field.value || 0) : (field.value || 1)}
                                           onChange={(e) => {
                                             const value = e.target.value;
-                                            field.onChange(value === "" ? "" : parseInt(value, 10));
+                                            field.onChange(
+                                              value === ""
+                                                ? (isKG ? 0 : 1)
+                                                : isKG
+                                                  ? parseFloat(value)
+                                                  : parseInt(value, 10)
+                                            );
                                           }}
                                           className="w-24"
                                         />
@@ -340,6 +451,16 @@ function AddPurchaseComponent() {
                                     </FormItem>
                                   )}
                                 />
+                                {isKG && (
+                                  <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleOpenWeighPanel(index)}
+                                  >
+                                    Weight
+                                  </Button>
+                                )}
                               </td>
                               <td className="p-3">
                                 <FormField
@@ -363,6 +484,14 @@ function AddPurchaseComponent() {
                                       <FormMessage />
                                     </FormItem>
                                   )}
+                                />
+                              </td>
+                              {/* PER column - uneditable, auto-filled */}
+                              <td className="p-1 w-16">
+                                <Input
+                                  value={quantityType}
+                                  disabled
+                                  className="text-center"
                                 />
                               </td>
                               <td className="p-3">
@@ -462,6 +591,27 @@ function AddPurchaseComponent() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Weigh Panel Modal */}
+      {showWeighPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-6">
+            <WeighingPanel
+              onSave={handleWeighSave}
+              initialCapturedWeight={capturedWeightForWeighPanel}
+            />
+            <div className="flex justify-end mt-4">
+              <Button variant="outline" onClick={() => {
+                setShowWeighPanel(false);
+                setWeighProductIndex(null);
+                setCapturedWeightForWeighPanel(0);
+              }}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

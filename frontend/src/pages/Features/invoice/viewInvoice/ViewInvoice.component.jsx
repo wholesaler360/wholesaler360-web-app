@@ -457,6 +457,9 @@ function ViewInvoiceComponent() {
                           Rate
                         </th>
                         <th scope="col" className="px-4 py-3 text-right">
+                          PER
+                        </th>
+                        <th scope="col" className="px-4 py-3 text-right">
                           Tax
                         </th>
                         <th scope="col" className="px-4 py-3 text-right">
@@ -482,8 +485,10 @@ function ViewInvoiceComponent() {
                           </td>
                           <td className="px-4 py-3 text-right">
                             ₹
-                            {(product.amount - product.taxAmount) /
-                              product.quantity.toFixed(2)}
+                            {((product.amount - product.taxAmount) / product.quantity).toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {product.id?.category?.quantityType || "PCS"}
                           </td>
                           <td className="px-4 py-3 text-right">
                             ₹{product.taxAmount.toFixed(2)}

@@ -5,19 +5,25 @@ import {Category} from './product-category-model.js'
 import {Product} from '../product/product-model.js'
 
 const createCategory = asyncHandler(async(req,res,next)=>{
-    let {name} = req.body;
+    let {name, quantityType} = req.body;
     if(!(name?.trim())){
         return next(ApiError.validationFailed("Category name is required"));
     }
-    
+
+    if(!(quantityType?.trim())){
+        return next(ApiError.validationFailed("Category quantity type is required"));
+    }
+
     name = name.trim().toLowerCase();
+    quantityType = quantityType.trim().toUpperCase();
+
     const existingCategory = await Category.findOne({name , isCategoryDeleted:false});
     if(existingCategory ){
         return next(ApiError.valueAlreadyExists("Category with this name already exists"));
     }
 
     try {
-      const category = new Category({ name });
+      const category = new Category({ name , quantityType });
       await category.save();
       return res
         .status(201)
@@ -30,26 +36,30 @@ const createCategory = asyncHandler(async(req,res,next)=>{
 });
 
 const updateCategory = asyncHandler(async(req,res,next)=>{
-    let {name , newName} = req.body;
-    if(!(name?.trim()) || !(newName?.trim())){
-        return next(ApiError.validationFailed("Category name is required"));
+    let {name , newName, quantityType} = req.body;
+    if(!(name?.trim()) || !(quantityType?.trim())){
+        return next(ApiError.validationFailed("Category name and quantity type are required"));
     }
 
     name = name.trim().toLowerCase();
-    newName = newName.trim().toLowerCase();
+    newName = newName?.trim()?.toLowerCase() ? newName.trim().toLowerCase() : name;
+    quantityType = quantityType.trim().toUpperCase();
 
     const category = await Category.findOne({name , isCategoryDeleted:false});
     if(!category){
         return next(ApiError.dataNotFound("Category not found"));
     }
 
-    const existingCategory = await Category.findOne({name:newName , isCategoryDeleted:false});
-    if(existingCategory){
-        return next(ApiError.valueAlreadyExists("Category with this name already exists"));
+    if(name !== newName){
+        const existingCategory = await Category.findOne({name:newName , isCategoryDeleted:false});
+        if(existingCategory){
+            return next(ApiError.valueAlreadyExists("Category with this name already exists"));
+        }
     }
 
     try {
       category.name = newName;
+      category.quantityType = quantityType;
       await category.save();
       return res
         .status(200)
@@ -117,6 +127,7 @@ const getAllCategories = asyncHandler(async(req,res,next)=>{
                     $addFields: {
                         categoryInfo: {
                             name: "$name",
+                            quantityType: "$quantityType",
                             createdAt: "$createdAt"
                         }
                     }

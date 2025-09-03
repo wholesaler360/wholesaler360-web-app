@@ -133,31 +133,40 @@ const fetch = asyncHandler(async (req, res, next) => {
     let { purchaseId } = req.params;
     purchaseId = new mongoose.Types.ObjectId(purchaseId);
 
-    const purchase = await Purchase.findById({_id : purchaseId , isDeleted : false})
-    .populate(
-        {
-            path : "vendorId",
-            select : "-_id name"
-        }
-    
-    )
-    .populate(
-        {
-            path : "products.id",
-            select : "-_id name"
-        }
-    )
-    .populate(
-        {
-            path : "createdBy",
-            select : "-_id name"
-        }
-    )
-    .select("-isDeleted -__v -updatedAt -createdAt");
+    // Populate products.id and products.id.category to get quantityType
+    const purchase = await Purchase.findById({ _id: purchaseId, isDeleted: false })
+        .populate({
+            path: "vendorId",
+            select: "-_id name"
+        })
+        .populate({
+            path: "products.id",
+            select: "-_id name category",
+            populate: {
+                path: "category",
+                select: "quantityType -_id"
+            }
+        })
+        .populate({
+            path: "createdBy",
+            select: "-_id name"
+        })
+        .select("-isDeleted -__v -updatedAt -createdAt");
+
     if (!purchase) {
         return next(ApiError.dataNotFound("Purchase not found"));
     }
-    res.status(200).json(ApiResponse.successRead(purchase, "Purchase fetched successfully"));
+
+    // Attach quantityType to each product in the response
+    const purchaseObj = purchase.toObject();
+    if (Array.isArray(purchaseObj.products)) {
+        purchaseObj.products = purchaseObj.products.map(prod => ({
+            ...prod,
+            quantityType: prod.id?.category?.quantityType || ""
+        }));
+    }
+
+    res.status(200).json(ApiResponse.successRead(purchaseObj, "Purchase fetched successfully"));
 })
 
 const fetchAll = asyncHandler(async (req, res, next) => {

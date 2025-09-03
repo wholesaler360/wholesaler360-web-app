@@ -7,26 +7,44 @@ import * as z from "zod";
 
 export const AddPurchaseContext = createContext({});
 
+const productSchema = z.object({
+  id: z.string().min(1, "Product is required"),
+  quantity: z.preprocess(
+    (val) => Number(val),
+    z.number()
+  ),
+  unitPrice: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0.01, "Unit price must be greater than 0")
+  ),
+  taxRate: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Tax rate must be 0 or greater")
+  ),
+  quantityType: z.string().optional(),
+}).refine(
+  (data) => {
+    if (data.quantityType === "KG") return data.quantity > 0;
+    if (data.quantityType === "PCS") return data.quantity >= 1;
+    return true; // allow if quantityType is not set
+  },
+  {
+    message: (data) =>
+      data.quantityType === "KG"
+        ? "Quantity must be greater than 0 for KG products"
+        : data.quantityType === "PCS"
+        ? "Quantity must be at least 1 for PCS products"
+        : "Invalid quantity value",
+    path: ["quantity"],
+  }
+);
+
 const purchaseSchema = z.object({
   purchaseDate: z.date({
     required_error: "Purchase date is required",
   }),
   vendorId: z.string().min(1, "Vendor is required"),
-  products: z.array(z.object({
-    id: z.string().min(1, "Product is required"),
-    quantity: z.preprocess(
-      (val) => Number(val),
-      z.number().min(1, "Quantity must be at least 1")
-    ),
-    unitPrice: z.preprocess(
-      (val) => Number(val),
-      z.number().min(0.01, "Unit price must be greater than 0")
-    ),
-    taxRate: z.preprocess(
-      (val) => Number(val),
-      z.number().min(0, "Tax rate must be 0 or greater")
-    ),
-  })).min(1, "At least one product is required"),
+  products: z.array(productSchema).min(1, "At least one product is required"),
   transactionType: z.enum(["debit", "credit"]),
   paymentMode: z.enum(["cash", "cheque", "upi", "online", "N/A"]).optional(),
   initialPayment: z.number().min(0).optional(),
