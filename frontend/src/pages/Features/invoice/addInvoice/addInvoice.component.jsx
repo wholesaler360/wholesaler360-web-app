@@ -79,7 +79,8 @@ const AddInvoiceComponent = () => {
   const [shouldPrintAfterCreate, setShouldPrintAfterCreate] = useState(false);
   const [showWeighPanel, setShowWeighPanel] = useState(false);
   const [weighProductIndex, setWeighProductIndex] = useState(null);
-  const [capturedWeightForWeighPanel, setCapturedWeightForWeighPanel] = useState(0);
+  const [capturedWeightForWeighPanel, setCapturedWeightForWeighPanel] =
+    useState(0);
 
   const form = useForm({
     resolver: zodResolver(invoiceSchema),
@@ -137,6 +138,19 @@ const AddInvoiceComponent = () => {
     fetchSignatures();
   }, [fetchCustomers, fetchProducts, fetchBankDetails, fetchSignatures]);
 
+  // One-time hint tooltip logic
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem("wh360_hint_invoice_add_shown");
+      if (!seen) {
+        setShowFirstTimeHint(true);
+        // auto-hide after some seconds
+        const t = setTimeout(() => setShowFirstTimeHint(false), 6000);
+        return () => clearTimeout(t);
+      }
+    } catch {}
+  }, []);
+
   // Auto-fill bank details when available
   useEffect(() => {
     if (bankDetails?._id && form.getValues("bankDetails") === "") {
@@ -150,7 +164,8 @@ const AddInvoiceComponent = () => {
     const selectedProduct = products.find((p) => p.id === selectedProductId);
     const quantityType = selectedProduct?.quantityType || "PCS";
     if (quantityType === "KG") {
-      const currentQty = parseFloat(form.watch(`products.${index}.quantity`)) || 0;
+      const currentQty =
+        parseFloat(form.watch(`products.${index}.quantity`)) || 0;
       setWeighProductIndex(index);
       setCapturedWeightForWeighPanel(currentQty);
       setShowWeighPanel(true);
@@ -167,12 +182,17 @@ const AddInvoiceComponent = () => {
 
   // Update product details when selected
   const handleProductChange = (index, productId) => {
-    const selectedProduct = products.find((product) => product.id === productId);
+    const selectedProduct = products.find(
+      (product) => product.id === productId
+    );
     if (selectedProduct) {
       const defaultTaxRate = selectedProduct.taxRate || 0;
 
       // Calculate weighted average price
-      const avgPrice = getWeightedAveragePrice(selectedProduct, selectedProduct.totalQuantity);
+      const avgPrice = getWeightedAveragePrice(
+        selectedProduct,
+        selectedProduct.totalQuantity
+      );
 
       // Format totalAvailable based on quantityType
       const formattedTotalAvailable =
@@ -182,7 +202,10 @@ const AddInvoiceComponent = () => {
 
       form.setValue(`products.${index}.unitPrice`, avgPrice);
       form.setValue(`products.${index}.taxRate`, defaultTaxRate);
-      form.setValue(`products.${index}.totalAvailable`, formattedTotalAvailable);
+      form.setValue(
+        `products.${index}.totalAvailable`,
+        formattedTotalAvailable
+      );
 
       // Set default quantity based on quantityType
       if (selectedProduct.quantityType === "KG") {
@@ -194,7 +217,8 @@ const AddInvoiceComponent = () => {
   };
 
   const validateQuantity = (index, value) => {
-    const totalAvailable = form.getValues(`products.${index}.totalAvailable`) || 0;
+    const totalAvailable =
+      form.getValues(`products.${index}.totalAvailable`) || 0;
     const quantity = Number(value);
     const productId = form.getValues(`products.${index}.id`);
     const selectedProduct = products.find((p) => p.id === productId);
@@ -328,6 +352,8 @@ const AddInvoiceComponent = () => {
       console.error("Error in submit:", error);
     }
   };
+
+  // Page-specific shortcuts removed to prevent conflicts with global navigation
 
   // Calculate grand total
   const grandTotal = form.watch("products").reduce((sum, product) => {
@@ -713,18 +739,28 @@ const AddInvoiceComponent = () => {
                       </thead>
                       <tbody>
                         {fields.map((field, index) => {
-                          const selectedProductId = form.watch(`products.${index}.id`);
-                          const selectedProduct = products.find((p) => p.id === selectedProductId);
-                          const quantityType = selectedProduct?.quantityType || "PCS";
+                          const selectedProductId = form.watch(
+                            `products.${index}.id`
+                          );
+                          const selectedProduct = products.find(
+                            (p) => p.id === selectedProductId
+                          );
+                          const quantityType =
+                            selectedProduct?.quantityType || "PCS";
                           const isKG = quantityType === "KG";
-                          const rawQuantity = form.watch(`products.${index}.quantity`);
-                          const totalAvailable = form.watch(`products.${index}.totalAvailable`) || 0;
+                          const rawQuantity = form.watch(
+                            `products.${index}.quantity`
+                          );
+                          const totalAvailable =
+                            form.watch(`products.${index}.totalAvailable`) || 0;
 
                           const quantity = isKG
                             ? parseFloat(rawQuantity || 0)
                             : parseInt(rawQuantity || 1, 10);
-                          const unitPrice = form.watch(`products.${index}.unitPrice`) || 0;
-                          const taxRate = form.watch(`products.${index}.taxRate`) || 0;
+                          const unitPrice =
+                            form.watch(`products.${index}.unitPrice`) || 0;
+                          const taxRate =
+                            form.watch(`products.${index}.taxRate`) || 0;
                           const subtotal = quantity * unitPrice;
                           const taxAmount = (subtotal * taxRate) / 100;
                           const total = subtotal + taxAmount;
@@ -754,7 +790,9 @@ const AddInvoiceComponent = () => {
                                             <Input
                                               placeholder="Search by name or SKU..."
                                               value={productSearch}
-                                              onChange={(e) => setProductSearch(e.target.value)}
+                                              onChange={(e) =>
+                                                setProductSearch(e.target.value)
+                                              }
                                             />
                                           </div>
                                           {filteredProducts
@@ -768,7 +806,9 @@ const AddInvoiceComponent = () => {
                                               <SelectItem
                                                 key={product.id}
                                                 value={product.id}
-                                                disabled={product.totalQuantity <= 0}
+                                                disabled={
+                                                  product.totalQuantity <= 0
+                                                }
                                               >
                                                 {product.name} (
                                                 {product.skuCode})
@@ -796,7 +836,11 @@ const AddInvoiceComponent = () => {
                                             step={isKG ? "0.001" : "1"}
                                             placeholder="Qty"
                                             {...field}
-                                            value={isKG ? (field.value || 0) : (field.value || 1)}
+                                            value={
+                                              isKG
+                                                ? field.value || 0
+                                                : field.value || 1
+                                            }
                                             onChange={(e) => {
                                               const value = e.target.value;
                                               field.onChange(
@@ -821,7 +865,9 @@ const AddInvoiceComponent = () => {
                                       type="button"
                                       variant="secondary"
                                       size="sm"
-                                      onClick={() => handleOpenWeighPanel(index)}
+                                      onClick={() =>
+                                        handleOpenWeighPanel(index)
+                                      }
                                     >
                                       Weight
                                     </Button>
@@ -1083,6 +1129,6 @@ const AddInvoiceComponent = () => {
       )}
     </div>
   );
-}
+};
 
 export default AddInvoiceComponent;

@@ -173,6 +173,11 @@ const data = {
       url: "#",
       icon: Send,
     },
+    {
+      title: "Shortcuts",
+      url: "/shortcuts",
+      icon: Command,
+    },
   ],
 };
 
