@@ -36,6 +36,35 @@ export const REPORT_TYPES = {
         },
       },
     ],
+    filters: [
+      {
+        key: "transactionType",
+        label: "Transaction Type",
+        type: "select",
+        options: [
+          { value: "credit", label: "Credit" },
+          { value: "debit", label: "Debit" },
+        ],
+      },
+      {
+        key: "paymentMode",
+        label: "Payment Mode",
+        type: "select",
+        options: [
+          { value: "cash", label: "Cash" },
+          { value: "cheque", label: "Cheque" },
+          { value: "upi", label: "UPI" },
+          { value: "online", label: "Online" },
+          { value: "N/A", label: "N/A" },
+        ],
+      },
+      {
+        key: "customerName",
+        label: "Customer",
+        type: "select",
+        dynamic: true,
+      },
+    ],
   },
   purchases: {
     label: "Purchases",
@@ -62,6 +91,35 @@ export const REPORT_TYPES = {
           const paid = data.reduce((s, r) => s + (Number(r.initialPayment) || 0), 0);
           return total - paid;
         },
+      },
+    ],
+    filters: [
+      {
+        key: "transactionType",
+        label: "Transaction Type",
+        type: "select",
+        options: [
+          { value: "credit", label: "Credit" },
+          { value: "debit", label: "Debit" },
+        ],
+      },
+      {
+        key: "paymentMode",
+        label: "Payment Mode",
+        type: "select",
+        options: [
+          { value: "cash", label: "Cash" },
+          { value: "cheque", label: "Cheque" },
+          { value: "upi", label: "UPI" },
+          { value: "online", label: "Online" },
+          { value: "N/A", label: "N/A" },
+        ],
+      },
+      {
+        key: "vendorName",
+        label: "Vendor",
+        type: "select",
+        dynamic: true,
       },
     ],
   },
@@ -113,6 +171,43 @@ export const REPORT_TYPES = {
         },
       },
     ],
+    filters: [
+      {
+        key: "transactionType",
+        label: "Transaction Type",
+        type: "select",
+        options: [
+          { value: "credit", label: "Credit" },
+          { value: "debit", label: "Debit" },
+        ],
+      },
+      {
+        key: "paymentMode",
+        label: "Payment Mode",
+        type: "select",
+        options: [
+          { value: "cash", label: "Cash" },
+          { value: "cheque", label: "Cheque" },
+          { value: "upi", label: "UPI" },
+          { value: "online", label: "Online" },
+          { value: "N/A", label: "N/A" },
+        ],
+      },
+      {
+        key: "paymentSource",
+        label: "Payment Source",
+        type: "select",
+        options: [
+          { value: "customer", label: "Customer" },
+          { value: "vendor", label: "Vendor" },
+        ],
+        filterFn: (row, value) => {
+          if (value === "customer") return Boolean(row.customerName);
+          if (value === "vendor") return Boolean(row.vendorName);
+          return true;
+        },
+      },
+    ],
   },
   customers: {
     label: "Customers",
@@ -131,6 +226,22 @@ export const REPORT_TYPES = {
       { label: "Total Receivable", type: "sum", key: "receivableBalance" },
       { label: "Total Invoices", type: "sum", key: "totalNoOFInvoice" },
     ],
+    filters: [
+      {
+        key: "balanceStatus",
+        label: "Balance Status",
+        type: "select",
+        options: [
+          { value: "with_balance", label: "With Balance" },
+          { value: "zero", label: "Zero Balance" },
+        ],
+        filterFn: (row, value) => {
+          if (value === "with_balance") return Number(row.receivableBalance) > 0;
+          if (value === "zero") return Number(row.receivableBalance) === 0;
+          return true;
+        },
+      },
+    ],
   },
   vendors: {
     label: "Vendors",
@@ -146,6 +257,22 @@ export const REPORT_TYPES = {
     summaryFields: [
       { label: "Total Vendors", type: "count" },
       { label: "Total Payable", type: "sum", key: "payableBalance" },
+    ],
+    filters: [
+      {
+        key: "balanceStatus",
+        label: "Balance Status",
+        type: "select",
+        options: [
+          { value: "with_balance", label: "With Balance" },
+          { value: "zero", label: "Zero Balance" },
+        ],
+        filterFn: (row, value) => {
+          if (value === "with_balance") return Number(row.payableBalance) > 0;
+          if (value === "zero") return Number(row.payableBalance) === 0;
+          return true;
+        },
+      },
     ],
   },
   products: {
@@ -178,6 +305,14 @@ export const REPORT_TYPES = {
         format: "number",
       },
     ],
+    filters: [
+      {
+        key: "category",
+        label: "Category",
+        type: "select",
+        dynamic: true,
+      },
+    ],
   },
   stock: {
     label: "Stock",
@@ -199,6 +334,29 @@ export const REPORT_TYPES = {
         compute: (data) =>
           data.filter((r) => !r.totalQuantity || Number(r.totalQuantity) === 0).length,
         format: "number",
+      },
+    ],
+    filters: [
+      {
+        key: "category",
+        label: "Category",
+        type: "select",
+        dynamic: true,
+      },
+      {
+        key: "stockLevel",
+        label: "Stock Level",
+        type: "select",
+        options: [
+          { value: "in_stock", label: "In Stock" },
+          { value: "out_of_stock", label: "Out of Stock" },
+        ],
+        filterFn: (row, value) => {
+          if (value === "in_stock") return Number(row.totalQuantity) > 0;
+          if (value === "out_of_stock")
+            return !row.totalQuantity || Number(row.totalQuantity) === 0;
+          return true;
+        },
       },
     ],
   },

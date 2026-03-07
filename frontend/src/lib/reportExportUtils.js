@@ -92,7 +92,7 @@ function getCompanyHtml() {
   };
 }
 
-function buildReportHtml(data, config, title, dateRange) {
+function buildReportHtml(data, config, title, dateRange, activeFilters = []) {
   const generatedDate = new Date().toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
@@ -125,6 +125,13 @@ function buildReportHtml(data, config, title, dateRange) {
         })
       : fromStr;
     dateRangeStr = `${fromStr} — ${toStr}`;
+  }
+
+  let filtersStr = "";
+  if (activeFilters.length > 0) {
+    filtersStr = activeFilters
+      .map((f) => `${f.label}: ${f.value}`)
+      .join(" | ");
   }
 
   const summaryHtml = summaryItems.length
@@ -204,6 +211,7 @@ function buildReportHtml(data, config, title, dateRange) {
         <div class="report-title">${escapeHtml(config.label)} Report</div>
         <div class="report-meta">
           ${dateRangeStr ? `Period: ${escapeHtml(dateRangeStr)}<br/>` : ""}
+          ${filtersStr ? `Filters: ${escapeHtml(filtersStr)}<br/>` : ""}
           Generated: ${generatedDate} at ${generatedTime}<br/>
           Records: ${rows.length}
         </div>
@@ -244,7 +252,7 @@ function buildReportHtml(data, config, title, dateRange) {
 
 // ── CSV Export ────────────────────────────────────────────────────
 
-export function exportReportToCSV(data, config, filename = "report") {
+export function exportReportToCSV(data, config, filename = "report", activeFilters = []) {
   const summaryItems = computeSummary(data, config.summaryFields);
   const headers = config.columns.map((col) => col.header);
   const rows = data.map((row) =>
@@ -258,6 +266,15 @@ export function exportReportToCSV(data, config, filename = "report") {
     csvLines.push("--- Summary ---");
     summaryItems.forEach((item) => {
       csvLines.push(`${escapeCsvField(item.label)},${escapeCsvField(item.value)}`);
+    });
+    csvLines.push("");
+  }
+
+  // Applied filters section
+  if (activeFilters.length > 0) {
+    csvLines.push("--- Applied Filters ---");
+    activeFilters.forEach((f) => {
+      csvLines.push(`${escapeCsvField(f.label)},${escapeCsvField(f.value)}`);
     });
     csvLines.push("");
   }
@@ -285,8 +302,8 @@ export function exportReportToCSV(data, config, filename = "report") {
 
 // ── Print ─────────────────────────────────────────────────────────
 
-export function printReport(data, config, title = "Report", dateRange) {
-  const html = buildReportHtml(data, config, title, dateRange);
+export function printReport(data, config, title = "Report", dateRange, activeFilters = []) {
+  const html = buildReportHtml(data, config, title, dateRange, activeFilters);
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
   printWindow.document.write(
@@ -297,8 +314,8 @@ export function printReport(data, config, title = "Report", dateRange) {
 
 // ── PDF Export ─────────────────────────────────────────────────────
 
-export function exportReportToPDF(data, config, title = "Report", dateRange) {
-  const html = buildReportHtml(data, config, title, dateRange);
+export function exportReportToPDF(data, config, title = "Report", dateRange, activeFilters = []) {
+  const html = buildReportHtml(data, config, title, dateRange, activeFilters);
 
   const container = document.createElement("div");
   container.innerHTML = html;

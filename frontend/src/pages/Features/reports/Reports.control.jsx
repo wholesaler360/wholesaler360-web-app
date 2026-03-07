@@ -16,6 +16,8 @@ function ReportsController({ children }) {
   const [rawData, setRawData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
+  const [filterValues, setFilterValues] = useState({});
+  const [activePreset, setActivePreset] = useState("custom");
 
   const fetchReportData = useCallback(async () => {
     if (!selectedType) return;
@@ -42,20 +44,85 @@ function ReportsController({ children }) {
     }
   }, [selectedType]);
 
+  const dynamicFilterOptions = useMemo(() => {
+    const config = REPORT_TYPES[selectedType];
+    if (!config?.filters) return {};
+
+    const optionsMap = {};
+    config.filters.forEach((filter) => {
+      if (filter.dynamic) {
+        const uniqueValues = [
+          ...new Set(
+            rawData
+              .map((row) => row[filter.key])
+              .filter((v) => v !== null && v !== undefined && v !== ""),
+          ),
+        ].sort();
+        optionsMap[filter.key] = uniqueValues.map((v) => ({
+          value: String(v),
+          label: String(v),
+        }));
+      }
+    });
+    return optionsMap;
+  }, [rawData, selectedType]);
+
   const filteredData = useMemo(() => {
     const config = REPORT_TYPES[selectedType];
-    if (!config || !config.dateField || !dateRange.from) return rawData;
+    if (!config) return rawData;
 
-    return rawData.filter((row) => {
-      const rowDate = new Date(row[config.dateField]);
-      if (isNaN(rowDate.getTime())) return false;
-      const from = startOfDay(dateRange.from);
-      const to = dateRange.to
-        ? endOfDay(dateRange.to)
-        : endOfDay(dateRange.from);
-      return isWithinInterval(rowDate, { start: from, end: to });
-    });
-  }, [rawData, dateRange, selectedType]);
+    let data = rawData;
+
+    // Date filtering
+    if (config.dateField && dateRange.from) {
+      data = data.filter((row) => {
+        const rowDate = new Date(row[config.dateField]);
+        if (isNaN(rowDate.getTime())) return false;
+        const from = startOfDay(dateRange.from);
+        const to = dateRange.to
+          ? endOfDay(dateRange.to)
+          : endOfDay(dateRange.from);
+        return isWithinInterval(rowDate, { start: from, end: to });
+      });
+    }
+
+    // Type-specific filters
+    if (config.filters) {
+      config.filters.forEach((filter) => {
+        const selectedValue = filterValues[filter.key];
+        if (!selectedValue) return;
+
+        if (filter.filterFn) {
+          data = data.filter((row) => filter.filterFn(row, selectedValue));
+        } else {
+          data = data.filter(
+            (row) => String(row[filter.key]) === selectedValue,
+          );
+        }
+      });
+    }
+
+    return data;
+  }, [rawData, dateRange, selectedType, filterValues]);
+
+  const activeFilters = useMemo(() => {
+    const config = REPORT_TYPES[selectedType];
+    if (!config?.filters) return [];
+
+    return config.filters
+      .filter((f) => filterValues[f.key])
+      .map((f) => {
+        const selectedValue = filterValues[f.key];
+        const options = f.dynamic
+          ? dynamicFilterOptions[f.key] || []
+          : f.options || [];
+        const option = options.find((o) => o.value === selectedValue);
+        return {
+          label: f.label,
+          value: option ? option.label : selectedValue,
+        };
+      });
+  }, [selectedType, filterValues, dynamicFilterOptions]);
 
   const columns = useMemo(() => {
     const config = REPORT_TYPES[selectedType];
@@ -105,6 +172,19 @@ function ReportsController({ children }) {
     setRawData([]);
     setDateRange({ from: undefined, to: undefined });
     setHasFetched(false);
+    setFilterValues({});
+    setActivePreset("custom");
+  }, []);
+
+  const handleFilterChange = useCallback((filterKey, value) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [filterKey]: value,
+    }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilterValues({});
   }, []);
 
   return (
@@ -119,6 +199,13 @@ function ReportsController({ children }) {
         hasFetched,
         fetchReportData,
         columns,
+        filterValues,
+        handleFilterChange,
+        clearFilters,
+        dynamicFilterOptions,
+        activeFilters,
+        activePreset,
+        setActivePreset,
       }}
     >
       {children}

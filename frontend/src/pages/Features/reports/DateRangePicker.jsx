@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format, setMonth, setYear } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { DATE_PRESETS, computePresetRange } from "./datePresets";
 
 const MONTHS = [
   "January",
@@ -34,7 +35,12 @@ const MONTHS = [
 
 const START_YEAR = 2020;
 
-function DateRangePicker({ dateRange, onDateRangeChange }) {
+function DateRangePicker({
+  dateRange,
+  onDateRangeChange,
+  activePreset,
+  onPresetChange,
+}) {
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: currentYear - START_YEAR + 1 },
@@ -49,6 +55,24 @@ function DateRangePicker({ dateRange, onDateRangeChange }) {
 
   const handleYearSelect = (yearStr) => {
     setDisplayMonth((prev) => setYear(prev, parseInt(yearStr)));
+  };
+
+  const handlePresetClick = (presetKey) => {
+    if (presetKey === "custom") {
+      if (onPresetChange) onPresetChange("custom");
+      return;
+    }
+    const range = computePresetRange(presetKey);
+    if (onPresetChange) onPresetChange(presetKey);
+    onDateRangeChange(range);
+    if (range.from) {
+      setDisplayMonth(range.from);
+    }
+  };
+
+  const handleCalendarSelect = (range) => {
+    onDateRangeChange(range);
+    if (onPresetChange) onPresetChange("custom");
   };
 
   return (
@@ -77,6 +101,19 @@ function DateRangePicker({ dateRange, onDateRangeChange }) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
+        <div className="flex flex-wrap gap-1.5 border-b px-3 py-2">
+          {DATE_PRESETS.map((preset) => (
+            <Button
+              key={preset.key}
+              variant={activePreset === preset.key ? "default" : "outline"}
+              size="sm"
+              className="h-7 text-xs px-2.5"
+              onClick={() => handlePresetClick(preset.key)}
+            >
+              {preset.label}
+            </Button>
+          ))}
+        </div>
         <div className="flex items-center gap-2 border-b px-3 py-2">
           <Select
             value={String(displayMonth.getMonth())}
@@ -112,7 +149,7 @@ function DateRangePicker({ dateRange, onDateRangeChange }) {
         <Calendar
           mode="range"
           selected={dateRange}
-          onSelect={onDateRangeChange}
+          onSelect={handleCalendarSelect}
           month={displayMonth}
           onMonthChange={setDisplayMonth}
           numberOfMonths={2}

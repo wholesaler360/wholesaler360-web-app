@@ -18,7 +18,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { FileText, Download, Printer, FileDown } from "lucide-react";
+import { FileText, Download, Printer, FileDown, X } from "lucide-react";
 import { showNotification } from "@/core/toaster/toast";
 import {
   exportReportToCSV,
@@ -40,6 +40,13 @@ function ReportsComponent() {
     hasFetched,
     fetchReportData,
     columns,
+    filterValues,
+    handleFilterChange,
+    clearFilters,
+    dynamicFilterOptions,
+    activeFilters,
+    activePreset,
+    setActivePreset,
   } = useContext(ReportsContext);
 
   const [globalFilter, setGlobalFilter] = useState("");
@@ -76,13 +83,19 @@ function ReportsComponent() {
   const reportTitle = config ? `${config.label} Report` : "Report";
 
   const summaryItems = useMemo(
-    () => (hasFetched && config ? computeSummary(filteredData, config.summaryFields) : []),
+    () =>
+      hasFetched && config
+        ? computeSummary(filteredData, config.summaryFields)
+        : [],
     [filteredData, config, hasFetched],
   );
 
-  const handleCSV = () => exportReportToCSV(filteredData, config, selectedType);
-  const handlePrint = () => printReport(filteredData, config, reportTitle, dateRange);
-  const handlePDF = () => exportReportToPDF(filteredData, config, reportTitle, dateRange);
+  const handleCSV = () =>
+    exportReportToCSV(filteredData, config, selectedType, activeFilters);
+  const handlePrint = () =>
+    printReport(filteredData, config, reportTitle, dateRange, activeFilters);
+  const handlePDF = () =>
+    exportReportToPDF(filteredData, config, reportTitle, dateRange, activeFilters);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -118,6 +131,8 @@ function ReportsComponent() {
                 <DateRangePicker
                   dateRange={dateRange}
                   onDateRangeChange={setDateRange}
+                  activePreset={activePreset}
+                  onPresetChange={setActivePreset}
                 />
               </div>
             )}
@@ -144,6 +159,61 @@ function ReportsComponent() {
 
       {!isLoading && hasFetched && selectedType && (
         <>
+          {config?.filters?.length > 0 && (
+            <Card>
+              <CardContent className="py-3 px-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Filters:
+                  </span>
+                  {config.filters.map((filter) => {
+                    const options = filter.dynamic
+                      ? dynamicFilterOptions[filter.key] || []
+                      : filter.options || [];
+
+                    return (
+                      <Select
+                        key={filter.key}
+                        value={filterValues[filter.key] || "__all__"}
+                        onValueChange={(val) =>
+                          handleFilterChange(
+                            filter.key,
+                            val === "__all__" ? "" : val,
+                          )
+                        }
+                      >
+                        <SelectTrigger className="h-8 w-[160px] text-xs">
+                          <SelectValue placeholder={filter.label} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__all__">
+                            All {filter.label}
+                          </SelectItem>
+                          {options.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    );
+                  })}
+                  {Object.values(filterValues).some(Boolean) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-xs gap-1"
+                      onClick={clearFilters}
+                    >
+                      <X className="size-3" />
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {summaryItems.length > 0 && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {summaryItems.map((item) => (
