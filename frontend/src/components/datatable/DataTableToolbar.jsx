@@ -1,21 +1,31 @@
 import { cn } from "@/lib/utils";
 import { DataTableViewOptions } from "./DataTableViewOption";
+import DataTableExportActions from "./DataTableExportActions";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
 
-function DataTableToolbar({ 
-  table, 
+function DataTableToolbar({
+  table,
   globalFilter,
   setGlobalFilter,
-  children, 
-  className, 
-  ...props 
+  exportFilename,
+  exportTitle,
+  hideExportActions,
+  children,
+  className,
+  ...props
 }) {
   const isFiltered = table.getState().globalFilter;
-  
+
   return (
-    <div className={cn("flex w-full items-center justify-end gap-2 overflow-auto p-1", className)} {...props}>
+    <div
+      className={cn(
+        "flex w-full items-center justify-end gap-2 overflow-auto p-1",
+        className,
+      )}
+      {...props}
+    >
       <div className="flex flex-1 items-center gap-2">
         <Input
           placeholder="Search ..."
@@ -35,6 +45,13 @@ function DataTableToolbar({
         )}
       </div>
       <div className="flex items-center gap-2">
+        {!hideExportActions && (
+          <DataTableExportActions
+            table={table}
+            filename={exportFilename}
+            title={exportTitle}
+          />
+        )}
         {children}
         <DataTableViewOptions table={table} />
       </div>

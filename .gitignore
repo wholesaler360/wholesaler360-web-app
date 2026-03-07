@@ -1,6 +1,8 @@
 # Custom
 dummy_backend
 public/
+skills-lock.json
+.agents/
 
 # Logs
 logs

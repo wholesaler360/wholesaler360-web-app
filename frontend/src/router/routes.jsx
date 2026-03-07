@@ -30,6 +30,7 @@ import CustomerLedger from "@/pages/Features/customer-ledger";
 import Home from "@/pages/Features/home";
 import VendorDetails from "@/pages/Features/vendor/VendorDetails";
 import CustomerDetails from "@/pages/Features/customer/CustomersDetails";
+import Reports from "@/pages/Features/reports";
 
 const authRoutes = [
   {
@@ -186,6 +187,11 @@ const authRoutes = [
     path: "/invoice/view/:id",
     element: <ViewInvoice />,
     permission: "invoice",
+  },
+  {
+    path: "/reports",
+    element: <Reports />,
+    permission: "dashboard",
   },
 ];
 

@@ -115,26 +115,10 @@ const data = {
     },
     {
       title: "Reports",
-      url: "#",
+      url: "/reports",
       icon: FileText,
       isActive: false,
-      items: [
-        {
-          title: "Sales",
-          url: "#",
-          permission: "sales_report",
-        },
-        {
-          title: "Purchase",
-          url: "#",
-          permission: "purchase_report",
-        },
-        {
-          title: "Inventory",
-          url: "#",
-          permission: "inventory_report",
-        },
-      ],
+      permission: "dashboard",
     },
     {
       title: "Finance & Accounts",
@@ -186,7 +170,7 @@ export function AppSidebar({ ...props }) {
     return items.filter((item) => {
       if (item.items) {
         const filteredSubItems = item.items.filter((subItem) =>
-          hasReadPermission(subItem.permission)
+          hasReadPermission(subItem.permission),
         );
 
         if (filteredSubItems.length > 0) {

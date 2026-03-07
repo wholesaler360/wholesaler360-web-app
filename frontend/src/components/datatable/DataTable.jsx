@@ -20,6 +20,9 @@ function DataTable({
   setGlobalFilter,
   classNames,
   onRowClick,
+  exportFilename,
+  exportTitle,
+  hideExportActions,
   ...props
 }) {
   return (
@@ -32,6 +35,9 @@ function DataTable({
         table={table}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        exportFilename={exportFilename}
+        exportTitle={exportTitle}
+        hideExportActions={hideExportActions}
       />
       <div className="overflow-hidden rounded-md border">
         <Table>
@@ -54,7 +60,7 @@ function DataTable({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -76,7 +82,7 @@ function DataTable({
                     <TableCell key={cell.id} style={{}}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
