@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { ReportsContext } from "./Reports.control";
 import { REPORT_TYPES, REPORT_TYPE_OPTIONS } from "./reportConfig";
 import {
@@ -24,6 +24,7 @@ import {
   exportReportToCSV,
   printReport,
   exportReportToPDF,
+  computeSummary,
 } from "@/lib/reportExportUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import DateRangePicker from "./DateRangePicker";
@@ -74,9 +75,14 @@ function ReportsComponent() {
 
   const reportTitle = config ? `${config.label} Report` : "Report";
 
+  const summaryItems = useMemo(
+    () => (hasFetched && config ? computeSummary(filteredData, config.summaryFields) : []),
+    [filteredData, config, hasFetched],
+  );
+
   const handleCSV = () => exportReportToCSV(filteredData, config, selectedType);
-  const handlePrint = () => printReport(filteredData, config, reportTitle);
-  const handlePDF = () => exportReportToPDF(filteredData, config, reportTitle);
+  const handlePrint = () => printReport(filteredData, config, reportTitle, dateRange);
+  const handlePDF = () => exportReportToPDF(filteredData, config, reportTitle, dateRange);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -138,6 +144,23 @@ function ReportsComponent() {
 
       {!isLoading && hasFetched && selectedType && (
         <>
+          {summaryItems.length > 0 && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {summaryItems.map((item) => (
+                <Card key={item.label}>
+                  <CardContent className="p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 text-2xl font-bold tracking-tight">
+                      {item.value}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {filteredData.length} record

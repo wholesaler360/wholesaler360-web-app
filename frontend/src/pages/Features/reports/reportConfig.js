@@ -22,6 +22,20 @@ export const REPORT_TYPES = {
       { key: "transactionType", header: "Type" },
       { key: "paymentMode", header: "Payment Mode" },
     ],
+    summaryFields: [
+      { label: "Total Invoices", type: "count" },
+      { label: "Total Amount", type: "sum", key: "totalAmount" },
+      { label: "Total Received", type: "sum", key: "initialPayment" },
+      {
+        label: "Outstanding",
+        type: "computed",
+        compute: (data) => {
+          const total = data.reduce((s, r) => s + (Number(r.totalAmount) || 0), 0);
+          const paid = data.reduce((s, r) => s + (Number(r.initialPayment) || 0), 0);
+          return total - paid;
+        },
+      },
+    ],
   },
   purchases: {
     label: "Purchases",
@@ -35,6 +49,20 @@ export const REPORT_TYPES = {
       { key: "initialPayment", header: "Initial Payment", type: "currency" },
       { key: "transactionType", header: "Type" },
       { key: "paymentMode", header: "Payment Mode" },
+    ],
+    summaryFields: [
+      { label: "Total Purchases", type: "count" },
+      { label: "Total Amount", type: "sum", key: "totalAmount" },
+      { label: "Total Paid", type: "sum", key: "initialPayment" },
+      {
+        label: "Outstanding",
+        type: "computed",
+        compute: (data) => {
+          const total = data.reduce((s, r) => s + (Number(r.totalAmount) || 0), 0);
+          const paid = data.reduce((s, r) => s + (Number(r.initialPayment) || 0), 0);
+          return total - paid;
+        },
+      },
     ],
   },
   payments: {
@@ -53,6 +81,38 @@ export const REPORT_TYPES = {
       { key: "paymentMode", header: "Payment Mode" },
       { key: "description", header: "Description" },
     ],
+    summaryFields: [
+      { label: "Total Transactions", type: "count" },
+      {
+        label: "Total Credit",
+        type: "computed",
+        compute: (data) =>
+          data
+            .filter((r) => r.transactionType === "credit")
+            .reduce((s, r) => s + (Number(r.amount) || 0), 0),
+      },
+      {
+        label: "Total Debit",
+        type: "computed",
+        compute: (data) =>
+          data
+            .filter((r) => r.transactionType === "debit")
+            .reduce((s, r) => s + (Number(r.amount) || 0), 0),
+      },
+      {
+        label: "Net Amount",
+        type: "computed",
+        compute: (data) => {
+          const credit = data
+            .filter((r) => r.transactionType === "credit")
+            .reduce((s, r) => s + (Number(r.amount) || 0), 0);
+          const debit = data
+            .filter((r) => r.transactionType === "debit")
+            .reduce((s, r) => s + (Number(r.amount) || 0), 0);
+          return credit - debit;
+        },
+      },
+    ],
   },
   customers: {
     label: "Customers",
@@ -66,6 +126,11 @@ export const REPORT_TYPES = {
       { key: "receivableBalance", header: "Balance", type: "currency" },
       { key: "createdAt", header: "Created On", type: "date" },
     ],
+    summaryFields: [
+      { label: "Total Customers", type: "count" },
+      { label: "Total Receivable", type: "sum", key: "receivableBalance" },
+      { label: "Total Invoices", type: "sum", key: "totalNoOFInvoice" },
+    ],
   },
   vendors: {
     label: "Vendors",
@@ -77,6 +142,10 @@ export const REPORT_TYPES = {
       { key: "mobileNo", header: "Mobile" },
       { key: "payableBalance", header: "Balance", type: "currency" },
       { key: "createdAt", header: "Created On", type: "date" },
+    ],
+    summaryFields: [
+      { label: "Total Vendors", type: "count" },
+      { label: "Total Payable", type: "sum", key: "payableBalance" },
     ],
   },
   products: {
@@ -91,6 +160,24 @@ export const REPORT_TYPES = {
       { key: "salePrice", header: "Sale Price", type: "currency" },
       { key: "alertQuantity", header: "Alert Qty" },
     ],
+    summaryFields: [
+      { label: "Total Products", type: "count" },
+      {
+        label: "Avg. Sale Price",
+        type: "computed",
+        compute: (data) => {
+          if (!data.length) return 0;
+          return data.reduce((s, r) => s + (Number(r.salePrice) || 0), 0) / data.length;
+        },
+      },
+      {
+        label: "Low Stock Items",
+        type: "computed",
+        compute: (data) =>
+          data.filter((r) => Number(r.alertQuantity) > 0).length,
+        format: "number",
+      },
+    ],
   },
   stock: {
     label: "Stock",
@@ -102,6 +189,17 @@ export const REPORT_TYPES = {
       { key: "skuCode", header: "SKU Code" },
       { key: "category", header: "Category" },
       { key: "totalQuantity", header: "Quantity" },
+    ],
+    summaryFields: [
+      { label: "Total Products", type: "count" },
+      { label: "Total Stock Qty", type: "sum", key: "totalQuantity", format: "number" },
+      {
+        label: "Out of Stock",
+        type: "computed",
+        compute: (data) =>
+          data.filter((r) => !r.totalQuantity || Number(r.totalQuantity) === 0).length,
+        format: "number",
+      },
     ],
   },
 };
