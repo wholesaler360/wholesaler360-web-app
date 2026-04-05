@@ -60,9 +60,9 @@ app.use(async(req,res,next)=>{
 app.use('/auth', authRouter);
 
 
-app.post('/createModule', createModule)
+// app.post('/createModule', createModule)
 
-app.use('/seed', seederRouter);
+// app.use('/seed', seederRouter);
 
 // Use the authMiddleware for all routes
 app.use(authMiddleware);
